@@ -198,6 +198,7 @@ try {
       validateAgainst(AccountRequestSchema),
       AccountController.update
     );
+  account.route('/:id').delete(AccountController.remove);
   account.route('/:id').get(AccountController.fetch);
   account.route('/:id/events').get(AccountEventController.list);
   account
