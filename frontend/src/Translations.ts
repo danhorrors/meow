@@ -377,6 +377,11 @@ export const Translations = {
     fr: 'Supprimer l\'utilisateur?',
   },
 
+  DeleteAccountConfirmation: {
+    en: 'Delete account?',
+    fr: 'Supprimer le compte?',
+  },
+
   DeleteButton: {
     en: 'delete',
     fr: 'supprimer',

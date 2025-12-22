@@ -138,7 +138,10 @@ export const UserList = (props: any) => {
           return (
             <td key={item.column}>
               {row.status === UserStatus.Invited && (
-                <InviteLinkButton inviteToken={row.invite} createInviteUrl={props.createInviteUrl} />
+                <InviteLinkButton
+                  inviteToken={typeof row.invite === 'string' ? row.invite : undefined}
+                  createInviteUrl={props.createInviteUrl}
+                />
               )}
             </td>
           );

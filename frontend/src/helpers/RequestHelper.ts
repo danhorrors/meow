@@ -400,6 +400,12 @@ export class RequestHelper {
     return this.doFetch(url, 'GET');
   }
 
+  async deleteAccount(id: Account['_id']): Promise<Account> {
+    const url = this.getUrl(`/api/accounts/${id}`);
+
+    return this.doFetch(url, 'DELETE');
+  }
+
   async getAccountReferences(id: Account['_id'], name: string): Promise<Account> {
     const url = this.getUrl(`/api/accounts/${id}/references/${name}`);
 

@@ -25,7 +25,7 @@ export const InviteLinkButton: React.FC<Props> = ({ inviteToken, createInviteUrl
   };
 
   return (
-    <Button variant="primary" onPress={handleCopy} className={className}>
+    <Button variant="primary" onPress={handleCopy} UNSAFE_className={className}>
       {Translations.CopyInviteButton[DEFAULT_LANGUAGE]}
     </Button>
   );

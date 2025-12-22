@@ -1,12 +1,13 @@
 import { Button } from '@adobe/react-spectrum';
 import { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { setListViewColumn, setListViewSortBy, showAccountLayer } from '../actions/Actions';
+import { ActionType, setListViewColumn, setListViewSortBy, showAccountLayer } from '../actions/Actions';
 import { Layer as AccountLayer } from '../components/account/Layer';
 import {
   selectAccounts,
   selectInterfaceState,
   selectSchemaByType,
+  selectToken,
   selectView,
   selectViewColumns,
   store,
@@ -27,9 +28,10 @@ import { Row } from '../components/view/table/Row';
 import { Layer as CardLayer } from '../components/card/Layer';
 import { Translations } from '../Translations';
 import { DEFAULT_LANGUAGE } from '../Constants';
+import { getRequestClient } from '../helpers/RequestHelper';
 
 const createListViewItemsFromSchema = (schema: Schema | undefined): ListViewItem[] => {
-  const list = [
+  const list: ListViewItem[] = [
     {
       name: Translations.NameLabel[DEFAULT_LANGUAGE],
       column: 'name',
@@ -51,15 +53,24 @@ const createListViewItemsFromSchema = (schema: Schema | undefined): ListViewItem
     isHidden: false,
   });
 
+  list.push({
+    name: null,
+    column: null,
+    isHidden: false,
+  });
+
   return list;
 };
 
 export const AccountsPage = () => {
   const state = useSelector(selectInterfaceState);
+  const token = useSelector(selectToken);
   const accounts = useSelector(selectAccounts);
   const view = useSelector((store: ApplicationStore) => selectView(store, 'accounts'));
   const columns = useSelector((store: ApplicationStore) => selectViewColumns(store, 'accounts'));
   const isMobileLayout = useMobileLayout();
+
+  const client = getRequestClient(token);
 
   const schema = useSelector((store: ApplicationStore) =>
     selectSchemaByType(store, SchemaType.Account)
@@ -96,6 +107,27 @@ export const AccountsPage = () => {
     return ListViewHelper.filterAndOrder(list, columns, view);
   }, [schema, view, accounts, columns]);
 
+  const deleteAccount = async (id: string) => {
+    const shouldDelete = confirm(Translations.DeleteAccountConfirmation[DEFAULT_LANGUAGE]);
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      await client.deleteAccount(id);
+
+      let accounts = await client.getAccounts();
+
+      store.dispatch({
+        type: ActionType.ACCOUNTS,
+        payload: [...accounts],
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const getCell = (row: DataRow, item: ListViewItem) => {
     switch (item.column) {
       case 'name':
@@ -108,6 +140,14 @@ export const AccountsPage = () => {
         );
       case 'createdAt':
         return <td>{toRelativeDate(row.createdAt)}</td>;
+      case null:
+        return (
+          <td style={{ textAlign: 'right' }}>
+            <Button variant="cta" onPress={() => deleteAccount(row.id!.toString())}>
+              {Translations.DeleteButton[DEFAULT_LANGUAGE]}
+            </Button>
+          </td>
+        );
       default:
         return <td>{item.column !== null && row[item.column]?.toString()}</td>;
     }
@@ -127,6 +167,14 @@ export const AccountsPage = () => {
         return (
           <div key={item.column}>
             <b>{Translations.CreatedLabel[DEFAULT_LANGUAGE]}</b> {toRelativeDate(row.createdAt)}
+          </div>
+        );
+      case null:
+        return (
+          <div key="delete">
+            <Button variant="cta" onPress={() => deleteAccount(row.id!.toString())}>
+              {Translations.DeleteButton[DEFAULT_LANGUAGE]}
+            </Button>
           </div>
         );
       default:
