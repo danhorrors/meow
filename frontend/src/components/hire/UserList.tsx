@@ -21,6 +21,7 @@ import { Row } from '../view/table/Row';
 import { getRequestClient } from '../../helpers/RequestHelper';
 import { Translations } from '../../Translations';
 import { DEFAULT_LANGUAGE } from '../../Constants';
+import InviteLinkButton from './InviteLinkButton';
 
 const createListViewItems = (): ListViewItem[] => {
   return [
@@ -137,12 +138,7 @@ export const UserList = (props: any) => {
           return (
             <td key={item.column}>
               {row.status === UserStatus.Invited && (
-                <Button
-                  variant="primary"
-                  onPress={() => props.copyToClipboard(props.createInviteUrl(row.invite))}
-                >
-                  {Translations.CopyInviteButton[DEFAULT_LANGUAGE]}
-                </Button>
+                <InviteLinkButton inviteToken={row.invite} createInviteUrl={props.createInviteUrl} />
               )}
             </td>
           );
