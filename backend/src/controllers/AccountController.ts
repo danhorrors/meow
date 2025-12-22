@@ -70,9 +70,22 @@ const fetch = async (req: AuthenticatedRequest, res: Response, next: NextFunctio
   }
 };
 
+const remove = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const account = await validateAndFetchAccount(req.params.id, req.jwt.user);
+
+    await EntityHelper.remove(Account, account);
+
+    return res.json(account.toPlain());
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const AccountController = {
   update,
   create,
   list,
   fetch,
+  remove,
 };
