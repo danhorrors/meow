@@ -1083,14 +1083,29 @@ export const Translations = {
     fr: 'Piste',
   },
 
+  CustomerTab: {
+    en: 'Customer',
+    fr: 'Client',
+  },
+
   LeadCreatedConfirmation: {
     en: 'Lead created...',
     fr: 'Piste créée...',
   },
 
+  CustomerCreatedConfirmation: {
+    en: 'Customer created...',
+    fr: 'Client créé...',
+  },
+
   LeadUpdatedConfirmation: {
     en: 'Lead updated...',
     fr: 'Piste mise à jour...',
+  },
+
+  CustomerUpdatedConfirmation: {
+    en: 'Customer updated...',
+    fr: 'Client mis à jour...',
   },
 
   LeadBookedConfirmation: {
@@ -1101,6 +1116,11 @@ export const Translations = {
   DeleteLeadConfirmation: {
     en: 'Do you want to delete this lead?',
     fr: 'Voulez-vous supprimer cette piste ?',
+  },
+
+  DeleteCustomerConfirmation: {
+    en: 'Do you want to delete this customer?',
+    fr: 'Voulez-vous supprimer ce client ?',
   },
 
   BookMeetingTab: {
@@ -1161,6 +1181,86 @@ export const Translations = {
   OpenDuplicatesButton: {
     en: 'Open duplicate manager',
     fr: 'Ouvrir le gestionnaire de doublons',
+  },
+
+  ImportTitle: {
+    en: 'Import',
+    fr: 'Importer',
+  },
+
+  ImportDefaultsTitle: {
+    en: 'Defaults',
+    fr: 'Valeurs par défaut',
+  },
+
+  MappingTitle: {
+    en: 'Map Columns',
+    fr: 'Mapper les colonnes',
+  },
+
+  ColumnLabel: {
+    en: 'Column',
+    fr: 'Colonne',
+  },
+
+  ImportButton: {
+    en: 'Import',
+    fr: 'Importer',
+  },
+
+  ImportResultLabel: {
+    en: 'Imported {0}, skipped {1}.',
+    fr: 'Importé {0}, ignoré {1}.',
+  },
+
+  IgnoreLabel: {
+    en: 'Ignore',
+    fr: 'Ignorer',
+  },
+
+  ConvertOpportunityToAccountButton: {
+    en: 'Create Account',
+    fr: 'Créer un compte',
+  },
+
+  GoogleCalendarTitle: {
+    en: 'Google Calendar Integration',
+    fr: 'Intégration Google Calendar',
+  },
+
+  GoogleClientIdLabel: {
+    en: 'Client ID',
+    fr: 'Client ID',
+  },
+
+  GoogleClientSecretLabel: {
+    en: 'Client Secret',
+    fr: 'Client Secret',
+  },
+
+  GoogleRedirectUriLabel: {
+    en: 'Redirect URI',
+    fr: 'URI de redirection',
+  },
+
+  GoogleCalendarIdLabel: {
+    en: 'Calendar ID',
+    fr: 'ID de calendrier',
+  },
+
+  GoogleConnectButton: {
+    en: 'Connect Google Calendar',
+    fr: 'Connecter Google Calendar',
+  },
+
+  GoogleConnectedLabel: {
+    en: 'Google Calendar is connected.',
+    fr: 'Google Calendar est connecté.',
+  },
+
+  GoogleNotConnectedLabel: {
+    en: 'Google Calendar is not connected yet.',
+    fr: 'Google Calendar n’est pas encore connecté.',
   },
 
   DuplicateKeyLabel: {

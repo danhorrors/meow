@@ -5,6 +5,7 @@ import { isValidId } from '../helpers/Helper';
 import { Account } from '../interfaces/Account';
 import { ApplicationState } from '../interfaces/ApplicationState';
 import { Card } from '../interfaces/Card';
+import { Customer } from '../interfaces/Customer';
 import { Lane } from '../interfaces/Lane';
 import { ListViewSortDirection } from '../interfaces/ListView';
 import { User } from '../interfaces/User';
@@ -77,6 +78,7 @@ export const application = (state = Default, action: ApplicationAction) => {
           state: <ApplicationState>'logout',
         },
         leads: [],
+        customers: [],
         cards: [],
         lanes: [],
         users: [],
@@ -261,6 +263,34 @@ export const application = (state = Default, action: ApplicationAction) => {
             }
           }),
         ],
+      };
+    case ActionType.CUSTOMERS:
+      return {
+        ...state,
+        customers: [...action.payload],
+      };
+    case ActionType.CUSTOMER_ADD:
+      return {
+        ...state,
+        customers: [...state.customers, action.payload],
+      };
+    case ActionType.CUSTOMER_UPDATE:
+      return {
+        ...state,
+        customers: [
+          ...state.customers.map((item: Customer) => {
+            if (item._id === action.payload._id) {
+              return { ...action.payload };
+            } else {
+              return { ...item };
+            }
+          }),
+        ],
+      };
+    case ActionType.CUSTOMER_DELETE:
+      return {
+        ...state,
+        customers: state.customers.filter((item: Customer) => item._id !== action.payload._id),
       };
 
     case ActionType.CARD_DELETE:

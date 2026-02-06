@@ -5,6 +5,7 @@ import { Card } from '../interfaces/Card';
 import { Lane } from '../interfaces/Lane';
 import { ListViewItem, ListViewSortDirection } from '../interfaces/ListView';
 import { Lead } from '../interfaces/Lead';
+import { Customer } from '../interfaces/Customer';
 import { Role } from '../interfaces/Role';
 import { Schema } from '../interfaces/Schema';
 import { CurrencyCode, Integration, Team } from '../interfaces/Team';
@@ -27,6 +28,10 @@ export enum ActionType {
   LEAD_ADD = 'LEAD_ADD',
   LEAD_UPDATE = 'LEAD_UPDATE',
   LEAD_DELETE = 'LEAD_DELETE',
+  CUSTOMERS = 'CUSTOMERS',
+  CUSTOMER_ADD = 'CUSTOMER_ADD',
+  CUSTOMER_UPDATE = 'CUSTOMER_UPDATE',
+  CUSTOMER_DELETE = 'CUSTOMER_DELETE',
   ROLES = 'ROLES',
   TEAM_UPDATE = 'TEAM_UPDATE',
   CARDS = 'CARDS',
@@ -139,6 +144,22 @@ export interface ApplicationLeadDeleteAction extends Action<ActionType.LEAD_DELE
   payload: Lead;
 }
 
+export interface ApplicationCustomersAction extends Action<ActionType.CUSTOMERS> {
+  payload: Customer[];
+}
+
+export interface ApplicationCustomerAddAction extends Action<ActionType.CUSTOMER_ADD> {
+  payload: Customer;
+}
+
+export interface ApplicationCustomerUpdateAction extends Action<ActionType.CUSTOMER_UPDATE> {
+  payload: Customer;
+}
+
+export interface ApplicationCustomerDeleteAction extends Action<ActionType.CUSTOMER_DELETE> {
+  payload: Customer;
+}
+
 export interface ApplicationRolesAction extends Action<ActionType.ROLES> {
   payload: Role[];
 }
@@ -237,6 +258,10 @@ export type ApplicationAction =
   | ApplicationLeadAddAction
   | ApplicationLeadUpdateAction
   | ApplicationLeadDeleteAction
+  | ApplicationCustomersAction
+  | ApplicationCustomerAddAction
+  | ApplicationCustomerUpdateAction
+  | ApplicationCustomerDeleteAction
   | ApplicationRolesAction
   | ApplicationAccountAddAction
   | ApplicationAccountUpdateAction
@@ -371,6 +396,13 @@ export const showLeadLayer = (id?: string): ApplicationUserInterfaceStateAction 
   };
 };
 
+export const showCustomerLayer = (id?: string): ApplicationUserInterfaceStateAction => {
+  return {
+    type: ActionType.USER_INTERFACE_STATE,
+    payload: { state: 'customer-detail', _id: id },
+  };
+};
+
 export const hideLayer = (): ApplicationUserInterfaceStateAction => {
   return {
     type: ActionType.USER_INTERFACE_STATE,
@@ -410,6 +442,27 @@ export const addAccount = (account: Account): ApplicationAccountAddAction => {
   return {
     type: ActionType.ACCOUNT_ADD,
     payload: account,
+  };
+};
+
+export const addCustomer = (customer: Customer): ApplicationCustomerAddAction => {
+  return {
+    type: ActionType.CUSTOMER_ADD,
+    payload: customer,
+  };
+};
+
+export const updateCustomer = (customer: Customer): ApplicationCustomerUpdateAction => {
+  return {
+    type: ActionType.CUSTOMER_UPDATE,
+    payload: customer,
+  };
+};
+
+export const deleteCustomer = (customer: Customer): ApplicationCustomerDeleteAction => {
+  return {
+    type: ActionType.CUSTOMER_DELETE,
+    payload: customer,
   };
 };
 

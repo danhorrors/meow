@@ -31,10 +31,13 @@ export const selectCardsByLaneId = (store: ApplicationStore, id: string | undefi
 export const selectBoard = (store: RootState) => store.board;
 export const selectBoardByLaneId = (store: ApplicationStore, id: string) => store.board[id];
 export const selectAccounts = (store: RootState) => store.accounts;
+export const selectCustomers = (store: RootState) => store.customers;
 export const selectLeads = (store: RootState) => store.leads;
 export const selectRoles = (store: RootState) => store.roles;
 export const selectAccount = (store: ApplicationStore, id: string | undefined) =>
   store.accounts.find((account) => account._id === id);
+export const selectCustomer = (store: ApplicationStore, id: string | undefined) =>
+  store.customers.find((customer) => customer._id === id);
 export const selectLead = (store: ApplicationStore, id: string | undefined) =>
   store.leads.find((lead) => lead._id === id);
 export const selectUsers = (store: ApplicationStore) => store.users;

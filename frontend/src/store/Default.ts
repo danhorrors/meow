@@ -4,6 +4,7 @@ import { FILTER_BY_NONE } from '../Constants';
 
 export const Default: ApplicationStore = {
   accounts: [],
+  customers: [],
   leads: [],
   roles: [],
   users: [],

@@ -85,6 +85,8 @@ import { ActivityController } from './controllers/ActivityController.js';
 import { LeadController } from './controllers/LeadController.js';
 import { LeadRequestSchema } from './middlewares/schema-validation/LeadRequestSchema.js';
 import { BookLeadRequestSchema } from './middlewares/schema-validation/BookLeadRequestSchema.js';
+import { CustomerController } from './controllers/CustomerController.js';
+import { CustomerRequestSchema } from './middlewares/schema-validation/CustomerRequestSchema.js';
 import { IntegrationController } from './controllers/IntegrationController.js';
 import { StackInfoController } from './controllers/StackInfoController.js';
 import { RoleController } from './controllers/RoleController.js';
@@ -167,6 +169,14 @@ try {
       validateAgainst(EventRequestSchema),
       requirePermission('opportunities', 'edit'),
       CardEventController.create
+    );
+  card
+    .route('/:id/convert-account')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      requirePermission('opportunities', 'edit'),
+      requirePermission('accounts', 'add'),
+      CardController.convertToAccount
     );
 
   app.use('/api/cards', card);
@@ -300,6 +310,33 @@ try {
     );
 
   app.use('/api/leads', lead);
+
+  const customer = express.Router();
+
+  customer.use(express.json({ limit: '5kb' }));
+  customer.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
+
+  customer.route('/').get(requirePermission('customers', 'browse'), CustomerController.list);
+  customer
+    .route('/')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      validateAgainst(CustomerRequestSchema),
+      requirePermission('customers', 'add'),
+      CustomerController.create
+    );
+  customer
+    .route('/:id')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      validateAgainst(CustomerRequestSchema),
+      requirePermission('customers', 'edit'),
+      CustomerController.update
+    );
+  customer.route('/:id').delete(requirePermission('customers', 'delete'), CustomerController.remove);
+  customer.route('/:id').get(requirePermission('customers', 'read'), CustomerController.fetch);
+
+  app.use('/api/customers', customer);
 
   const lane = express.Router();
 

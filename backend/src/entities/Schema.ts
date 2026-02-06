@@ -50,6 +50,7 @@ export enum SchemaType {
   Card = 'card',
   Account = 'account',
   Lead = 'lead',
+  Customer = 'customer',
 }
 
 export enum SchemaAttributeType {

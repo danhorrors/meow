@@ -136,6 +136,46 @@ export const DefaultLeadSchema = {
   schema: SchemaAttribute[];
 };
 
+export const DefaultCustomerSchema = {
+  type: SchemaType.Customer,
+  schema: [
+    {
+      key: 'customer-contact',
+      index: 0,
+      type: 'text',
+      name: 'Contact',
+    },
+    {
+      key: 'customer-email',
+      index: 1,
+      type: 'email',
+      name: 'Email',
+    },
+    {
+      key: 'customer-phone',
+      index: 2,
+      type: 'text',
+      name: 'Phone',
+    },
+    {
+      key: 'customer-status',
+      index: 3,
+      type: 'select',
+      name: 'Status',
+      options: ['Active', 'At Risk', 'Churned'],
+    },
+    {
+      key: 'customer-notes',
+      index: 4,
+      type: 'textarea',
+      name: 'Notes',
+    },
+  ],
+} as {
+  type: SchemaType;
+  schema: SchemaAttribute[];
+};
+
 export const DefaultAccounts = [{ name: 'Unicorn Corporate' }];
 
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7;

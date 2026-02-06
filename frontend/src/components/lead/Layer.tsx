@@ -147,6 +147,12 @@ export const Layer = () => {
     }
   }, [lead]);
 
+  useEffect(() => {
+    if (lead?.contact?.email && !attendees) {
+      setAttendees(lead.contact.email);
+    }
+  }, [lead, attendees]);
+
   const tabs: JSX.Element[] = [
     <Item key="lead">
       <span className="tab-title">{Translations.LeadTab[DEFAULT_LANGUAGE]}</span>

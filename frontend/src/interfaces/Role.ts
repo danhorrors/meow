@@ -3,6 +3,7 @@ export type PermissionModule =
   | 'opportunities'
   | 'accounts'
   | 'leads'
+  | 'customers'
   | 'users'
   | 'settings'
   | 'forecast'

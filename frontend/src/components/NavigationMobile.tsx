@@ -55,7 +55,7 @@ export const NavigationMobile = () => {
               </Link>
             </div>
           )}
-          {hasPermission(user, roles, 'accounts', 'browse') && (
+          {hasPermission(user, roles, 'customers', 'browse') && (
             <div className="item-mobile">
               <Link onClick={() => setIsExpanded(!isExpanded)} to="/customers" title="Customers">
                 <img alt="Customers" src="/accounts-icon.svg" /> Customers

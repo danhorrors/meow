@@ -5,6 +5,7 @@ import {
   DefaultCardSchema,
   DefaultAccountSchema,
   DefaultLeadSchema,
+  DefaultCustomerSchema,
   DefaultLanes,
   DefaultCards,
   DefaultAccounts,
@@ -79,11 +80,15 @@ export const setupAccountWithExampleData = async (
     new NewSchema(team, DefaultAccountSchema.type, DefaultAccountSchema.schema)
   );
   await EntityHelper.create(new NewSchema(team, DefaultLeadSchema.type, DefaultLeadSchema.schema));
+  await EntityHelper.create(
+    new NewSchema(team, DefaultCustomerSchema.type, DefaultCustomerSchema.schema)
+  );
 
   const adminPermissions: RolePermissions = {
     opportunities: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
     accounts: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
     leads: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
+    customers: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
     users: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
     settings: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
     forecast: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
@@ -94,6 +99,7 @@ export const setupAccountWithExampleData = async (
     opportunities: { browse: true, read: true },
     accounts: { browse: true, read: true },
     leads: { browse: true, read: true },
+    customers: { browse: true, read: true },
     users: { browse: true, read: true },
     settings: { browse: true, read: true },
     forecast: { browse: true, read: true },

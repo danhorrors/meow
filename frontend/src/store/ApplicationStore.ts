@@ -6,6 +6,7 @@ import { Card } from '../interfaces/Card';
 import { Lane } from '../interfaces/Lane';
 import { ListView } from '../interfaces/ListView';
 import { Lead } from '../interfaces/Lead';
+import { Customer } from '../interfaces/Customer';
 import { Role } from '../interfaces/Role';
 import { Schema } from '../interfaces/Schema';
 import { CurrencyCode, Integration, Team } from '../interfaces/Team';
@@ -17,12 +18,14 @@ export type InterfaceState =
   | 'card-detail'
   | 'lane-detail'
   | 'account-detail'
-  | 'lead-detail';
+  | 'lead-detail'
+  | 'customer-detail';
 export type ListName = 'accounts' | 'customers' | 'leads' | 'users' | 'forecast';
 
 export interface ApplicationStore {
   users: User[];
   accounts: Account[];
+  customers: Customer[];
   leads: Lead[];
   roles: Role[];
   cards: Card[];
@@ -43,7 +46,7 @@ export interface ApplicationStore {
   };
   ui: {
     state: InterfaceState;
-    _id: undefined | Card['_id'] | Lane['_id'] | Account['_id'];
+    _id: undefined | Card['_id'] | Lane['_id'] | Account['_id'] | Customer['_id'];
     modal: 'success' | 'error' | undefined;
     text: string | undefined;
     filters: {

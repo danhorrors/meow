@@ -13,6 +13,8 @@ function parseSchemaType(value: unknown): SchemaType {
       return SchemaType.Card;
     case 'lead':
       return SchemaType.Lead;
+    case 'customer':
+      return SchemaType.Customer;
     default:
       throw new InvalidSchemaPropertyError(`Unsupported type value: ${value}`);
   }
@@ -26,6 +28,8 @@ function parseTypeFromRequest(value: unknown): SchemaType {
       return SchemaType.Card;
     case 'lead':
       return SchemaType.Lead;
+    case 'customer':
+      return SchemaType.Customer;
     default:
       throw new InvalidRequestQueryParameterError(`Unsupported type ${value}`);
   }

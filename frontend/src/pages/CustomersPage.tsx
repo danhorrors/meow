@@ -1,10 +1,10 @@
 import { Button } from '@adobe/react-spectrum';
 import { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { ActionType, setListViewColumn, setListViewSortBy, showAccountLayer } from '../actions/Actions';
-import { Layer as AccountLayer } from '../components/account/Layer';
+import { ActionType, setListViewColumn, setListViewSortBy, showCustomerLayer } from '../actions/Actions';
+import { Layer as CustomerLayer } from '../components/customer/Layer';
 import {
-  selectAccounts,
+  selectCustomers,
   selectInterfaceState,
   selectSchemaByType,
   selectToken,
@@ -22,7 +22,7 @@ import { TableCanvas } from '../components/view/table/TableCanvas';
 import { ListFilterCanvas } from '../components/view/ListFilterCanvas';
 import { ListSearchCanvas } from '../components/view/ListSearchCanvas';
 import useMobileLayout from '../hooks/useMobileLayout';
-import { Account } from '../interfaces/Account';
+import { Customer } from '../interfaces/Customer';
 import { Item } from '../components/view/list/Item';
 import { Row } from '../components/view/table/Row';
 import { Layer as CardLayer } from '../components/card/Layer';
@@ -70,7 +70,7 @@ const createListViewItemsFromSchema = (schema: Schema | undefined): ListViewItem
 export const CustomersPage = () => {
   const state = useSelector(selectInterfaceState);
   const token = useSelector(selectToken);
-  const accounts = useSelector(selectAccounts);
+  const customers = useSelector(selectCustomers);
   const roles = useSelector(selectRoles);
   const sessionUser = useSelector(selectSessionUser);
   const view = useSelector((store: ApplicationStore) => selectView(store, 'customers'));
@@ -80,10 +80,10 @@ export const CustomersPage = () => {
   const client = getRequestClient(token);
 
   const schema = useSelector((store: ApplicationStore) =>
-    selectSchemaByType(store, SchemaType.Account)
+    selectSchemaByType(store, SchemaType.Customer)
   );
 
-  if (!hasPermission(sessionUser, roles, 'accounts', 'browse')) {
+  if (!hasPermission(sessionUser, roles, 'customers', 'browse')) {
     return <PermissionDenied />;
   }
 
@@ -93,46 +93,46 @@ export const CustomersPage = () => {
     }
   }, [schema]);
 
-  const openAccount = (id?: string) => {
-    store.dispatch(showAccountLayer(id));
+  const openCustomer = (id?: string) => {
+    store.dispatch(showCustomerLayer(id));
   };
 
-  const toDataRows = (list: Account[]) => {
-    return list.map((account) => {
+  const toDataRows = (list: Customer[]) => {
+    return list.map((customer) => {
       const row: DataRow = {
-        id: account._id,
-        name: account.name,
-        createdAt: account.createdAt,
+        id: customer._id,
+        name: customer.name,
+        createdAt: customer.createdAt,
       };
 
       schema?.attributes.map(({ key }) => {
-        row[key] = account.attributes?.[key];
+        row[key] = customer.attributes?.[key];
       });
       return row;
     });
   };
 
   const rows = useMemo(() => {
-    const list = toDataRows(accounts);
+    const list = toDataRows(customers);
 
     return ListViewHelper.filterAndOrder(list, columns, view);
-  }, [schema, view, accounts, columns]);
+  }, [schema, view, customers, columns]);
 
-  const deleteAccount = async (id: string) => {
-    const shouldDelete = confirm(Translations.DeleteAccountConfirmation[DEFAULT_LANGUAGE]);
+  const deleteCustomer = async (id: string) => {
+    const shouldDelete = confirm(Translations.DeleteCustomerConfirmation[DEFAULT_LANGUAGE]);
 
     if (!shouldDelete) {
       return;
     }
 
     try {
-      await client.deleteAccount(id);
+      await client.deleteCustomer(id);
 
-      let accounts = await client.getAccounts();
+      let customers = await client.getCustomers();
 
       store.dispatch({
-        type: ActionType.ACCOUNTS,
-        payload: [...accounts],
+        type: ActionType.CUSTOMERS,
+        payload: [...customers],
       });
     } catch (error) {
       console.error(error);
@@ -144,7 +144,7 @@ export const CustomersPage = () => {
       case 'name':
         return (
           <td>
-            <span onClick={() => openAccount(row.id?.toString())} className="direct-link">
+            <span onClick={() => openCustomer(row.id?.toString())} className="direct-link">
               {row.name}
             </span>
           </td>
@@ -154,7 +154,7 @@ export const CustomersPage = () => {
       case null:
         return (
           <td style={{ textAlign: 'right' }}>
-            <Button variant="cta" onPress={() => deleteAccount(row.id!.toString())}>
+            <Button variant="cta" onPress={() => deleteCustomer(row.id!.toString())}>
               {Translations.DeleteButton[DEFAULT_LANGUAGE]}
             </Button>
           </td>
@@ -169,7 +169,7 @@ export const CustomersPage = () => {
       case 'name':
         return (
           <div key={item.column}>
-            <span onClick={() => openAccount(row.id?.toString())} className="direct-link title">
+            <span onClick={() => openCustomer(row.id?.toString())} className="direct-link title">
               {row.name}
             </span>
           </div>
@@ -183,7 +183,7 @@ export const CustomersPage = () => {
       case null:
         return (
           <div key="delete">
-            <Button variant="cta" onPress={() => deleteAccount(row.id!.toString())}>
+            <Button variant="cta" onPress={() => deleteCustomer(row.id!.toString())}>
               {Translations.DeleteButton[DEFAULT_LANGUAGE]}
             </Button>
           </div>
@@ -199,7 +199,7 @@ export const CustomersPage = () => {
 
   return (
     <>
-      {state === 'account-detail' && <AccountLayer />}
+      {state === 'customer-detail' && <CustomerLayer />}
       {state === 'card-detail' && <CardLayer />}
 
       <div className="canvas">
@@ -209,7 +209,7 @@ export const CustomersPage = () => {
               {Translations.CustomersTitle[DEFAULT_LANGUAGE]} {rows.length}
             </h2>
             <div style={{ paddingLeft: '10px' }}>
-              <Button variant="primary" onPress={() => openAccount()}>
+              <Button variant="primary" onPress={() => openCustomer()}>
                 {Translations.AddButton[DEFAULT_LANGUAGE]}
               </Button>
             </div>

@@ -15,6 +15,9 @@ import {
   validateAndFetchUser,
 } from '../helpers/EntityFetchHelper.js';
 import { PermissionHelper } from '../helpers/PermissionHelper.js';
+import { Account, NewAccount } from '../entities/Account.js';
+import { SchemaType } from '../entities/Schema.js';
+import { SchemaHelper } from '../helpers/SchemaHelper.js';
 
 const extractDateLimitFromRequest = (req: AuthenticatedRequest): DateTime | undefined => {
   const maxDaysAgo = req.query['max-days-ago']
@@ -239,9 +242,50 @@ const update = async (req: AuthenticatedRequest, res: Response, next: NextFuncti
   }
 };
 
+const convertToAccount = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const card = await validateAndFetchCard(req.params.id, req.jwt.user);
+
+    const schema = await EntityHelper.findSchemaByType(req.jwt.team._id, SchemaType.Card);
+    const references = SchemaHelper.getSchemaReferenceAttributes(schema?.attributes);
+    const accountReference = references.find((ref) => ref.entity === SchemaType.Account);
+
+    if (accountReference) {
+      const existingId = card.attributes?.[accountReference.key];
+      if (existingId) {
+        const existingAccount = await EntityHelper.findOneById(Account, existingId);
+        if (existingAccount) {
+          return res.json({ account: existingAccount, card });
+        }
+      }
+    }
+
+    const name = req.body?.name || card.name;
+    const account = new NewAccount(req.jwt.team, name, card.userId);
+    const createdAccount = await EntityHelper.create(account, Account);
+
+    let responseCard: Card = card;
+    if (accountReference) {
+      card.attributes = {
+        ...(card.attributes || {}),
+        [accountReference.key]: createdAccount._id.toString(),
+      };
+
+      const previous = card.toPlain();
+      responseCard = await EntityHelper.update(card);
+      emitCardEvent(req.jwt.user, responseCard.toPlain(), previous);
+    }
+
+    return res.json({ account: createdAccount, card: responseCard });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const CardController = {
   list,
   get,
   create,
   update,
+  convertToAccount,
 };

@@ -64,6 +64,13 @@ function Application() {
           payload: [...accounts],
         });
 
+        let customers = await client.getCustomers();
+
+        store.dispatch({
+          type: ActionType.CUSTOMERS,
+          payload: [...customers],
+        });
+
         let leads = await client.getLeads();
 
         store.dispatch({

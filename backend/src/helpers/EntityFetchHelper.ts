@@ -4,6 +4,7 @@ import { Lane } from '../entities/Lane.js';
 import { Team } from '../entities/Team.js';
 import { User } from '../entities/User.js';
 import { Lead } from '../entities/Lead.js';
+import { Customer } from '../entities/Customer.js';
 import { EntityNotFoundError } from '../errors/EntityNotFoundError.js';
 import { InvalidRequestParameterError } from '../errors/InvalidRequestParameterError.js';
 import { EntityHelper } from './EntityHelper.js';
@@ -117,4 +118,25 @@ export async function validateAndFetchLead(id: unknown, authenticatedUser: User)
   }
 
   return lead;
+}
+
+export async function validateAndFetchCustomer(
+  id: unknown,
+  authenticatedUser: User
+): Promise<Customer> {
+  if (!id || typeof id !== 'string') {
+    throw new InvalidRequestParameterError();
+  }
+
+  if (!EntityHelper.isValidEntityId(id)) {
+    throw new EntityNotFoundError();
+  }
+
+  const customer = await EntityHelper.findOneById(Customer, id);
+
+  if (!customer || !EntityHelper.isEntityOwnedBy(customer, authenticatedUser)) {
+    throw new EntityNotFoundError();
+  }
+
+  return customer;
 }

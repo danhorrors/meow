@@ -2,11 +2,13 @@ import { Button, Tabs, TabList, Item, TabPanels } from '@adobe/react-spectrum';
 import { useSelector } from 'react-redux';
 import {
   ActionType,
+  addAccount,
   addCard,
   hideLayer,
   updateCardFromServer,
   showModalSuccess,
   updateCard,
+  showModalError,
 } from '../../actions/Actions';
 import {
   selectActiveUsers,
@@ -27,6 +29,10 @@ import { Translations } from '../../Translations';
 import { DEFAULT_LANGUAGE } from '../../Constants';
 import useMobileLayout from '../../hooks/useMobileLayout';
 import { getRequestClient } from '../../helpers/RequestHelper';
+import { SchemaHelper } from '../../helpers/SchemaHelper';
+import { SchemaType } from '../../interfaces/Schema';
+import { selectSchemaByType, selectRoles, selectSessionUser } from '../../store/Store';
+import { hasPermission } from '../../helpers/PermissionHelper';
 
 export const Layer = () => {
   const token = useSelector(selectToken);
@@ -38,6 +44,11 @@ export const Layer = () => {
   const [isUserLayerVisible, setIsUserLayerVisible] = useState(false);
   const users = useSelector(selectActiveUsers);
   const lanes = useSelector(selectLanes);
+  const roles = useSelector(selectRoles);
+  const sessionUser = useSelector(selectSessionUser);
+  const schema = useSelector((store: ApplicationStore) =>
+    selectSchemaByType(store, SchemaType.Card)
+  );
   const isMobileLayout = useMobileLayout();
 
   const hideCardDetail = () => {
@@ -87,6 +98,37 @@ export const Layer = () => {
     }
   }, [id]);
 
+  const accountReference = schema?.attributes?.find((attribute) => {
+    return SchemaHelper.isReferenceAttribute(attribute) && attribute.entity === SchemaType.Account;
+  });
+
+  const linkedAccountId = accountReference
+    ? card?.attributes?.[accountReference.key]
+    : undefined;
+  const canCreateAccount = hasPermission(sessionUser, roles, 'accounts', 'add');
+
+  const createAccount = async () => {
+    if (!id) {
+      return;
+    }
+
+    try {
+      const response = await client.convertCardToAccount(id);
+
+      if (response?.account) {
+        store.dispatch(addAccount(response.account));
+      }
+
+      if (response?.card) {
+        store.dispatch(updateCardFromServer(response.card));
+      }
+
+      store.dispatch(showModalSuccess(Translations.AccountCreatedConfirmation[DEFAULT_LANGUAGE]));
+    } catch (error) {
+      store.dispatch(showModalError(error?.toString()));
+    }
+  };
+
   return (
     <div className={`layer ${isMobileLayout ? 'mobile' : 'desktop'}`}>
       <div className="header">
@@ -107,6 +149,13 @@ export const Layer = () => {
             {Translations.CloseButton[DEFAULT_LANGUAGE]}
           </Button>
         </div>
+        {id && !linkedAccountId && canCreateAccount && (
+          <div>
+            <Button variant="secondary" onPress={createAccount}>
+              {Translations.ConvertOpportunityToAccountButton[DEFAULT_LANGUAGE]}
+            </Button>
+          </div>
+        )}
       </div>
       {isUserLayerVisible && (
         <div className="user-list">

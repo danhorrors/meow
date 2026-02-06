@@ -8,6 +8,7 @@ import { Card, CardPreview } from '../interfaces/Card';
 import { EventType } from '../interfaces/EventType';
 import { Lane, LaneRequest } from '../interfaces/Lane';
 import { Lead, LeadPreview } from '../interfaces/Lead';
+import { Customer, CustomerPreview } from '../interfaces/Customer';
 import { Schema } from '../interfaces/Schema';
 import { CurrencyCode, Integration, Team } from '../interfaces/Team';
 import { User } from '../interfaces/User';
@@ -235,8 +236,20 @@ export class RequestHelper {
     return this.doFetch(url, 'POST', card);
   }
 
+  async convertCardToAccount(id: Card['_id'], payload?: { name?: string }) {
+    const url = this.getUrl(`/api/cards/${id}/convert-account`);
+
+    return this.doFetch(url, 'POST', payload || {});
+  }
+
   async getLeads(): Promise<Lead[]> {
     const url = this.getUrl(`/api/leads`);
+
+    return this.doFetch(url, 'GET');
+  }
+
+  async getCustomers(): Promise<Customer[]> {
+    const url = this.getUrl(`/api/customers`);
 
     return this.doFetch(url, 'GET');
   }
@@ -257,6 +270,24 @@ export class RequestHelper {
     const url = this.getUrl(`/api/leads/${lead._id}`);
 
     return this.doFetch(url, 'POST', lead);
+  }
+
+  async createCustomer(customer: CustomerPreview): Promise<Customer> {
+    const url = this.getUrl(`/api/customers`);
+
+    return this.doFetch(url, 'POST', customer);
+  }
+
+  async updateCustomer(customer: Customer): Promise<Customer> {
+    const url = this.getUrl(`/api/customers/${customer._id}`);
+
+    return this.doFetch(url, 'POST', customer);
+  }
+
+  async deleteCustomer(id: Customer['_id']) {
+    const url = this.getUrl(`/api/customers/${id}`);
+
+    return this.doFetch(url, 'DELETE');
   }
 
   async deleteLead(id: Lead['_id']) {

@@ -3,7 +3,9 @@ import { LanesSchema } from '../components/setup/lane/LaneSchema';
 import { CardSchema } from '../components/setup/card/CardSchema';
 import { AccountSchema } from '../components/setup/account/AccountSchema';
 import { LeadSchema } from '../components/setup/lead/LeadSchema';
+import { CustomerSchema } from '../components/setup/customer/CustomerSchema';
 import { PermissionsCanvas } from '../components/setup/permissions/PermissionsCanvas';
+import { GoogleCalendarCanvas } from '../components/setup/integrations/GoogleCalendarCanvas';
 import { Switch } from '@adobe/react-spectrum';
 import { useEffect, useMemo, useState } from 'react';
 import { IconDownload } from '../components/setup/IconDownload';
@@ -224,10 +226,12 @@ export const SetupPage = () => {
       </div>
 
       <CurrencyCanvas />
+      <GoogleCalendarCanvas />
       <LanesSchema isDeveloperMode={isDeveloperMode} />
       <CardSchema isDeveloperMode={isDeveloperMode} />
       <AccountSchema isDeveloperMode={isDeveloperMode} />
       <LeadSchema isDeveloperMode={isDeveloperMode} />
+      <CustomerSchema isDeveloperMode={isDeveloperMode} />
       <PermissionsCanvas />
       <div className="content-box">
         <div className="schema-editor-header">

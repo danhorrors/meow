@@ -6,6 +6,7 @@ import { parseCsv } from '../helpers/CsvHelper';
 import { getRequestClient } from '../helpers/RequestHelper';
 import { hasPermission } from '../helpers/PermissionHelper';
 import {
+  selectAccounts,
   selectLanes,
   selectRoles,
   selectSchemaByType,
@@ -14,10 +15,11 @@ import {
   selectUsers,
 } from '../store/Store';
 import { SchemaType } from '../interfaces/Schema';
+import { SchemaHelper } from '../helpers/SchemaHelper';
 import { Translations } from '../Translations';
 import { DEFAULT_LANGUAGE } from '../Constants';
 
-type EntityType = 'leads' | 'accounts' | 'opportunities';
+type EntityType = 'leads' | 'accounts' | 'opportunities' | 'customers';
 
 type MappingOption = {
   key: string;
@@ -31,14 +33,20 @@ export const ImportPage = () => {
   const sessionUser = useSelector(selectSessionUser);
   const users = useSelector(selectUsers);
   const lanes = useSelector(selectLanes);
+  const accounts = useSelector(selectAccounts);
   const accountSchema = useSelector((store) => selectSchemaByType(store as any, SchemaType.Account));
   const leadSchema = useSelector((store) => selectSchemaByType(store as any, SchemaType.Lead));
   const cardSchema = useSelector((store) => selectSchemaByType(store as any, SchemaType.Card));
+  const customerSchema = useSelector((store) =>
+    selectSchemaByType(store as any, SchemaType.Customer)
+  );
 
   const [entity, setEntity] = useState<EntityType>('leads');
   const [csvText, setCsvText] = useState('');
   const [fileName, setFileName] = useState('');
   const [mapping, setMapping] = useState<Record<string, string>>({});
+  const [defaultUserId, setDefaultUserId] = useState<string | undefined>(undefined);
+  const [defaultLaneId, setDefaultLaneId] = useState<string | undefined>(undefined);
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<{ imported: number; skipped: number } | null>(null);
@@ -46,10 +54,18 @@ export const ImportPage = () => {
   const canLeadAdd = hasPermission(sessionUser, roles, 'leads', 'add');
   const canAccountAdd = hasPermission(sessionUser, roles, 'accounts', 'add');
   const canCardAdd = hasPermission(sessionUser, roles, 'opportunities', 'add');
+  const canCustomerAdd = hasPermission(sessionUser, roles, 'customers', 'add');
 
-  const canAccess = canLeadAdd || canAccountAdd || canCardAdd;
+  const canAccess = canLeadAdd || canAccountAdd || canCardAdd || canCustomerAdd;
 
-  const schema = entity === 'leads' ? leadSchema : entity === 'accounts' ? accountSchema : cardSchema;
+  const schema =
+    entity === 'leads'
+      ? leadSchema
+      : entity === 'accounts'
+      ? accountSchema
+      : entity === 'customers'
+      ? customerSchema
+      : cardSchema;
 
   const { headers, rows } = useMemo(() => parseCsv(csvText), [csvText]);
 
@@ -68,6 +84,15 @@ export const ImportPage = () => {
     if (entity === 'leads') {
       list.push({ key: 'contact.email', label: Translations.EmailLabel[DEFAULT_LANGUAGE] });
       list.push({ key: 'contact.phone', label: Translations.PhoneLabel[DEFAULT_LANGUAGE] });
+    }
+
+    if (entity === 'customers') {
+      list.push({ key: 'contact.email', label: Translations.EmailLabel[DEFAULT_LANGUAGE] });
+      list.push({ key: 'contact.phone', label: Translations.PhoneLabel[DEFAULT_LANGUAGE] });
+    }
+
+    if (entity === 'opportunities') {
+      list.push({ key: 'accountName', label: Translations.AccountsTitle[DEFAULT_LANGUAGE] });
     }
 
     list.push({ key: 'userName', label: Translations.AssignRoleLabel[DEFAULT_LANGUAGE] });
@@ -106,6 +131,7 @@ export const ImportPage = () => {
 
     let imported = 0;
     let skipped = 0;
+    const createdAccounts = new Map<string, string>();
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
@@ -170,6 +196,11 @@ export const ImportPage = () => {
           return;
         }
 
+        if (mapKey === 'accountName' && entity === 'opportunities') {
+          payload.accountName = value;
+          return;
+        }
+
         if (mapKey.startsWith('attr:')) {
           const key = mapKey.replace('attr:', '');
           payload.attributes[key] = value;
@@ -187,7 +218,49 @@ export const ImportPage = () => {
       }
 
       if (entity === 'opportunities' && !payload.laneName && lanes.length > 0) {
-        payload.laneId = lanes[0]._id;
+        payload.laneId = defaultLaneId || lanes[0]._id;
+      }
+
+      if (!payload.userId && defaultUserId) {
+        payload.userId = defaultUserId;
+      }
+
+      if (entity === 'opportunities' && payload.accountName) {
+        const normalizedName = payload.accountName.toLowerCase();
+        let accountId = createdAccounts.get(normalizedName);
+        if (!accountId) {
+          const account = accounts.find(
+            (item) => item.name.toLowerCase() === payload.accountName.toLowerCase()
+          );
+          if (account) {
+            accountId = account._id;
+          } else if (canAccountAdd) {
+            try {
+              const created = await client.createAccount({
+                name: payload.accountName,
+                userId: payload.userId || defaultUserId,
+              });
+              accountId = created._id;
+            } catch (error) {
+              accountId = undefined;
+            }
+          }
+
+          if (accountId) {
+            createdAccounts.set(normalizedName, accountId);
+          }
+        }
+
+        const accountRef = schema?.attributes?.find(
+          (attribute: any) =>
+            SchemaHelper.isReferenceAttribute(attribute) && attribute.entity === SchemaType.Account
+        ) as any;
+        if (accountId && accountRef) {
+          payload.attributes = {
+            ...(payload.attributes || {}),
+            [accountRef.key]: accountId,
+          };
+        }
       }
 
       try {
@@ -195,6 +268,8 @@ export const ImportPage = () => {
           await client.createLead(payload);
         } else if (entity === 'accounts') {
           await client.createAccount(payload);
+        } else if (entity === 'customers') {
+          await client.createCustomer(payload);
         } else {
           await client.createCard(payload);
         }
@@ -233,6 +308,9 @@ export const ImportPage = () => {
             {canAccountAdd && (
               <Item key="accounts">{Translations.AccountsTitle[DEFAULT_LANGUAGE]}</Item>
             )}
+            {canCustomerAdd && (
+              <Item key="customers">{Translations.CustomersTitle[DEFAULT_LANGUAGE]}</Item>
+            )}
             {canCardAdd && (
               <Item key="opportunities">{Translations.OpportunitiesNavItem[DEFAULT_LANGUAGE]}</Item>
             )}
@@ -252,6 +330,37 @@ export const ImportPage = () => {
 
         {headers.length > 0 && (
           <div style={{ marginTop: '20px' }}>
+            <h3>{Translations.ImportDefaultsTitle[DEFAULT_LANGUAGE]}</h3>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <Picker
+                width={260}
+                selectedKey={defaultUserId ?? ''}
+                onSelectionChange={(key) =>
+                  setDefaultUserId(key.toString().length > 0 ? key.toString() : undefined)
+                }
+              >
+                <Item key="">{Translations.AssignRoleLabel[DEFAULT_LANGUAGE]}</Item>
+                {users.map((user) => (
+                  <Item key={user._id}>{user.name}</Item>
+                ))}
+              </Picker>
+
+              {entity === 'opportunities' && (
+                <Picker
+                  width={260}
+                  selectedKey={defaultLaneId ?? ''}
+                  onSelectionChange={(key) =>
+                    setDefaultLaneId(key.toString().length > 0 ? key.toString() : undefined)
+                  }
+                >
+                  <Item key="">{Translations.StageLabel[DEFAULT_LANGUAGE]}</Item>
+                  {lanes.map((lane) => (
+                    <Item key={lane._id}>{lane.name}</Item>
+                  ))}
+                </Picker>
+              )}
+            </div>
+
             <h3>{Translations.MappingTitle[DEFAULT_LANGUAGE]}</h3>
             {headers.map((header) => (
               <div key={header} style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
