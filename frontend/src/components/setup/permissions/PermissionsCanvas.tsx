@@ -4,14 +4,14 @@ import { useSelector } from 'react-redux';
 import { ActionType, showModalError, showModalSuccess } from '../../../actions/Actions';
 import { DEFAULT_LANGUAGE } from '../../../Constants';
 import { getRequestClient } from '../../../helpers/RequestHelper';
-import { Role, RolePermissions } from '../../../interfaces/Role';
+import { PermissionAction, PermissionModule, Role, RolePermissions } from '../../../interfaces/Role';
 import { User } from '../../../interfaces/User';
 import { ApplicationStore } from '../../../store/ApplicationStore';
 import { selectRoles, selectSessionUser, selectToken, selectUsers, store } from '../../../store/Store';
 import { Translations } from '../../../Translations';
 import { hasPermission } from '../../../helpers/PermissionHelper';
 
-const MODULES = [
+const MODULES: { key: PermissionModule; label: string }[] = [
   { key: 'opportunities', label: 'Opportunities' },
   { key: 'accounts', label: 'Accounts' },
   { key: 'leads', label: 'Leads' },
@@ -21,7 +21,7 @@ const MODULES = [
   { key: 'activity', label: 'Activity' },
 ] as const;
 
-const ACTIONS = [
+const ACTIONS: { key: PermissionAction; label: string }[] = [
   { key: 'browse', label: 'Browse' },
   { key: 'read', label: 'Read' },
   { key: 'add', label: 'Add' },
@@ -70,7 +70,11 @@ export const PermissionsCanvas = () => {
     }
   }, [selectedRoleId, roles]);
 
-  const updatePermission = (moduleKey: string, actionKey: string, value: boolean) => {
+  const updatePermission = (
+    moduleKey: PermissionModule,
+    actionKey: PermissionAction,
+    value: boolean
+  ) => {
     if (!draftRole) {
       return;
     }
@@ -80,10 +84,10 @@ export const PermissionsCanvas = () => {
     } as RolePermissions;
 
     if (!updatedPermissions[moduleKey]) {
-      (updatedPermissions as any)[moduleKey] = {};
+      updatedPermissions[moduleKey] = {};
     }
 
-    (updatedPermissions as any)[moduleKey][actionKey] = value;
+    (updatedPermissions[moduleKey] as any)[actionKey] = value;
 
     setDraftRole({
       ...draftRole,

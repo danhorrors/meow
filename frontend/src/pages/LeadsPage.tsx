@@ -223,7 +223,13 @@ export const LeadsPage = () => {
               current={view}
               onApply={(saved) => {
                 store.dispatch(setListViewColumn('leads', saved.columns));
-                store.dispatch(setListViewSortBy('leads', saved.sortBy.column, saved.sortBy.direction));
+                store.dispatch(
+                  setListViewSortBy(
+                    'leads',
+                    saved.sortBy.column ?? null,
+                    saved.sortBy.direction
+                  )
+                );
                 store.dispatch(setListViewFilterBy('leads', saved.filterBy.text || ''));
               }}
             />

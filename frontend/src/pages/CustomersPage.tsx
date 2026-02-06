@@ -220,7 +220,13 @@ export const CustomersPage = () => {
               current={view}
               onApply={(saved) => {
                 store.dispatch(setListViewColumn('customers', saved.columns));
-                store.dispatch(setListViewSortBy('customers', saved.sortBy.column, saved.sortBy.direction));
+                store.dispatch(
+                  setListViewSortBy(
+                    'customers',
+                    saved.sortBy.column ?? null,
+                    saved.sortBy.direction
+                  )
+                );
                 store.dispatch(setListViewFilterBy('customers', saved.filterBy.text || ''));
               }}
             />

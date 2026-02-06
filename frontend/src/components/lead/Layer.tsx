@@ -97,9 +97,21 @@ export const Layer = () => {
       zone: timeZone || 'UTC',
     });
 
+    if (!startAt.isValid) {
+      store.dispatch(showModalError('Invalid meeting time.'));
+      return;
+    }
+
+    const startAtIso = startAt.toISO();
+
+    if (!startAtIso) {
+      store.dispatch(showModalError('Invalid meeting time.'));
+      return;
+    }
+
     try {
       const response = await client.bookLeadMeeting(id, {
-        startAt: startAt.toISO(),
+        startAt: startAtIso,
         durationMinutes: parseInt(durationMinutes),
         timeZone,
         summary,
@@ -134,6 +146,77 @@ export const Layer = () => {
       setSummary(`Meeting: ${lead.name}`);
     }
   }, [lead]);
+
+  const tabs: JSX.Element[] = [
+    <Item key="lead">
+      <span className="tab-title">{Translations.LeadTab[DEFAULT_LANGUAGE]}</span>
+    </Item>,
+  ];
+
+  const panels: JSX.Element[] = [
+    <Item key="lead">
+      <Form update={update} id={id} />
+    </Item>,
+  ];
+
+  if (id) {
+    tabs.push(
+      <Item key="booking">
+        <span className="tab-title">{Translations.BookMeetingTab[DEFAULT_LANGUAGE]}</span>
+      </Item>
+    );
+    panels.push(
+      <Item key="booking">
+        <div style={{ padding: '15px' }}>
+          <div style={{ display: 'grid', gap: '12px' }}>
+            <DatePicker
+              label={Translations.BookingDateLabel[DEFAULT_LANGUAGE]}
+              value={meetingDate ? parseDate(meetingDate) : undefined}
+              onChange={(value) => setMeetingDate(value?.toString())}
+            />
+            <TextField
+              label={Translations.BookingTimeLabel[DEFAULT_LANGUAGE]}
+              value={meetingTime}
+              onChange={setMeetingTime}
+              placeholder="09:00"
+            />
+            <TextField
+              label={Translations.BookingDurationLabel[DEFAULT_LANGUAGE]}
+              value={durationMinutes}
+              onChange={setDurationMinutes}
+              placeholder="30"
+            />
+            <TextField
+              label={Translations.BookingTimeZoneLabel[DEFAULT_LANGUAGE]}
+              value={timeZone}
+              onChange={setTimeZone}
+            />
+            <TextField
+              label={Translations.BookingSummaryLabel[DEFAULT_LANGUAGE]}
+              value={summary}
+              onChange={setSummary}
+            />
+            <TextArea
+              label={Translations.BookingDescriptionLabel[DEFAULT_LANGUAGE]}
+              value={description}
+              onChange={setDescription}
+            />
+            <TextField
+              label={Translations.BookingAttendeesLabel[DEFAULT_LANGUAGE]}
+              value={attendees}
+              onChange={setAttendees}
+              placeholder="name@example.com, other@example.com"
+            />
+          </div>
+          <div style={{ marginTop: '20px' }}>
+            <Button variant="primary" onPress={bookMeeting} isDisabled={!canBookMeeting}>
+              {Translations.BookMeetingButton[DEFAULT_LANGUAGE]}
+            </Button>
+          </div>
+        </div>
+      </Item>
+    );
+  }
 
   return (
     <div className={`layer ${isMobileLayout ? 'mobile' : 'desktop'}`}>
@@ -184,72 +267,8 @@ export const Layer = () => {
 
       <div className="body">
         <Tabs height="100%">
-          <TabList>
-            <Item key="lead">
-              <span className="tab-title">{Translations.LeadTab[DEFAULT_LANGUAGE]}</span>
-            </Item>
-            {id && (
-              <Item key="booking">
-                <span className="tab-title">{Translations.BookMeetingTab[DEFAULT_LANGUAGE]}</span>
-              </Item>
-            )}
-          </TabList>
-          <TabPanels>
-            <Item key="lead">
-              <Form update={update} id={id} />
-            </Item>
-            {id && (
-              <Item key="booking">
-                <div style={{ padding: '15px' }}>
-                  <div style={{ display: 'grid', gap: '12px' }}>
-                    <DatePicker
-                      label={Translations.BookingDateLabel[DEFAULT_LANGUAGE]}
-                      value={meetingDate ? parseDate(meetingDate) : undefined}
-                      onChange={(value) => setMeetingDate(value?.toString())}
-                    />
-                    <TextField
-                      label={Translations.BookingTimeLabel[DEFAULT_LANGUAGE]}
-                      value={meetingTime}
-                      onChange={setMeetingTime}
-                      placeholder="09:00"
-                    />
-                    <TextField
-                      label={Translations.BookingDurationLabel[DEFAULT_LANGUAGE]}
-                      value={durationMinutes}
-                      onChange={setDurationMinutes}
-                      placeholder="30"
-                    />
-                    <TextField
-                      label={Translations.BookingTimeZoneLabel[DEFAULT_LANGUAGE]}
-                      value={timeZone}
-                      onChange={setTimeZone}
-                    />
-                    <TextField
-                      label={Translations.BookingSummaryLabel[DEFAULT_LANGUAGE]}
-                      value={summary}
-                      onChange={setSummary}
-                    />
-                    <TextArea
-                      label={Translations.BookingDescriptionLabel[DEFAULT_LANGUAGE]}
-                      value={description}
-                      onChange={setDescription}
-                    />
-                    <TextField
-                      label={Translations.BookingAttendeesLabel[DEFAULT_LANGUAGE]}
-                      value={attendees}
-                      onChange={setAttendees}
-                      placeholder="name@example.com, other@example.com"
-                    />
-                  </div>
-                  <div style={{ marginTop: '20px' }}>
-                    <Button variant="primary" onPress={bookMeeting} isDisabled={!canBookMeeting}>
-                      {Translations.BookMeetingButton[DEFAULT_LANGUAGE]}
-                    </Button>
-                  </div>
-                </div>
-              </Item>
-            )}
-          </TabPanels>
+          <TabList>{tabs}</TabList>
+          <TabPanels>{panels}</TabPanels>
         </Tabs>
       </div>
     </div>

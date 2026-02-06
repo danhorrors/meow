@@ -19,6 +19,7 @@ export const Form = ({ update, id }: FormProps) => {
   const [preview, setPreview] = useState<LeadPreview>({
     name: '',
     attributes: undefined,
+    contact: {},
   });
 
   const schema = useSelector((store: ApplicationStore) =>
@@ -47,6 +48,7 @@ export const Form = ({ update, id }: FormProps) => {
       setPreview({
         name: '',
         attributes: undefined,
+        contact: {},
       });
     }
   }, [lead]);
@@ -74,6 +76,36 @@ export const Form = ({ update, id }: FormProps) => {
           width="100%"
           key="name"
           label={Translations.NameLabel[DEFAULT_LANGUAGE]}
+        />
+      </div>
+      <div style={{ marginTop: '10px' }}>
+        <TextField
+          onChange={(value) =>
+            setPreview({
+              ...preview,
+              contact: { ...preview.contact, email: value },
+            })
+          }
+          value={preview.contact?.email || ''}
+          aria-label={Translations.EmailLabel[DEFAULT_LANGUAGE]}
+          width="100%"
+          key="email"
+          label={Translations.EmailLabel[DEFAULT_LANGUAGE]}
+        />
+      </div>
+      <div style={{ marginTop: '10px' }}>
+        <TextField
+          onChange={(value) =>
+            setPreview({
+              ...preview,
+              contact: { ...preview.contact, phone: value },
+            })
+          }
+          value={preview.contact?.phone || ''}
+          aria-label={Translations.PhoneLabel[DEFAULT_LANGUAGE]}
+          width="100%"
+          key="phone"
+          label={Translations.PhoneLabel[DEFAULT_LANGUAGE]}
         />
       </div>
 

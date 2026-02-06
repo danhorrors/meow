@@ -1153,6 +1153,41 @@ export const Translations = {
     fr: 'Clients',
   },
 
+  DuplicatesTitle: {
+    en: 'Duplicates',
+    fr: 'Doublons',
+  },
+
+  OpenDuplicatesButton: {
+    en: 'Open duplicate manager',
+    fr: 'Ouvrir le gestionnaire de doublons',
+  },
+
+  DuplicateKeyLabel: {
+    en: 'Match',
+    fr: 'Correspondance',
+  },
+
+  MergeButton: {
+    en: 'Merge into first',
+    fr: 'Fusionner dans le premier',
+  },
+
+  NoDuplicatesLabel: {
+    en: 'No duplicates found.',
+    fr: 'Aucun doublon trouvé.',
+  },
+
+  EmailLabel: {
+    en: 'Email',
+    fr: 'Email',
+  },
+
+  PhoneLabel: {
+    en: 'Phone',
+    fr: 'Téléphone',
+  },
+
   PermissionDeniedTitle: {
     en: 'Permission denied',
     fr: 'Accès refusé',

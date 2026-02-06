@@ -28,6 +28,16 @@ const create = async (req: AuthenticatedRequest, res: Response, next: NextFuncti
 
     const lead = new NewLead(req.jwt.team, userId, req.body.name, req.body.attributes);
 
+    if (req.body.contact) {
+      lead.contact = { ...req.body.contact };
+      if (lead.contact?.email && !lead.contact.domain) {
+        const domain = lead.contact.email.split('@')[1];
+        if (domain) {
+          lead.contact.domain = domain.toLowerCase();
+        }
+      }
+    }
+
     const latest = await EntityHelper.create(lead, Lead);
 
     return res.status(201).json(latest);
@@ -44,6 +54,16 @@ const update = async (req: AuthenticatedRequest, res: Response, next: NextFuncti
 
     if (req.body.attributes) {
       lead.attributes = req.body.attributes;
+    }
+
+    if (req.body.contact) {
+      lead.contact = { ...req.body.contact };
+      if (lead.contact?.email && !lead.contact.domain) {
+        const domain = lead.contact.email.split('@')[1];
+        if (domain) {
+          lead.contact.domain = domain.toLowerCase();
+        }
+      }
     }
 
     if (req.body.userId && lead.userId.toString() !== req.body.userId.toString()) {

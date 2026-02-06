@@ -12,6 +12,7 @@ import { ForecastPage } from './pages/ForecastPage';
 import { HirePage } from './pages/HirePage';
 import { HomePage } from './pages/HomePage';
 import { LeadsPage } from './pages/LeadsPage';
+import { DuplicatesPage } from './pages/DuplicatesPage';
 import { SetupPage } from './pages/SetupPage';
 import { UserSetupPage } from './pages/UserSetupPage';
 import { selectTeam, selectToken, store } from './store/Store';
@@ -120,6 +121,7 @@ function Application() {
           <Route path="/accounts" element={<AccountsPage />}></Route>
           <Route path="/customers" element={<CustomersPage />}></Route>
           <Route path="/leads" element={<LeadsPage />}></Route>
+          <Route path="/duplicates" element={<DuplicatesPage />}></Route>
           <Route path="*" element={<HomePage />}></Route>
         </Routes>
       </Layout>

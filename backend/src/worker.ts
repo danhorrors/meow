@@ -91,6 +91,8 @@ import { RoleController } from './controllers/RoleController.js';
 import { RoleRequestSchema } from './middlewares/schema-validation/RoleRequestSchema.js';
 import { requirePermission } from './middlewares/requirePermission.js';
 import { ReportController } from './controllers/ReportController.js';
+import { DuplicateController } from './controllers/DuplicateController.js';
+import { DuplicateMergeRequestSchema } from './middlewares/schema-validation/DuplicateMergeRequestSchema.js';
 
 /* spinning up express */
 export const app = express();
@@ -460,6 +462,38 @@ try {
   report.route('/summary').get(requirePermission('forecast', 'read'), ReportController.summary);
 
   app.use('/api/reports', report);
+
+  const duplicates = express.Router();
+
+  duplicates.use(express.json({ limit: '5kb' }));
+  duplicates.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
+
+  duplicates
+    .route('/leads')
+    .get(requirePermission('leads', 'browse'), DuplicateController.listLeadDuplicates);
+  duplicates
+    .route('/accounts')
+    .get(requirePermission('accounts', 'browse'), DuplicateController.listAccountDuplicates);
+  duplicates
+    .route('/leads/merge')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      validateAgainst(DuplicateMergeRequestSchema),
+      requirePermission('leads', 'edit'),
+      requirePermission('leads', 'delete'),
+      DuplicateController.mergeLead
+    );
+  duplicates
+    .route('/accounts/merge')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      validateAgainst(DuplicateMergeRequestSchema),
+      requirePermission('accounts', 'edit'),
+      requirePermission('accounts', 'delete'),
+      DuplicateController.mergeAccount
+    );
+
+  app.use('/api/duplicates', duplicates);
 
   const activity = express.Router();
 

@@ -15,6 +15,7 @@ import { selectRoles, selectSessionUser, selectTeam, selectToken, store } from '
 import { showModalError, showModalSuccess } from '../actions/Actions';
 import { PermissionDenied } from '../components/PermissionDenied';
 import { hasPermission } from '../helpers/PermissionHelper';
+import { Link } from 'react-router-dom';
 
 export const SetupPage = () => {
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
@@ -228,6 +229,16 @@ export const SetupPage = () => {
       <AccountSchema isDeveloperMode={isDeveloperMode} />
       <LeadSchema isDeveloperMode={isDeveloperMode} />
       <PermissionsCanvas />
+      <div className="content-box">
+        <div className="schema-editor-header">
+          <div className="title">
+            <h2>{Translations.DuplicatesTitle[DEFAULT_LANGUAGE]}</h2>
+          </div>
+        </div>
+        <div style={{ marginTop: '10px' }}>
+          <Link to="/duplicates">{Translations.OpenDuplicatesButton[DEFAULT_LANGUAGE]}</Link>
+        </div>
+      </div>
     </div>
   );
 };

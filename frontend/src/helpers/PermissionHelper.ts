@@ -1,4 +1,4 @@
-import { Role } from '../interfaces/Role';
+import { PermissionAction, PermissionModule, Role } from '../interfaces/Role';
 import { User } from '../interfaces/User';
 
 const DEFAULT_ALLOWED = new Set(['browse', 'read']);
@@ -6,8 +6,8 @@ const DEFAULT_ALLOWED = new Set(['browse', 'read']);
 export const hasPermission = (
   user: User | undefined,
   roles: Role[] | undefined,
-  module: string,
-  action: string
+  module: PermissionModule,
+  action: PermissionAction
 ) => {
   if (!user) {
     return false;
@@ -27,7 +27,7 @@ export const hasPermission = (
     return DEFAULT_ALLOWED.has(action);
   }
 
-  const modulePermissions: any = role.permissions?.[module];
+  const modulePermissions = role.permissions?.[module];
 
   return modulePermissions?.[action] === true;
 };

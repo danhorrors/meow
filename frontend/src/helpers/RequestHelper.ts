@@ -474,6 +474,34 @@ export class RequestHelper {
     return this.doFetch(url, 'DELETE');
   }
 
+  async getLeadDuplicates() {
+    const url = this.getUrl(`/api/duplicates/leads`);
+
+    return this.doFetch(url, 'GET');
+  }
+
+  async getAccountDuplicates() {
+    const url = this.getUrl(`/api/duplicates/accounts`);
+
+    return this.doFetch(url, 'GET');
+  }
+
+  async mergeLeadDuplicates(payload: { primaryId: string; duplicateId: string; strategy?: string }) {
+    const url = this.getUrl(`/api/duplicates/leads/merge`);
+
+    return this.doFetch(url, 'POST', payload);
+  }
+
+  async mergeAccountDuplicates(payload: {
+    primaryId: string;
+    duplicateId: string;
+    strategy?: string;
+  }) {
+    const url = this.getUrl(`/api/duplicates/accounts/merge`);
+
+    return this.doFetch(url, 'POST', payload);
+  }
+
   async getAccount(id: Account['_id']): Promise<Account> {
     const url = this.getUrl(`/api/accounts/${id}`);
 

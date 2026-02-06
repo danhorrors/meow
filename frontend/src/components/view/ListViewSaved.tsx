@@ -64,6 +64,11 @@ export const ListViewSaved = ({ name, current, onApply }: ListViewSavedProps) =>
     }
   };
 
+  const pickerItems = [
+    { value: '', label: Translations.SavedViewsLabel[DEFAULT_LANGUAGE], view: null },
+    ...saved.map((view) => ({ value: view.label, label: view.label, view: view.view })),
+  ];
+
   return (
     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
       <Picker
@@ -71,11 +76,9 @@ export const ListViewSaved = ({ name, current, onApply }: ListViewSavedProps) =>
         aria-label="Saved Views"
         selectedKey={selected}
         onSelectionChange={(key) => applyView(key.toString())}
+        items={pickerItems}
       >
-        <Item key="">{Translations.SavedViewsLabel[DEFAULT_LANGUAGE]}</Item>
-        {saved.map((view) => (
-          <Item key={view.label}>{view.label}</Item>
-        ))}
+        {(item) => <Item key={item.value}>{item.label}</Item>}
       </Picker>
       <Button variant="secondary" onPress={saveView}>
         {Translations.SaveViewButton[DEFAULT_LANGUAGE]}

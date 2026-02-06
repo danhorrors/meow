@@ -218,7 +218,13 @@ export const AccountsPage = () => {
               current={view}
               onApply={(saved) => {
                 store.dispatch(setListViewColumn('accounts', saved.columns));
-                store.dispatch(setListViewSortBy('accounts', saved.sortBy.column, saved.sortBy.direction));
+                store.dispatch(
+                  setListViewSortBy(
+                    'accounts',
+                    saved.sortBy.column ?? null,
+                    saved.sortBy.direction
+                  )
+                );
                 store.dispatch(setListViewFilterBy('accounts', saved.filterBy.text || ''));
               }}
             />

@@ -6,6 +6,11 @@ export interface Lead {
   userId?: string;
   name: string;
   attributes: Attribute | undefined;
+  contact?: {
+    email?: string;
+    phone?: string;
+    domain?: string;
+  };
   readonly createdAt: string;
   readonly updatedAt: string;
 }
@@ -14,4 +19,9 @@ export interface LeadPreview {
   userId?: string;
   name: string;
   attributes: Attribute | undefined;
+  contact?: {
+    email?: string;
+    phone?: string;
+    domain?: string;
+  };
 }

@@ -9,6 +9,14 @@ export const LeadRequestSchema = {
         type: ['string', 'number', 'null', 'boolean'],
       },
     },
+    contact: {
+      type: 'object',
+      properties: {
+        email: { type: 'string' },
+        phone: { type: 'string' },
+        domain: { type: 'string' },
+      },
+    },
   },
   required: ['name'],
   additionalProperties: false,

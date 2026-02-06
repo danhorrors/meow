@@ -11,6 +11,11 @@ export class Lead implements ExistingEntity {
   userId: ObjectId;
   name: string;
   attributes?: Attribute;
+  contact?: {
+    email?: string;
+    phone?: string;
+    domain?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 
@@ -37,6 +42,7 @@ export class Lead implements ExistingEntity {
       userId: this.userId?.toString(),
       name: this.name,
       attributes: this.attributes,
+      contact: this.contact,
       createdAt: this.createdAt!,
       updatedAt: this.updatedAt!,
     };
@@ -49,6 +55,11 @@ export class NewLead implements NewEntity {
   userId: ObjectId;
   name: string;
   attributes?: Attribute;
+  contact?: {
+    email?: string;
+    phone?: string;
+    domain?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 
