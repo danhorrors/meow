@@ -13,5 +13,6 @@
     "skipLibCheck": true,
     "rootDir": "src",
     "outDir": "build"
-  }
+  },
+  "exclude": ["src/tests/**"]
 }
