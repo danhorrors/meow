@@ -70,6 +70,10 @@ const googleCalendarCallback = async (req: Request, res: Response, next: NextFun
 
     const team = await EntityHelper.findOneById(Team, payload.teamId);
 
+    if (!team) {
+      throw new InvalidConfigurationError('Team not found.');
+    }
+
     const integration = team.integrations?.find(
       (item) => item.key === GOOGLE_INTEGRATION_KEY
     );

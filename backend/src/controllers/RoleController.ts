@@ -67,7 +67,7 @@ const createOrUpdate = async (req: AuthenticatedRequest, res: Response, next: Ne
 
 const remove = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const role = await EntityHelper.findOneById(Role, req.params.id);
+    const role = await EntityHelper.findOneById(Role, req.params.id as string);
 
     if (!role || !EntityHelper.isEntityOwnedBy(role, req.jwt.user)) {
       throw new InvalidRequestError();

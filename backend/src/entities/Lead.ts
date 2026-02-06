@@ -79,6 +79,11 @@ export interface PlainLead {
   userId?: string;
   name: string;
   attributes?: Attribute;
+  contact?: {
+    email?: string;
+    phone?: string;
+    domain?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }

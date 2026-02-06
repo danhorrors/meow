@@ -46,12 +46,16 @@ function Application() {
           payload: [...schemas],
         });
 
-        let roles = await client.getRoles();
+        try {
+          let roles = await client.getRoles();
 
-        store.dispatch({
-          type: ActionType.ROLES,
-          payload: [...roles],
-        });
+          store.dispatch({
+            type: ActionType.ROLES,
+            payload: [...roles],
+          });
+        } catch (error) {
+          console.warn('roles endpoint unavailable', error);
+        }
 
         let accounts = await client.getAccounts();
 
