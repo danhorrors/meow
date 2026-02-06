@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create Opportunity | Meow</title>
+
+    <style>
+      :root {
+        --bg: #0b1220;
+        --card: rgba(255, 255, 255, 0.08);
+        --card-2: rgba(255, 255, 255, 0.12);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.7);
+        --border: rgba(255, 255, 255, 0.14);
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        --radius: 14px;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        background:
+          radial-gradient(1200px 600px at 15% 10%, rgba(124, 58, 237, 0.35), transparent 65%),
+          radial-gradient(900px 500px at 80% 20%, rgba(59, 130, 246, 0.30), transparent 60%),
+          radial-gradient(700px 500px at 50% 90%, rgba(16, 185, 129, 0.22), transparent 55%),
+          var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 32px 16px;
+      }
+      .wrap { width: 100%; max-width: 980px; }
+      .header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+      .title h1 { margin: 0; font-size: 24px; letter-spacing: 0.2px; }
+      .title p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+      .pill {
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        font-size: 12px;
+        color: var(--muted);
+        user-select: none;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 16px;
+      }
+      @media (max-width: 900px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+
+      .card {
+        background: linear-gradient(180deg, var(--card), rgba(255,255,255,0.06));
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .cardHeader {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .cardHeader h2 { margin: 0; font-size: 15px; color: var(--text); }
+      .cardBody { padding: 16px 18px 18px; }
+
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      input, select {
+        width: 100%;
+        padding: 11px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.20);
+        color: var(--text);
+        outline: none;
+      }
+      input:focus, select:focus { border-color: rgba(255, 255, 255, 0.35); background: rgba(0, 0, 0, 0.26); }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+        align-items: center;
+      }
+      button {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.10);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      button:hover { background: rgba(255, 255, 255, 0.14); }
+      button.primary {
+        border-color: rgba(255,255,255,0.22);
+        background: linear-gradient(180deg, rgba(59,130,246,0.70), rgba(59,130,246,0.40));
+      }
+      button.primary:hover {
+        background: linear-gradient(180deg, rgba(59,130,246,0.78), rgba(59,130,246,0.48));
+      }
+      button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+      .status {
+        margin-top: 12px;
+        font-size: 13px;
+        color: var(--muted);
+        min-height: 18px;
+        white-space: pre-wrap;
+      }
+      .ok { color: rgba(52, 211, 153, 0.95); }
+      .err { color: rgba(248, 113, 113, 0.95); }
+
+      .kv {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 10px;
+        font-size: 13px;
+        margin-top: 10px;
+      }
+      .kv div:nth-child(odd) { color: var(--muted); }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+      .muted { color: var(--muted); }
+      .small { font-size: 12px; }
+      .sep { height: 10px; }
+      .hint {
+        margin-top: 10px;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+      .linkish { text-decoration: underline; cursor: pointer; }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <div class="header">
+        <div class="title">
+          <h1>Create Opportunity</h1>
+          <p>Quick form that logs into Meow, loads lanes, and creates a card.</p>
+        </div>
+        <div class="pill mono" id="api-pill"></div>
+      </div>
+
+      <div class="grid">
+        <!-- Left: Form -->
+        <div class="card">
+          <div class="cardHeader">
+            <h2>Opportunity details</h2>
+            <span class="muted small">Uses the Meow API via HTTPS</span>
+          </div>
+
+          <div class="cardBody">
+            <form id="opportunity-form">
+              <div class="row">
+                <div>
+                  <label for="name">Name</label>
+                  <input id="name" name="name" placeholder="e.g. ACME - Website Redesign" required />
+                </div>
+
+                <div>
+                  <label for="amount">Amount</label>
+                  <input id="amount" name="amount" type="number" step="1" placeholder="e.g. 2500" />
+                </div>
+              </div>
+
+              <div class="sep"></div>
+
+              <div>
+                <label for="laneId">Lane</label>
+                <select id="laneId" name="laneId" required>
+                  <option value="">Loading lanes…</option>
+                </select>
+              </div>
+
+              <div class="actions">
+                <button class="primary" type="submit" id="create-btn">Create opportunity</button>
+                <button type="button" id="refresh-lanes">Refresh lanes</button>
+              </div>
+
+              <div class="status" id="status"></div>
+            </form>
+
+            <div class="hint">
+              <strong>Auth:</strong> this page logs in using <span class="mono">/public/login</span> with
+              <span class="mono">{ name, password }</span>, then sends <span class="mono">Token: &lt;jwt&gt;</span>
+              on requests to <span class="mono">/api/*</span>.
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Config / Debug -->
+        <div class="card">
+          <div class="cardHeader">
+            <h2>Config</h2>
+            <span class="muted small">Token cached in browser</span>
+          </div>
+          <div class="cardBody">
+            <div class="kv">
+              <div>API base</div>
+              <div class="mono" id="api-base"></div>
+
+              <div>User</div>
+              <div class="mono" id="user-name"></div>
+
+              <div>Token</div>
+              <div class="mono" id="token-preview"></div>
+            </div>
+
+            <div class="hint">
+              <div><strong>Tip:</strong> If you change your password, click “Clear token”.</div>
+              <div class="small muted" style="margin-top:6px;">
+                If you get HTML back instead of JSON, it usually means you hit the wrong origin/path or got an Nginx error page.
+              </div>
+            </div>
+
+            <div class="actions" style="margin-top:12px;">
+              <button type="button" id="clear-token">Clear token</button>
+              <button type="button" id="copy-token">Copy token</button>
+            </div>
+
+            <div class="status" id="debug"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ==== CONFIG (matches your deployed setup) ====
+      // Since you're behind Nginx, same-origin is best:
+      // - If you host this page on the same domain, leave API_BASE = window.location.origin
+      // - If you host this page elsewhere, set API_BASE explicitly to https://meow.madeeasy.app
+      const API_BASE = "https://meow.madeeasy.app";
+      const DEFAULT_USER_NAME = "admin";
+
+      // Store token in localStorage for convenience
+      const TOKEN_KEY = "meow_api_token";
+
+      // ==== UI helpers ====
+      const $ = (id) => document.getElementById(id);
+      const statusEl = $("status");
+      const debugEl = $("debug");
+      const laneSelect = $("laneId");
+      const createBtn = $("create-btn");
+
+      $("api-pill").textContent = API_BASE;
+      $("api-base").textContent = API_BASE;
+      $("user-name").textContent = DEFAULT_USER_NAME;
+
+      function setStatus(msg, type) {
+        statusEl.textContent = msg || "";
+        statusEl.className = "status " + (type || "");
+      }
+
+      function setDebug(msg, type) {
+        debugEl.textContent = msg || "";
+        debugEl.className = "status " + (type || "");
+      }
+
+      function tokenPreview(token) {
+        if (!token) return "(none)";
+        // show start/end only
+        return token.slice(0, 14) + "…" + token.slice(-10);
+      }
+
+      function updateTokenUI() {
+        const t = localStorage.getItem(TOKEN_KEY) || "";
+        $("token-preview").textContent = tokenPreview(t);
+      }
+
+      updateTokenUI();
+
+      // ==== API helpers ====
+      async function apiJson(path, options = {}) {
+        const url = `${API_BASE}${path}`;
+        const res = await fetch(url, options);
+        const text = await res.text();
+
+        // If server returned HTML, show useful error
+        if (text.trim().startsWith("<")) {
+          throw new Error(
+            `Server returned HTML (not JSON). URL: ${url}\n` +
+            `HTTP ${res.status}\n` +
+            text.slice(0, 160).replace(/\s+/g, " ") + "…"
+          );
+        }
+
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          throw new Error(`Invalid JSON from ${url} (HTTP ${res.status}): ${text.slice(0, 200)}`);
+        }
+
+        if (!res.ok) {
+          const msg = data?.message || data?.error || `HTTP ${res.status}`;
+          throw new Error(msg);
+        }
+
+        return data;
+      }
+
+      async function login(name, password) {
+        const data = await apiJson("/public/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, password })
+        });
+
+        if (!data.token) throw new Error("Login response did not include a token");
+        localStorage.setItem(TOKEN_KEY, data.token);
+        updateTokenUI();
+        return data.token;
+      }
+
+      async function getTokenInteractive() {
+        // If we already have a token, use it
+        const cached = localStorage.getItem(TOKEN_KEY);
+        if (cached) return cached;
+
+        // Prompt for password (lightweight)
+        const password = prompt(`Password for "${DEFAULT_USER_NAME}" on ${API_BASE}:`);
+        if (!password) throw new Error("No password provided");
+
+        setDebug("Logging in…", "");
+        const token = await login(DEFAULT_USER_NAME, password);
+        setDebug("Logged in. Token cached in browser.", "ok");
+        return token;
+      }
+
+      async function loadLanes(token) {
+        // Some Meow versions return lanes directly as array; others may wrap them.
+        const lanes = await apiJson("/api/lanes", {
+          headers: { Token: token }
+        });
+
+        const laneArr = Array.isArray(lanes) ? lanes : (lanes.items || lanes.data || []);
+        laneSelect.innerHTML = "";
+
+        if (!laneArr.length) {
+          const opt = document.createElement("option");
+          opt.value = "";
+          opt.textContent = "No lanes found";
+          laneSelect.appendChild(opt);
+          return;
+        }
+
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Select a lane…";
+        laneSelect.appendChild(placeholder);
+
+        laneArr.forEach((lane) => {
+          const opt = document.createElement("option");
+          opt.value = lane._id || lane.id;
+          opt.textContent = lane.name || "(unnamed lane)";
+          laneSelect.appendChild(opt);
+        });
+      }
+
+      async function createOpportunity(token, payload) {
+        return apiJson("/api/cards", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Token: token
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      // ==== Wire up UI ====
+      async function init() {
+        setStatus("Ready.", "");
+        try {
+          const token = await getTokenInteractive();
+          await loadLanes(token);
+          setStatus("Lanes loaded. Fill the form and click Create.", "ok");
+        } catch (e) {
+          setStatus(e.message, "err");
+        }
+      }
+
+      $("refresh-lanes").addEventListener("click", async () => {
+        setStatus("Refreshing lanes…", "");
+        try {
+          const token = await getTokenInteractive();
+          await loadLanes(token);
+          setStatus("Lanes refreshed.", "ok");
+        } catch (e) {
+          setStatus(e.message, "err");
+        }
+      });
+
+      $("clear-token").addEventListener("click", () => {
+        localStorage.removeItem(TOKEN_KEY);
+        updateTokenUI();
+        setDebug("Token cleared.", "ok");
+      });
+
+      $("copy-token").addEventListener("click", async () => {
+        const t = localStorage.getItem(TOKEN_KEY);
+        if (!t) return setDebug("No token to copy.", "err");
+        try {
+          await navigator.clipboard.writeText(t);
+          setDebug("Token copied to clipboard.", "ok");
+        } catch {
+          setDebug("Could not access clipboard (browser permissions).", "err");
+        }
+      });
+
+      $("opportunity-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        createBtn.disabled = true;
+        setStatus("Creating opportunity…", "");
+
+        try {
+          const token = await getTokenInteractive();
+
+          const name = e.target.name.value.trim();
+          const amountRaw = e.target.amount.value.trim();
+          const laneId = e.target.laneId.value;
+
+          if (!laneId) throw new Error("Please select a lane.");
+
+          const payload = {
+            name,
+            laneId
+          };
+
+          if (amountRaw) payload.amount = Number(amountRaw);
+
+          const created = await createOpportunity(token, payload);
+          setStatus(`Created ✅  ID: ${created._id || created.id || "(unknown)"}`, "ok");
+          console.log("Created card:", created);
+
+          e.target.reset();
+        } catch (err) {
+          setStatus(String(err.message || err), "err");
+        } finally {
+          createBtn.disabled = false;
+        }
+      });
+
+      init();
+    </script>
+  </body>
+</html>

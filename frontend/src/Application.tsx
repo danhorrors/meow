@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
 import { ActionType, showModalError } from './actions/Actions';
@@ -7,9 +7,11 @@ import { ErrorModal } from './components/ErrorModal';
 import { Layout } from './components/Layout';
 import { SuccessModal } from './components/SuccessModal';
 import { AccountsPage } from './pages/AccountsPage';
+import { CustomersPage } from './pages/CustomersPage';
 import { ForecastPage } from './pages/ForecastPage';
 import { HirePage } from './pages/HirePage';
 import { HomePage } from './pages/HomePage';
+import { LeadsPage } from './pages/LeadsPage';
 import { SetupPage } from './pages/SetupPage';
 import { UserSetupPage } from './pages/UserSetupPage';
 import { selectTeam, selectToken, store } from './store/Store';
@@ -24,6 +26,7 @@ function Application() {
   const team = useSelector(selectTeam);
 
   const client = getRequestClient(token);
+  const [registrationConfigured, setRegistrationConfigured] = useState<boolean | null>(null);
 
   useEffect(() => {
     const execute = async () => {
@@ -42,11 +45,25 @@ function Application() {
           payload: [...schemas],
         });
 
+        let roles = await client.getRoles();
+
+        store.dispatch({
+          type: ActionType.ROLES,
+          payload: [...roles],
+        });
+
         let accounts = await client.getAccounts();
 
         store.dispatch({
           type: ActionType.ACCOUNTS,
           payload: [...accounts],
+        });
+
+        let leads = await client.getLeads();
+
+        store.dispatch({
+          type: ActionType.LEADS,
+          payload: [...leads],
         });
 
         let lanes = await client.getLanes();
@@ -73,9 +90,26 @@ function Application() {
     };
   }, [token]);
 
+  useEffect(() => {
+    if (!token) {
+      setRegistrationConfigured(null);
+      return;
+    }
+
+    client
+      .registerStatus()
+      .then((payload) => setRegistrationConfigured(payload.configured === true))
+      .catch((error) => {
+        console.error(error);
+        setRegistrationConfigured(null);
+      });
+  }, [token]);
+
   return (
     <BrowserRouter>
-      {team!.isFirstTeam === true ? <AllowTeamRegistrationModal /> : null}
+      {team!.isFirstTeam === true && registrationConfigured === false ? (
+        <AllowTeamRegistrationModal />
+      ) : null}
       <Layout>
         <Routes>
           <Route path="/forecast/*" element={<ForecastPage />}></Route>
@@ -84,6 +118,8 @@ function Application() {
           <Route path="/user-setup" element={<UserSetupPage />}></Route>
           <Route path="/hire" element={<HirePage />}></Route>
           <Route path="/accounts" element={<AccountsPage />}></Route>
+          <Route path="/customers" element={<CustomersPage />}></Route>
+          <Route path="/leads" element={<LeadsPage />}></Route>
           <Route path="*" element={<HomePage />}></Route>
         </Routes>
       </Layout>

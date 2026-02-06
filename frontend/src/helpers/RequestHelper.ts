@@ -7,9 +7,11 @@ import { Account, AccountPreview } from '../interfaces/Account';
 import { Card, CardPreview } from '../interfaces/Card';
 import { EventType } from '../interfaces/EventType';
 import { Lane, LaneRequest } from '../interfaces/Lane';
+import { Lead, LeadPreview } from '../interfaces/Lead';
 import { Schema } from '../interfaces/Schema';
 import { CurrencyCode, Integration, Team } from '../interfaces/Team';
 import { User } from '../interfaces/User';
+import { Role } from '../interfaces/Role';
 import { FilterMode } from '../pages/HomePage';
 import { RequestHelperUrlError } from '../errors/RequestHelperUrlError';
 import { FILTER_BY_NONE } from '../Constants';
@@ -233,6 +235,52 @@ export class RequestHelper {
     return this.doFetch(url, 'POST', card);
   }
 
+  async getLeads(): Promise<Lead[]> {
+    const url = this.getUrl(`/api/leads`);
+
+    return this.doFetch(url, 'GET');
+  }
+
+  async getLead(id: Lead['_id']): Promise<Lead> {
+    const url = this.getUrl(`/api/leads/${id}`);
+
+    return this.doFetch(url, 'GET');
+  }
+
+  async createLead(lead: LeadPreview): Promise<Lead> {
+    const url = this.getUrl(`/api/leads`);
+
+    return this.doFetch(url, 'POST', lead);
+  }
+
+  async updateLead(lead: Lead): Promise<Lead> {
+    const url = this.getUrl(`/api/leads/${lead._id}`);
+
+    return this.doFetch(url, 'POST', lead);
+  }
+
+  async deleteLead(id: Lead['_id']) {
+    const url = this.getUrl(`/api/leads/${id}`);
+
+    return this.doFetch(url, 'DELETE');
+  }
+
+  async bookLeadMeeting(
+    id: Lead['_id'],
+    payload: {
+      startAt: string;
+      durationMinutes: number;
+      timeZone?: string;
+      summary?: string;
+      description?: string;
+      attendees?: string[];
+    }
+  ) {
+    const url = this.getUrl(`/api/leads/${id}/book`);
+
+    return this.doFetch(url, 'POST', payload);
+  }
+
   async getAccountEvents(id: string) {
     const url = this.getUrl(`/api/accounts/${id}/events`);
 
@@ -326,6 +374,12 @@ export class RequestHelper {
     return this.doFetch(url, 'POST', integration);
   }
 
+  async getGoogleCalendarAuthUrl() {
+    const url = this.getUrl(`/api/integrations/google-calendar/auth-url`);
+
+    return this.doFetch(url, 'GET');
+  }
+
   async getTeam(id: Team['_id']): Promise<Team> {
     let url = this.getUrl(`/api/teams/${id}`);
 
@@ -357,6 +411,7 @@ export class RequestHelper {
       animal: user.animal,
       status: user.status,
       color: user.color,
+      roleId: user.roleId,
     });
   }
 
@@ -373,18 +428,25 @@ export class RequestHelper {
     return this.doFetch(url, 'POST', board);
   }
 
+  async saveUserView(id: string, payload: { name: string; label: string; view: any }) {
+    const url = this.getUrl(`/api/users/${id}/views`);
+
+    return this.doFetch(url, 'POST', payload);
+  }
+
   async createAccount(account: AccountPreview): Promise<Account> {
     let url = this.getUrl(`/api/accounts`);
 
     return this.doFetch(url, 'POST', account);
   }
 
-  async updateAccount({ _id, name, attributes }: Account): Promise<Account> {
+  async updateAccount({ _id, name, attributes, userId }: Account): Promise<Account> {
     let url = this.getUrl(`/api/accounts/${_id}`);
 
     return this.doFetch(url, 'POST', {
       name,
       attributes,
+      userId,
     });
   }
 
@@ -392,6 +454,24 @@ export class RequestHelper {
     const url = this.getUrl(`/api/accounts`);
 
     return this.doFetch(url, 'GET');
+  }
+
+  async getRoles(): Promise<Role[]> {
+    const url = this.getUrl(`/api/roles`);
+
+    return this.doFetch(url, 'GET');
+  }
+
+  async upsertRole(role: Partial<Role>): Promise<Role> {
+    const url = this.getUrl(`/api/roles`);
+
+    return this.doFetch(url, 'POST', role);
+  }
+
+  async deleteRole(id: Role['_id']) {
+    const url = this.getUrl(`/api/roles/${id}`);
+
+    return this.doFetch(url, 'DELETE');
   }
 
   async getAccount(id: Account['_id']): Promise<Account> {
@@ -425,6 +505,22 @@ export class RequestHelper {
     }
 
     url.search = params.toString();
+
+    return this.doFetch(url, 'GET');
+  }
+
+  async getReportSummary(params: { start: string; end: string; userId?: string }) {
+    const url = this.getUrl(`/api/reports/summary`);
+    const search = new URLSearchParams({
+      start: params.start,
+      end: params.end,
+    });
+
+    if (params.userId && params.userId !== FILTER_BY_NONE.key) {
+      search.set('userId', params.userId);
+    }
+
+    url.search = search.toString();
 
     return this.doFetch(url, 'GET');
   }
@@ -601,6 +697,24 @@ export class RequestHelper {
     const parsed = await this.parseJson(response);
 
     return parsed;
+  }
+
+  async getRegistrationStatus() {
+    const url = this.getUrl(`/api/registration/status`);
+
+    return this.doFetch(url, 'GET');
+  }
+
+  async setRegistrationStatus(allowTeamRegistration: boolean) {
+    const url = this.getUrl(`/api/registration/status`);
+
+    return this.doFetch(url, 'POST', { allowTeamRegistration });
+  }
+
+  async getStackInfo() {
+    const url = this.getUrl(`/api/stack-info`);
+
+    return this.doFetch(url, 'GET');
   }
 
   isValidToken = async (token: string): Promise<'ok' | 'expired'> => {

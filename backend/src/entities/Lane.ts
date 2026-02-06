@@ -13,6 +13,7 @@ export class Lane implements ExistingEntity {
   index: number;
   inForecast: boolean;
   tags: Tags;
+  probability?: number;
   color?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -25,6 +26,7 @@ export class Lane implements ExistingEntity {
     index: number,
     tags: Tags,
     inForecast: boolean,
+    probability: number | undefined,
     createdAt: Date,
     updatedAt: Date,
     color?: string
@@ -36,6 +38,7 @@ export class Lane implements ExistingEntity {
     this.index = index;
     this.tags = tags;
     this.inForecast = inForecast;
+    this.probability = probability;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.color = color;
@@ -50,6 +53,7 @@ export class NewLane implements NewEntity {
   index: number;
   inForecast: boolean;
   tags: Tags;
+  probability?: number;
   color: string;
   createdAt: Date;
   updatedAt: Date;
@@ -61,7 +65,8 @@ export class NewLane implements NewEntity {
     index: number,
     color: string = '',
     inForecast: boolean = false,
-    tags: Tags = {}
+    tags: Tags = {},
+    probability?: number
   ) {
     this.teamId = team._id;
     this.boardId = board._id;
@@ -70,6 +75,7 @@ export class NewLane implements NewEntity {
     this.color = color;
     this.inForecast = inForecast;
     this.tags = tags;
+    this.probability = probability;
     this.createdAt = new Date();
     this.updatedAt = new Date();
   }
@@ -92,4 +98,5 @@ export interface LaneRequest {
   inForecast: boolean;
   tags?: Tags;
   color?: string;
+  probability?: number;
 }

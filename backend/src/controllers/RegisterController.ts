@@ -4,6 +4,7 @@ import { PasswordAuthenticationProvider } from '../authentication/PasswordAuthen
 import {
   DefaultCardSchema,
   DefaultAccountSchema,
+  DefaultLeadSchema,
   DefaultLanes,
   DefaultCards,
   DefaultAccounts,
@@ -14,6 +15,7 @@ import { NewSchema } from '../entities/Schema.js';
 import { NewAccount } from '../entities/Account.js';
 import { CurrencyCode, NewTeam, Team } from '../entities/Team.js';
 import { NewUser, User, UserAuthentication, UserStatus } from '../entities/User.js';
+import { NewRole, Role, RolePermissions } from '../entities/Role.js';
 import { EntityNotFoundError } from '../errors/EntityNotFoundError.js';
 import { InvalidRequestBodyError } from '../errors/InvalidRequestBodyError.js';
 import { InvalidRequestParameterError } from '../errors/InvalidRequestParameterError.js';
@@ -23,6 +25,7 @@ import { Board, NewBoard } from '../entities/Board.js';
 import { emitBoardEvent, emitCardEvent, emitLaneEvent } from '../helpers/EventHelper.js';
 import { log } from '../worker.js';
 import { InvalidRequestError } from '../errors/InvalidRequestError.js';
+import { AuthenticatedRequest } from '../requests/AuthenticatedRequest.js';
 
 export const setupUserWithInvite = async (invite: string, authentication: UserAuthentication) => {
   const user = await EntityHelper.findUserByInvite(invite);
@@ -55,7 +58,16 @@ export const setupAccountWithExampleData = async (
 
   for (const [index, item] of DefaultLanes.entries()) {
     const lane = await EntityHelper.create(
-      new NewLane(team, board, item.name, index, item.color, item.inForecast, item.tags),
+      new NewLane(
+        team,
+        board,
+        item.name,
+        index,
+        item.color,
+        item.inForecast,
+        item.tags,
+        item.probability
+      ),
       Lane
     );
 
@@ -66,8 +78,39 @@ export const setupAccountWithExampleData = async (
   await EntityHelper.create(
     new NewSchema(team, DefaultAccountSchema.type, DefaultAccountSchema.schema)
   );
+  await EntityHelper.create(new NewSchema(team, DefaultLeadSchema.type, DefaultLeadSchema.schema));
+
+  const adminPermissions: RolePermissions = {
+    opportunities: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
+    accounts: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
+    leads: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
+    users: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
+    settings: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
+    forecast: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
+    activity: { browse: true, read: true, edit: true, add: true, delete: true, assign: true },
+  };
+
+  const memberPermissions: RolePermissions = {
+    opportunities: { browse: true, read: true },
+    accounts: { browse: true, read: true },
+    leads: { browse: true, read: true },
+    users: { browse: true, read: true },
+    settings: { browse: true, read: true },
+    forecast: { browse: true, read: true },
+    activity: { browse: true, read: true },
+  };
+
+  const adminRole = await EntityHelper.create(new NewRole(team, 'Admin', adminPermissions), Role);
+
+  const memberRole = await EntityHelper.create(
+    new NewRole(team, 'Member', memberPermissions, true),
+    Role
+  );
 
   const user = await EntityHelper.create(new NewUser(team, name, UserStatus.Enabled), User);
+  user.isAdmin = true;
+  user.roleId = adminRole._id;
+  await EntityHelper.update(user);
 
   await Promise.all(
     DefaultCards.map(async (item, index) => {
@@ -101,7 +144,7 @@ export const setupAccountWithExampleData = async (
 
   await Promise.all(
     DefaultAccounts.map(async (item, index) => {
-      await EntityHelper.create(new NewAccount(team, item.name));
+      await EntityHelper.create(new NewAccount(team, item.name, user._id));
     })
   );
 
@@ -133,16 +176,68 @@ const invite = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const status = async (req: Request, res: Response, next: NextFunction) => {
-  const payload: { allowTeamRegistration: boolean } = { allowTeamRegistration: true };
+  const payload: { allowTeamRegistration: boolean; configured: boolean } = {
+    allowTeamRegistration: true,
+    configured: false,
+  };
 
   try {
     const flag = await EntityHelper.findGlobalFlagByName('allow-team-registration');
+
+    if (flag) {
+      payload.configured = true;
+    }
 
     if (flag && flag.value === false) {
       payload.allowTeamRegistration = false;
     }
 
     res.status(201).json(payload);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const authenticatedStatus = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const payload: { allowTeamRegistration: boolean; configured: boolean } = {
+    allowTeamRegistration: true,
+    configured: false,
+  };
+
+  try {
+    const flag = await EntityHelper.findGlobalFlagByName('allow-team-registration');
+
+    if (flag) {
+      payload.configured = true;
+    }
+
+    if (flag && flag.value === false) {
+      payload.allowTeamRegistration = false;
+    }
+
+    res.status(200).json(payload);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const setStatus = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    if (req.jwt.team.isFirstTeam !== true) {
+      throw new InvalidRequestError();
+    }
+
+    const flag = await EntityHelper.findOrCreateGlobalFlagByName('allow-team-registration');
+
+    flag.value = req.body.allowTeamRegistration === true;
+
+    await EntityHelper.update(flag);
+
+    return res.status(200).json({ allowTeamRegistration: flag.value !== false, configured: true });
   } catch (error) {
     next(error);
   }
@@ -192,5 +287,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 export const RegisterController = {
   register,
   status,
+  authenticatedStatus,
+  setStatus,
   invite,
 };

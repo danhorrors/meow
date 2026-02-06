@@ -3,6 +3,7 @@ import { Card } from '../entities/Card.js';
 import { Lane } from '../entities/Lane.js';
 import { Team } from '../entities/Team.js';
 import { User } from '../entities/User.js';
+import { Lead } from '../entities/Lead.js';
 import { EntityNotFoundError } from '../errors/EntityNotFoundError.js';
 import { InvalidRequestParameterError } from '../errors/InvalidRequestParameterError.js';
 import { EntityHelper } from './EntityHelper.js';
@@ -98,4 +99,22 @@ export async function validateAndFetchTeam(id: unknown, user: User): Promise<Tea
   }
 
   return team;
+}
+
+export async function validateAndFetchLead(id: unknown, authenticatedUser: User): Promise<Lead> {
+  if (!id || typeof id !== 'string') {
+    throw new InvalidRequestParameterError();
+  }
+
+  if (!EntityHelper.isValidEntityId(id)) {
+    throw new EntityNotFoundError();
+  }
+
+  const lead = await EntityHelper.findOneById(Lead, id);
+
+  if (!lead || !EntityHelper.isEntityOwnedBy(lead, authenticatedUser)) {
+    throw new EntityNotFoundError();
+  }
+
+  return lead;
 }

@@ -303,6 +303,11 @@ export const Translations = {
     fr: 'Pipeline de Ventes Généré',
   },
 
+  ReportSummaryOption: {
+    en: 'KPI Summary',
+    fr: 'Résumé KPI',
+  },
+
   UserLabel: {
     en: 'User',
     fr: 'Utilisateur',
@@ -580,6 +585,121 @@ export const Translations = {
   ChangesSavedMessage: {
     en: 'Changes saved',
     fr: 'Modifications enregistrées',
+  },
+
+  YesLabel: {
+    en: 'Yes',
+    fr: 'Oui',
+  },
+
+  NoLabel: {
+    en: 'No',
+    fr: 'Non',
+  },
+
+  BackendSettingsTitle: {
+    en: 'Backend Settings',
+    fr: 'Paramètres Backend',
+  },
+
+  TeamRegistrationSwitchLabel: {
+    en: 'Allow team registrations',
+    fr: 'Autoriser les inscriptions d\'équipe',
+  },
+
+  TeamRegistrationStatusLabel: {
+    en: 'Team registration status:',
+    fr: 'Statut des inscriptions d\'équipe:',
+  },
+
+  TeamRegistrationEnabledLabel: {
+    en: 'Enabled',
+    fr: 'Activé',
+  },
+
+  TeamRegistrationDisabledLabel: {
+    en: 'Disabled',
+    fr: 'Désactivé',
+  },
+
+  TeamRegistrationConfiguredLabel: {
+    en: 'Configured:',
+    fr: 'Configuré:',
+  },
+
+  TeamRegistrationNotFirstTeamLabel: {
+    en: 'Only the first team can change this setting.',
+    fr: 'Seule la première équipe peut modifier ce paramètre.',
+  },
+
+  StackInfoTitle: {
+    en: 'Stack Info',
+    fr: 'Informations sur la pile',
+  },
+
+  StackApiBaseUrlLabel: {
+    en: 'API base URL:',
+    fr: 'URL de base de l\'API:',
+  },
+
+  StackFrontendOriginLabel: {
+    en: 'Frontend origin:',
+    fr: 'Origine du frontend:',
+  },
+
+  StackBuildModeLabel: {
+    en: 'Build mode:',
+    fr: 'Mode de build:',
+  },
+
+  StackViteUrlLabel: {
+    en: 'VITE_URL:',
+    fr: 'VITE_URL:',
+  },
+
+  StackViteUrlUnsetLabel: {
+    en: 'not set (using window location)',
+    fr: 'non défini (utilise l\'origine de la fenêtre)',
+  },
+
+  StackUnknownLabel: {
+    en: 'unknown',
+    fr: 'inconnu',
+  },
+
+  StackNodeEnvLabel: {
+    en: 'Backend NODE_ENV:',
+    fr: 'NODE_ENV backend:',
+  },
+
+  StackPortLabel: {
+    en: 'Backend port:',
+    fr: 'Port backend:',
+  },
+
+  StackIpAddressLabel: {
+    en: 'Backend bind address:',
+    fr: 'Adresse d\'écoute backend:',
+  },
+
+  StackLogLevelLabel: {
+    en: 'Backend log level:',
+    fr: 'Niveau de log backend:',
+  },
+
+  StackDbNameLabel: {
+    en: 'MongoDB database:',
+    fr: 'Base MongoDB:',
+  },
+
+  StackProcessManagerLabel: {
+    en: 'Process manager:',
+    fr: 'Gestionnaire de processus:',
+  },
+
+  StackPublicDomainLabel: {
+    en: 'Public domain:',
+    fr: 'Domaine public:',
   },
 
   // Team registration
@@ -951,5 +1071,160 @@ export const Translations = {
   LogoutButton: {
     en: 'Logout',
     fr: 'Déconnexion',
+  },
+
+  LeadsTitle: {
+    en: 'Leads',
+    fr: 'Pistes',
+  },
+
+  LeadTab: {
+    en: 'Lead',
+    fr: 'Piste',
+  },
+
+  LeadCreatedConfirmation: {
+    en: 'Lead created...',
+    fr: 'Piste créée...',
+  },
+
+  LeadUpdatedConfirmation: {
+    en: 'Lead updated...',
+    fr: 'Piste mise à jour...',
+  },
+
+  LeadBookedConfirmation: {
+    en: 'Meeting booked. Lead converted...',
+    fr: 'Rendez-vous réservé. Piste convertie...',
+  },
+
+  DeleteLeadConfirmation: {
+    en: 'Do you want to delete this lead?',
+    fr: 'Voulez-vous supprimer cette piste ?',
+  },
+
+  BookMeetingTab: {
+    en: 'Book Meeting',
+    fr: 'Réserver un rendez-vous',
+  },
+
+  BookingDateLabel: {
+    en: 'Date',
+    fr: 'Date',
+  },
+
+  BookingTimeLabel: {
+    en: 'Time (HH:MM)',
+    fr: 'Heure (HH:MM)',
+  },
+
+  BookingDurationLabel: {
+    en: 'Duration (minutes)',
+    fr: 'Durée (minutes)',
+  },
+
+  BookingTimeZoneLabel: {
+    en: 'Time Zone',
+    fr: 'Fuseau horaire',
+  },
+
+  BookingSummaryLabel: {
+    en: 'Summary',
+    fr: 'Résumé',
+  },
+
+  BookingDescriptionLabel: {
+    en: 'Description',
+    fr: 'Description',
+  },
+
+  BookingAttendeesLabel: {
+    en: 'Attendees (comma-separated emails)',
+    fr: 'Participants (emails séparés par des virgules)',
+  },
+
+  BookMeetingButton: {
+    en: 'Book Meeting',
+    fr: 'Réserver',
+  },
+
+  CustomersTitle: {
+    en: 'Customers',
+    fr: 'Clients',
+  },
+
+  PermissionDeniedTitle: {
+    en: 'Permission denied',
+    fr: 'Accès refusé',
+  },
+
+  PermissionDeniedText: {
+    en: 'You do not have permission to access this section.',
+    fr: 'Vous n’avez pas la permission d’accéder à cette section.',
+  },
+
+  PermissionsTitle: {
+    en: 'Permissions',
+    fr: 'Autorisations',
+  },
+
+  RolesTitle: {
+    en: 'Roles',
+    fr: 'Rôles',
+  },
+
+  RoleNameLabel: {
+    en: 'Role name',
+    fr: 'Nom du rôle',
+  },
+
+  NewRoleButton: {
+    en: 'New Role',
+    fr: 'Nouveau rôle',
+  },
+
+  SaveRoleButton: {
+    en: 'Save Role',
+    fr: 'Enregistrer le rôle',
+  },
+
+  DeleteRoleButton: {
+    en: 'Delete Role',
+    fr: 'Supprimer le rôle',
+  },
+
+  DefaultRoleLabel: {
+    en: 'Default role for new users',
+    fr: 'Rôle par défaut pour les nouveaux utilisateurs',
+  },
+
+  AssignRoleLabel: {
+    en: 'Assign role',
+    fr: 'Attribuer un rôle',
+  },
+
+  ModuleLabel: {
+    en: 'Module',
+    fr: 'Module',
+  },
+
+  ActionLabel: {
+    en: 'Action',
+    fr: 'Action',
+  },
+
+  ProbabilityLabel: {
+    en: 'Probability (%)',
+    fr: 'Probabilité (%)',
+  },
+
+  SavedViewsLabel: {
+    en: 'Saved Views',
+    fr: 'Vues enregistrées',
+  },
+
+  SaveViewButton: {
+    en: 'Save View',
+    fr: 'Enregistrer la vue',
   }
 };

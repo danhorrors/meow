@@ -3,11 +3,19 @@ import { Account, NewAccount } from '../entities/Account.js';
 import { EntityHelper } from '../helpers/EntityHelper.js';
 import { AuthenticatedRequest } from '../requests/AuthenticatedRequest.js';
 import { EventHelper } from '../helpers/EventHelper.js';
-import { validateAndFetchAccount } from '../helpers/EntityFetchHelper.js';
+import { validateAndFetchAccount, validateAndFetchUser } from '../helpers/EntityFetchHelper.js';
+import { PermissionHelper } from '../helpers/PermissionHelper.js';
 
 const create = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const account = new NewAccount(req.jwt.team, req.body.name);
+    let userId = req.jwt.user._id!;
+
+    if (req.body.userId) {
+      await PermissionHelper.ensurePermission(req.jwt.user, 'accounts', 'assign');
+      userId = (await validateAndFetchUser(req.body.userId, req.jwt.user))._id!;
+    }
+
+    const account = new NewAccount(req.jwt.team, req.body.name, userId);
 
     if (req.body.attributes) {
       account.attributes = req.body.attributes;
@@ -30,6 +38,12 @@ const update = async (req: AuthenticatedRequest, res: Response, next: NextFuncti
     const previous = account.toPlain();
 
     account.name = req.body.name;
+
+    if (req.body.userId && account.userId.toString() !== req.body.userId.toString()) {
+      await PermissionHelper.ensurePermission(req.jwt.user, 'accounts', 'assign');
+      const user = await validateAndFetchUser(req.body.userId, req.jwt.user);
+      account.userId = user._id!;
+    }
 
     if (req.body.attributes) {
       account.attributes = req.body.attributes;

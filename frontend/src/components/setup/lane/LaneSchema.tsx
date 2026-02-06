@@ -22,6 +22,7 @@ export interface LaneListItem {
   color?: string;
   tags?: Tags;
   externalId?: string;
+  probability?: number;
 }
 
 function moveLane<T>(lanes: T[], from: number, to: number): T[] {
@@ -65,6 +66,7 @@ export const LanesSchema = ({ isDeveloperMode }: LanesSchemaProps) => {
         externalId: lane._id,
         tags: lane.tags,
         type: (lane.tags?.type?.toString() as LaneType) ?? undefined,
+        probability: lane.probability,
       };
     });
 
@@ -96,17 +98,19 @@ export const LanesSchema = ({ isDeveloperMode }: LanesSchemaProps) => {
         index: lanes.length,
         inForecast: true,
         type: LaneType.Normal,
+        probability: 10,
       },
     ]);
   };
 
   const update = (
     index: number,
-    item: Pick<LaneListItem, 'inForecast' | 'name' | 'type' | 'tags'>
+    item: Pick<LaneListItem, 'inForecast' | 'name' | 'type' | 'tags' | 'probability'>
   ) => {
     lanes[index].name = item.name;
     lanes[index].inForecast = item.inForecast;
     lanes[index].type = item.type;
+    lanes[index].probability = item.probability;
 
     if (item.tags) {
       lanes[index].tags = { ...item.tags };
@@ -172,6 +176,7 @@ export const LanesSchema = ({ isDeveloperMode }: LanesSchemaProps) => {
         inForecast: lane.inForecast,
         color: undefined,
         tags: lane.tags,
+        probability: lane.probability,
       };
 
       if (lane.type) {
@@ -227,6 +232,7 @@ export const LanesSchema = ({ isDeveloperMode }: LanesSchemaProps) => {
                         index={lane.index}
                         type={lane.type}
                         tags={lane.tags}
+                        probability={lane.probability}
                         inForecast={lane.inForecast}
                         remove={remove}
                         update={update}

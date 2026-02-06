@@ -5,6 +5,7 @@ export interface Lane {
   inForecast: boolean;
   tags?: Tags;
   color?: string;
+  probability?: number;
 }
 
 export interface LaneRequest {
@@ -14,6 +15,7 @@ export interface LaneRequest {
   inForecast: boolean;
   tags?: Tags;
   color?: string;
+  probability?: number;
 }
 
 export interface LaneStatistic {

@@ -4,6 +4,8 @@ import { FILTER_BY_NONE } from '../Constants';
 
 export const Default: ApplicationStore = {
   accounts: [],
+  leads: [],
+  roles: [],
   users: [],
   cards: [],
   lanes: [],
@@ -32,6 +34,22 @@ export const Default: ApplicationStore = {
       userId: '',
     },
     accounts: {
+      sortBy: {
+        direction: 'desc',
+        column: undefined,
+      },
+      filterBy: {},
+      columns: [],
+    },
+    customers: {
+      sortBy: {
+        direction: 'desc',
+        column: undefined,
+      },
+      filterBy: {},
+      columns: [],
+    },
+    leads: {
       sortBy: {
         direction: 'desc',
         column: undefined,

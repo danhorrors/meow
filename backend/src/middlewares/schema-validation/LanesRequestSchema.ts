@@ -21,6 +21,9 @@ export const LanesRequestSchema = {
       color: {
         type: ['string', 'null'],
       },
+      probability: {
+        type: ['number', 'null'],
+      },
       tags: {
         type: ['object'],
       },

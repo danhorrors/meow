@@ -1,11 +1,12 @@
 import { Button, Item, TabList, TabPanels, Tabs } from '@adobe/react-spectrum';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { addAccount, hideLayer, showModalSuccess, updateAccount } from '../../actions/Actions';
 import { Account, AccountPreview } from '../../interfaces/Account';
 import { ApplicationStore } from '../../store/ApplicationStore';
 import {
   selectAccount,
+  selectActiveUsers,
   selectInterfaceStateId,
   selectReferencesTo,
   selectToken,
@@ -19,6 +20,8 @@ import { Reference } from './Reference';
 import { Events } from './Events';
 import { getRequestClient } from '../../helpers/RequestHelper';
 import { DEFAULT_LANGUAGE } from '../../Constants';
+import { Avatar } from '../Avatar';
+import { User } from '../../interfaces/User';
 
 export const Layer = () => {
   const token = useSelector(selectToken);
@@ -30,6 +33,8 @@ export const Layer = () => {
   const references = useSelector((store: ApplicationStore) =>
     selectReferencesTo(store, SchemaType.Account)
   );
+  const users = useSelector(selectActiveUsers);
+  const [isUserLayerVisible, setIsUserLayerVisible] = useState(false);
 
   const isMobileLayout = useMobileLayout();
 
@@ -50,6 +55,18 @@ export const Layer = () => {
       store.dispatch(addAccount({ ...updated }));
       store.dispatch(showModalSuccess(Translations.AccountCreatedConfirmation[DEFAULT_LANGUAGE]));
     }
+  };
+
+  const assign = async (userId: User['_id']) => {
+    if (!account) {
+      return;
+    }
+
+    const updated = await client.updateAccount({ ...account, userId });
+
+    store.dispatch(updateAccount({ ...updated }));
+
+    setIsUserLayerVisible(false);
   };
 
   useEffect(() => {
@@ -119,12 +136,47 @@ export const Layer = () => {
   return (
     <div className={`layer ${isMobileLayout ? 'mobile' : 'desktop'}`}>
       <div className="header">
+        <div>
+          {account?.userId && (
+            <Avatar
+              id={account?.userId}
+              width={36}
+              onClick={() => setIsUserLayerVisible(!isUserLayerVisible)}
+            />
+          )}
+        </div>
         <div style={{ float: 'right' }}>
           <Button variant="primary" onPress={() => hideAccountDetail()}>
             {Translations.CloseButton[DEFAULT_LANGUAGE]}
           </Button>
         </div>
       </div>
+      {isUserLayerVisible && (
+        <div className="user-list">
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <tbody>
+              {users.map((user: User) => {
+                return (
+                  <tr key={user._id} style={{ width: '100%' }}>
+                    <td>
+                      <Avatar width={36} id={user._id} />
+                    </td>
+                    <td>
+                      <b>{user.name}</b>
+                    </td>
+                    <td>
+                      <Button variant="primary" onPress={() => assign(user._id)}>
+                        {Translations.AssignButton[DEFAULT_LANGUAGE]}
+                      </Button>
+                    </td>
+                    <td></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
       <div className="body">
         <Tabs height="100%">
           <TabList>{getItems(id, references)}</TabList>

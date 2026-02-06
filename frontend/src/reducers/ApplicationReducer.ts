@@ -76,6 +76,7 @@ export const application = (state = Default, action: ApplicationAction) => {
         application: {
           state: <ApplicationState>'logout',
         },
+        leads: [],
         cards: [],
         lanes: [],
         users: [],
@@ -92,6 +93,22 @@ export const application = (state = Default, action: ApplicationAction) => {
             mode: [],
           },
           accounts: {
+            sortBy: {
+              direction: <ListViewSortDirection>'desc',
+              column: undefined,
+            },
+            filterBy: {},
+            columns: [],
+          },
+          customers: {
+            sortBy: {
+              direction: <ListViewSortDirection>'desc',
+              column: undefined,
+            },
+            filterBy: {},
+            columns: [],
+          },
+          leads: {
             sortBy: {
               direction: <ListViewSortDirection>'desc',
               column: undefined,
@@ -269,6 +286,18 @@ export const application = (state = Default, action: ApplicationAction) => {
         accounts: [...action.payload],
       };
 
+    case ActionType.ROLES:
+      return {
+        ...state,
+        roles: [...action.payload],
+      };
+
+    case ActionType.LEADS:
+      return {
+        ...state,
+        leads: [...action.payload],
+      };
+
     case ActionType.ACCOUNT_UPDATE:
       return {
         ...state,
@@ -295,6 +324,39 @@ export const application = (state = Default, action: ApplicationAction) => {
           modal: undefined,
           text: undefined,
         },
+      };
+
+    case ActionType.LEAD_ADD:
+      return {
+        ...state,
+        leads: [...state.leads, action.payload],
+        ui: {
+          ...state.ui,
+          state: Default.ui.state,
+          _id: undefined,
+          modal: undefined,
+          text: undefined,
+        },
+      };
+
+    case ActionType.LEAD_UPDATE:
+      return {
+        ...state,
+        leads: [
+          ...state.leads.map((item) => {
+            if (item._id === action.payload._id) {
+              return { ...action.payload };
+            } else {
+              return { ...item };
+            }
+          }),
+        ],
+      };
+
+    case ActionType.LEAD_DELETE:
+      return {
+        ...state,
+        leads: [...state.leads.filter((item) => item._id !== action.payload._id)],
       };
 
     case ActionType.TEAM_UPDATE:

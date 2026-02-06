@@ -23,6 +23,7 @@ const update = async (req: AuthenticatedRequest, res: Response, next: NextFuncti
     lane.inForecast = req.body.inForecast;
     lane.name = req.body.name;
     lane.tags = req.body.tags;
+    lane.probability = req.body.probability;
 
     const updated = await EntityHelper.update(lane);
 
@@ -70,7 +71,8 @@ const updateAll = async (req: AuthenticatedRequest, res: Response, next: NextFun
               item.index,
               item.color,
               item.inForecast,
-              item.tags ?? {}
+              item.tags ?? {},
+              item.probability
             ),
             Lane
           );
@@ -85,6 +87,7 @@ const updateAll = async (req: AuthenticatedRequest, res: Response, next: NextFun
             lane.inForecast = item.inForecast;
             lane.index = item.index;
             lane.tags = item.tags ?? {};
+            lane.probability = item.probability;
 
             const updated = await EntityHelper.update(lane);
 

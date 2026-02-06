@@ -67,8 +67,6 @@ const allowTeamRegistration = async (
 
     flag = await EntityHelper.update(flag);
 
-    delete team.isFirstTeam;
-
     team = await EntityHelper.update(team);
 
     return res.json(team);

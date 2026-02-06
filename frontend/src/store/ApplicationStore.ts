@@ -5,17 +5,26 @@ import { BrowserState } from '../interfaces/BrowserState';
 import { Card } from '../interfaces/Card';
 import { Lane } from '../interfaces/Lane';
 import { ListView } from '../interfaces/ListView';
+import { Lead } from '../interfaces/Lead';
+import { Role } from '../interfaces/Role';
 import { Schema } from '../interfaces/Schema';
 import { CurrencyCode, Integration, Team } from '../interfaces/Team';
 import { User } from '../interfaces/User';
 import { FilterMode } from '../pages/HomePage';
 
-export type InterfaceState = 'default' | 'card-detail' | 'lane-detail' | 'account-detail';
-export type ListName = 'accounts' | 'users' | 'forecast';
+export type InterfaceState =
+  | 'default'
+  | 'card-detail'
+  | 'lane-detail'
+  | 'account-detail'
+  | 'lead-detail';
+export type ListName = 'accounts' | 'customers' | 'leads' | 'users' | 'forecast';
 
 export interface ApplicationStore {
   users: User[];
   accounts: Account[];
+  leads: Lead[];
+  roles: Role[];
   cards: Card[];
   lanes: Lane[];
   board: Board;
@@ -43,6 +52,8 @@ export interface ApplicationStore {
       userId: string;
     };
     accounts: ListView;
+    customers: ListView;
+    leads: ListView;
     users: ListView;
     forecast: ListView;
     date: {

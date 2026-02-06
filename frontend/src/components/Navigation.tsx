@@ -2,13 +2,16 @@ import { useEffect, useRef, useState, MouseEvent } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { ActionType } from '../actions/Actions';
-import { selectCurrency, selectUserId, store } from '../store/Store';
+import { selectCurrency, selectRoles, selectSessionUser, selectUserId, store } from '../store/Store';
 import { Avatar } from './Avatar';
 import { IconActivity } from './IconActivity';
+import { hasPermission } from '../helpers/PermissionHelper';
 
 export const Navigation = () => {
   const userId = useSelector(selectUserId);
   const currency = useSelector(selectCurrency);
+  const roles = useSelector(selectRoles);
+  const user = useSelector(selectSessionUser);
   const [userMenue, setUserMenu] = useState(false);
   const layerRef = useRef<HTMLDivElement>(null);
 
@@ -43,38 +46,64 @@ export const Navigation = () => {
 
   return (
     <>
-      <div className="item">
-        <Link to="/" title="Opportunities">
-          <img alt="Opportunities" src={`/${currency?.toLocaleLowerCase()}-icon.svg`} />
-        </Link>
-      </div>
-      <div className="item">
-        <Link to="/activity" title="Activities">
-          <span className="icon">
-            <IconActivity />
-          </span>
-        </Link>
-      </div>
-      <div className="item">
-        <Link to="/forecast" title="Forecast">
-          <img alt="Forecast" src="/forecast-icon.svg" />
-        </Link>
-      </div>
-      <div className="item">
-        <Link to="/accounts" title="Accounts">
-          <img alt="Accounts" src="/accounts-icon.svg" />
-        </Link>
-      </div>
-      <div className="item">
-        <Link to="/hire" title="Hire a Specialist">
-          <img alt="Hire a Specialist" src="/paw-icon.svg" />
-        </Link>
-      </div>
-      <div className="item">
-        <Link to="/setup" title="Setup">
-          <img alt="Setup" src="/setup-icon.svg" />
-        </Link>
-      </div>
+      {hasPermission(user, roles, 'opportunities', 'browse') && (
+        <div className="item">
+          <Link to="/" title="Opportunities">
+            <img alt="Opportunities" src={`/${currency?.toLocaleLowerCase()}-icon.svg`} />
+          </Link>
+        </div>
+      )}
+      {hasPermission(user, roles, 'activity', 'read') && (
+        <div className="item">
+          <Link to="/activity" title="Activities">
+            <span className="icon">
+              <IconActivity />
+            </span>
+          </Link>
+        </div>
+      )}
+      {hasPermission(user, roles, 'forecast', 'read') && (
+        <div className="item">
+          <Link to="/forecast" title="Forecast">
+            <img alt="Forecast" src="/forecast-icon.svg" />
+          </Link>
+        </div>
+      )}
+      {hasPermission(user, roles, 'accounts', 'browse') && (
+        <div className="item">
+          <Link to="/accounts" title="Accounts">
+            <img alt="Accounts" src="/accounts-icon.svg" />
+          </Link>
+        </div>
+      )}
+      {hasPermission(user, roles, 'accounts', 'browse') && (
+        <div className="item">
+          <Link to="/customers" title="Customers">
+            <img alt="Customers" src="/accounts-icon.svg" />
+          </Link>
+        </div>
+      )}
+      {hasPermission(user, roles, 'leads', 'browse') && (
+        <div className="item">
+          <Link to="/leads" title="Leads">
+            <img alt="Leads" src="/statistics-icon.svg" />
+          </Link>
+        </div>
+      )}
+      {hasPermission(user, roles, 'users', 'browse') && (
+        <div className="item">
+          <Link to="/hire" title="Hire a Specialist">
+            <img alt="Hire a Specialist" src="/paw-icon.svg" />
+          </Link>
+        </div>
+      )}
+      {hasPermission(user, roles, 'settings', 'browse') && (
+        <div className="item">
+          <Link to="/setup" title="Setup">
+            <img alt="Setup" src="/setup-icon.svg" />
+          </Link>
+        </div>
+      )}
       <div className="item" style={{ flexGrow: 1 }}></div>
       <div className="user-menu">
         {userMenue && (

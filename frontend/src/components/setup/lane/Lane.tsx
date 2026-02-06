@@ -14,11 +14,12 @@ export interface LaneProps {
   index: number;
   type?: LaneType;
   tags?: Tags;
+  probability?: number;
   inForecast: boolean;
   remove: (index: number) => void;
   update: (
     index: number,
-    item: Pick<LaneListItem, 'inForecast' | 'name' | 'type' | 'tags'>
+    item: Pick<LaneListItem, 'inForecast' | 'name' | 'type' | 'tags' | 'probability'>
   ) => void;
 }
 
@@ -29,6 +30,7 @@ export const Lane = (props: LaneProps) => {
     inForecast: props.inForecast,
     type: props.type,
     tags: props.tags || {},
+    probability: props.probability ?? 0,
   });
 
   const handleNameChange = (value: string) => {
@@ -83,12 +85,23 @@ export const Lane = (props: LaneProps) => {
     });
   };
 
+  const updateProbability = (value: string) => {
+    const parsed = parseFloat(value);
+    const safeValue = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 100) : 0;
+
+    setLaneData((prevData) => ({
+      ...prevData,
+      probability: safeValue,
+    }));
+  };
+
   useEffect(() => {
     props.update(props.index, {
       name: laneData.name,
       inForecast: laneData.inForecast,
       type: laneData.type,
       tags: laneData.tags,
+      probability: laneData.probability,
     });
   }, [laneData]);
 
@@ -100,6 +113,7 @@ export const Lane = (props: LaneProps) => {
       inForecast: props.inForecast,
       type: props.type,
       tags: props.tags || {},
+      probability: props.probability ?? 0,
     });
   }, [props]);
   return (
@@ -145,6 +159,15 @@ export const Lane = (props: LaneProps) => {
                     <span style={{ whiteSpace: 'nowrap' }}>{Translations.ExcludeFromForecastLabel[DEFAULT_LANGUAGE]}</span>
                   </Checkbox>
                 ) : null}
+              </div>
+              <div className="attribute" style={{ width: '160px' }}>
+                <TextField
+                  aria-label={Translations.ProbabilityLabel[DEFAULT_LANGUAGE]}
+                  label={Translations.ProbabilityLabel[DEFAULT_LANGUAGE]}
+                  value={laneData.probability?.toString() || '0'}
+                  onChange={updateProbability}
+                  inputMode="decimal"
+                />
               </div>
               <div className="attribute" style={{ width: '220px' }}>
                 {laneData.type !== LaneType.Normal ? (

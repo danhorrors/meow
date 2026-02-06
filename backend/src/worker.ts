@@ -62,6 +62,7 @@ import { SchemaRequestSchema } from './middlewares/schema-validation/SchemaReque
 import { BoardRequestSchema } from './middlewares/schema-validation/BoardRequestSchema.js';
 import { UserUpdateRequestSchema } from './middlewares/schema-validation/UserUpdateRequestSchema.js';
 import { PasswordRequestSchema } from './middlewares/schema-validation/PasswordRequestSchema.js';
+import { UserViewsRequestSchema } from './middlewares/schema-validation/UserViewsRequestSchema.js';
 import { TeamController } from './controllers/TeamController.js';
 import { AccountRequestSchema } from './middlewares/schema-validation/AccountRequestSchema.js';
 import { EventRequestSchema } from './middlewares/schema-validation/EventRequestSchema.js';
@@ -81,6 +82,15 @@ import JobDailyScheduler from './job-daily-scheduler.js';
 import { BoardEventListener } from './events/BoardEventListener.js';
 import { CardForecastEventListener } from './events/CardForecastEventListener.js';
 import { ActivityController } from './controllers/ActivityController.js';
+import { LeadController } from './controllers/LeadController.js';
+import { LeadRequestSchema } from './middlewares/schema-validation/LeadRequestSchema.js';
+import { BookLeadRequestSchema } from './middlewares/schema-validation/BookLeadRequestSchema.js';
+import { IntegrationController } from './controllers/IntegrationController.js';
+import { StackInfoController } from './controllers/StackInfoController.js';
+import { RoleController } from './controllers/RoleController.js';
+import { RoleRequestSchema } from './middlewares/schema-validation/RoleRequestSchema.js';
+import { requirePermission } from './middlewares/requirePermission.js';
+import { ReportController } from './controllers/ReportController.js';
 
 /* spinning up express */
 export const app = express();
@@ -127,32 +137,61 @@ try {
   card.use(express.json({ limit: '5kb' }));
   card.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
 
-  card.route('/').get(CardController.list);
+  card.route('/').get(requirePermission('opportunities', 'browse'), CardController.list);
   card
     .route('/')
     .post(
       rejectIfContentTypeIsNot('application/json'),
       validateAgainst(CardRequestSchema),
+      requirePermission('opportunities', 'add'),
       CardController.create
     );
-  card.route('/:id').get(CardController.get);
+  card.route('/:id').get(requirePermission('opportunities', 'read'), CardController.get);
   card
     .route('/:id?')
     .post(
       rejectIfContentTypeIsNot('application/json'),
       validateAgainst(CardRequestSchema),
+      requirePermission('opportunities', 'edit'),
       CardController.update
     );
-  card.route('/:id/events').get(CardEventController.list);
+  card
+    .route('/:id/events')
+    .get(requirePermission('opportunities', 'read'), CardEventController.list);
   card
     .route('/:id/events')
     .post(
       rejectIfContentTypeIsNot('application/json'),
       validateAgainst(EventRequestSchema),
+      requirePermission('opportunities', 'edit'),
       CardEventController.create
     );
 
   app.use('/api/cards', card);
+
+  const stackInfo = express.Router();
+
+  stackInfo.use(express.json({ limit: '2kb' }));
+  stackInfo.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
+  stackInfo.route('/').get(requirePermission('settings', 'browse'), StackInfoController.get);
+
+  app.use('/api/stack-info', stackInfo);
+
+  const registration = express.Router();
+
+  registration.use(express.json({ limit: '2kb' }));
+  registration.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
+
+  registration
+    .route('/status')
+    .get(requirePermission('settings', 'browse'), RegisterController.authenticatedStatus)
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      requirePermission('settings', 'edit'),
+      RegisterController.setStatus
+    );
+
+  app.use('/api/registration', registration);
 
   const team = express.Router();
 
@@ -160,20 +199,29 @@ try {
 
   team.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
 
-  team.route('/:id').get(TeamController.get);
+  team.route('/:id').get(requirePermission('settings', 'browse'), TeamController.get);
   team
     .route('/:id')
     .post(
       rejectIfContentTypeIsNot('application/json'),
       validateAgainst(TeamRequestSchema),
+      requirePermission('settings', 'edit'),
       TeamController.update
     );
   team
     .route('/:id/integrations')
-    .post(rejectIfContentTypeIsNot('application/json'), TeamController.updateIntegration);
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      requirePermission('settings', 'edit'),
+      TeamController.updateIntegration
+    );
   team
     .route('/:id/allow-team-registration')
-    .post(rejectIfContentTypeIsNot('application/json'), TeamController.allowTeamRegistration);
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      requirePermission('settings', 'edit'),
+      TeamController.allowTeamRegistration
+    );
 
   app.use('/api/teams', team);
 
@@ -183,12 +231,13 @@ try {
 
   account.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
 
-  account.route('/').get(AccountController.list);
+  account.route('/').get(requirePermission('accounts', 'browse'), AccountController.list);
   account
     .route('/')
     .post(
       rejectIfContentTypeIsNot('application/json'),
       validateAgainst(AccountRequestSchema),
+      requirePermission('accounts', 'add'),
       AccountController.create
     );
   account
@@ -196,20 +245,59 @@ try {
     .post(
       rejectIfContentTypeIsNot('application/json'),
       validateAgainst(AccountRequestSchema),
+      requirePermission('accounts', 'edit'),
       AccountController.update
     );
-  account.route('/:id').delete(AccountController.remove);
-  account.route('/:id').get(AccountController.fetch);
-  account.route('/:id/events').get(AccountEventController.list);
+  account.route('/:id').delete(requirePermission('accounts', 'delete'), AccountController.remove);
+  account.route('/:id').get(requirePermission('accounts', 'read'), AccountController.fetch);
+  account
+    .route('/:id/events')
+    .get(requirePermission('accounts', 'read'), AccountEventController.list);
   account
     .route('/:id/events')
     .post(
       rejectIfContentTypeIsNot('application/json'),
       validateAgainst(EventRequestSchema),
+      requirePermission('accounts', 'edit'),
       AccountEventController.create
     );
 
   app.use('/api/accounts', account);
+
+  const lead = express.Router();
+
+  lead.use(express.json({ limit: '5kb' }));
+  lead.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
+
+  lead.route('/').get(requirePermission('leads', 'browse'), LeadController.list);
+  lead
+    .route('/')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      validateAgainst(LeadRequestSchema),
+      requirePermission('leads', 'add'),
+      LeadController.create
+    );
+  lead
+    .route('/:id')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      validateAgainst(LeadRequestSchema),
+      requirePermission('leads', 'edit'),
+      LeadController.update
+    );
+  lead.route('/:id').delete(requirePermission('leads', 'delete'), LeadController.remove);
+  lead.route('/:id').get(requirePermission('leads', 'read'), LeadController.fetch);
+  lead
+    .route('/:id/book')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      validateAgainst(BookLeadRequestSchema),
+      requirePermission('leads', 'edit'),
+      LeadController.bookMeeting
+    );
+
+  app.use('/api/leads', lead);
 
   const lane = express.Router();
 
@@ -217,13 +305,14 @@ try {
 
   lane.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
 
-  lane.route('/').get(LaneController.list);
+  lane.route('/').get(requirePermission('settings', 'browse'), LaneController.list);
   lane.route('/statistic').get(LaneStatisticsController.get);
   lane
     .route('/')
     .post(
       rejectIfContentTypeIsNot('application/json'),
       validateAgainst(LanesRequestSchema),
+      requirePermission('settings', 'edit'),
       LaneController.updateAll
     );
   lane
@@ -231,6 +320,7 @@ try {
     .post(
       rejectIfContentTypeIsNot('application/json'),
       validateAgainst(LaneRequestSchema),
+      requirePermission('settings', 'edit'),
       LaneController.update
     );
 
@@ -242,12 +332,13 @@ try {
 
   user.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
 
-  user.route('/').get(UserController.list);
+  user.route('/').get(requirePermission('users', 'browse'), UserController.list);
   user
     .route('/')
     .post(
       rejectIfContentTypeIsNot('application/json'),
       validateAgainst(UserRequestSchema),
+      requirePermission('users', 'add'),
       UserController.create
     );
   user
@@ -264,6 +355,14 @@ try {
       validateAgainst(BoardRequestSchema),
       UserController.board
     );
+  user
+    .route('/:id/views')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      validateAgainst(UserViewsRequestSchema),
+      UserController.views
+    );
+  user.route('/:id/views').get(UserController.viewsList);
   user.route('/:id/flags').get(UserController.flags);
   user
     .route('/:id/password')
@@ -287,11 +386,17 @@ try {
     isDatabaseConnectionEstablished
   );
 
-  forecast.route('/achieved').get(ForecastController.achieved);
-  forecast.route('/predicted').get(ForecastController.predicted);
-  forecast.route('/list').get(ForecastController.list);
-  forecast.route('/time-series').get(ForecastController.series);
-  forecast.route('/generated').get(ForecastController.generated);
+  forecast.route('/achieved').get(requirePermission('forecast', 'read'), ForecastController.achieved);
+  forecast
+    .route('/predicted')
+    .get(requirePermission('forecast', 'read'), ForecastController.predicted);
+  forecast.route('/list').get(requirePermission('forecast', 'read'), ForecastController.list);
+  forecast
+    .route('/time-series')
+    .get(requirePermission('forecast', 'read'), ForecastController.series);
+  forecast
+    .route('/generated')
+    .get(requirePermission('forecast', 'read'), ForecastController.generated);
 
   app.use('/api/forecast', forecast);
 
@@ -309,11 +414,52 @@ try {
     .post(
       rejectIfContentTypeIsNot('application/json'),
       validateAgainst(SchemaRequestSchema),
+      requirePermission('settings', 'edit'),
       SchemaController.create
     );
-  schema.route('/').get(SchemaController.list);
+  schema.route('/').get(requirePermission('settings', 'browse'), SchemaController.list);
 
   app.use('/api/schemas', schema);
+
+  const integration = express.Router();
+
+  integration.use(express.json({ limit: '5kb' }));
+  integration.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
+
+  integration
+    .route('/google-calendar/auth-url')
+    .get(requirePermission('settings', 'edit'), IntegrationController.getGoogleCalendarAuthUrl);
+
+  app.use('/api/integrations', integration);
+
+  const role = express.Router();
+
+  role.use(express.json({ limit: '5kb' }));
+  role.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
+
+  role.route('/').get(requirePermission('settings', 'browse'), RoleController.list);
+  role
+    .route('/')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      validateAgainst(RoleRequestSchema),
+      requirePermission('settings', 'edit'),
+      RoleController.createOrUpdate
+    );
+  role
+    .route('/:id')
+    .delete(requirePermission('settings', 'delete'), RoleController.remove);
+
+  app.use('/api/roles', role);
+
+  const report = express.Router();
+
+  report.use(express.json({ limit: '5kb' }));
+  report.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
+
+  report.route('/summary').get(requirePermission('forecast', 'read'), ReportController.summary);
+
+  app.use('/api/reports', report);
 
   const activity = express.Router();
 
@@ -327,7 +473,7 @@ try {
     isDatabaseConnectionEstablished
   );
 
-  activity.route('/').get(ActivityController.list);
+  activity.route('/').get(requirePermission('activity', 'read'), ActivityController.list);
 
   app.use('/api/activities', activity);
 
@@ -360,6 +506,9 @@ try {
       validateAgainst(ValidateTokenRequestSchema),
       ValidateTokenController.validate
     );
+  unprotected
+    .route('/google-calendar/callback')
+    .get(IntegrationController.googleCalendarCallback);
 
   app.use('/public', unprotected);
 } catch (error) {

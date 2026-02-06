@@ -4,6 +4,7 @@ import { EntityNotFoundError } from '../errors/EntityNotFoundError.js';
 import { Card, CardStatus } from '../entities/Card.js';
 import { Team } from '../entities/Team.js';
 import { Schema, SchemaType } from '../entities/Schema.js';
+import { Role } from '../entities/Role.js';
 import { EventType } from '../entities/EventType.js';
 import { Lane } from '../entities/Lane.js';
 import { DatabaseHelper } from './DatabaseHelper.js';
@@ -177,6 +178,15 @@ async function findOneByTeam<T extends ExistingEntity>(
   const list = findOneBy(entityClass, query);
 
   return list;
+}
+
+async function findDefaultRole(teamId: ObjectId): Promise<Role | null> {
+  const query: any = {
+    teamId: { $eq: teamId },
+    isDefault: { $eq: true },
+  };
+
+  return await findOneBy(Role, query);
 }
 
 async function findSchemaByType(teamId: ObjectId, type: SchemaType) {
@@ -483,6 +493,7 @@ export const EntityHelper = {
   findByTeam,
   findOneByTeam,
   findSchemaByType,
+  findDefaultRole,
   findUserByInvite,
   isValidEntityId,
   findCardByName,

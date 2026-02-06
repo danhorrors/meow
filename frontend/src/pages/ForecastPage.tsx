@@ -1,7 +1,14 @@
 import { today, parseDate, getLocalTimeZone, CalendarDate } from '@internationalized/date';
 import { DateRangePicker, Item, Picker } from '@adobe/react-spectrum';
 import { useEffect, useState } from 'react';
-import { selectActiveUsers, selectDate, selectInterfaceState, store } from '../store/Store';
+import {
+  selectActiveUsers,
+  selectDate,
+  selectInterfaceState,
+  selectRoles,
+  selectSessionUser,
+  store,
+} from '../store/Store';
 import { useSelector } from 'react-redux';
 import { ActionType } from '../actions/Actions';
 import { FILTER_BY_NONE, DEFAULT_LANGUAGE } from '../Constants';
@@ -11,6 +18,9 @@ import { useNavigate } from 'react-router-dom';
 import { TrendView } from '../components/forecast/TrendView';
 import { PipelineView } from '../components/forecast/PipelineView';
 import { Translations } from '../Translations';
+import { PermissionDenied } from '../components/PermissionDenied';
+import { hasPermission } from '../helpers/PermissionHelper';
+import { ReportView } from '../components/forecast/ReportView';
 
 const max = today(getLocalTimeZone()).add({
   years: 1,
@@ -30,10 +40,16 @@ export const ForecastPage = () => {
   const date = useSelector(selectDate);
   const users = useSelector(selectActiveUsers);
   const state = useSelector(selectInterfaceState);
+  const roles = useSelector(selectRoles);
+  const sessionUser = useSelector(selectSessionUser);
 
   const [userId, setUserId] = useState(date.userId);
   const [view, setView] = useState('');
   const [userSelect, setUserSelect] = useState(true);
+
+  if (!hasPermission(sessionUser, roles, 'forecast', 'read')) {
+    return <PermissionDenied />;
+  }
 
   const setRange = (range: { start: CalendarDate; end: CalendarDate } | null) => {
     if (!range) {
@@ -92,6 +108,8 @@ export const ForecastPage = () => {
         return <TrendView />;
       case 'pipeline-generated':
         return <PipelineView />;
+      case 'report-summary':
+        return <ReportView />;
       default:
         return <ForecastView />;
     }
@@ -114,6 +132,7 @@ export const ForecastPage = () => {
               <Item key="">{Translations.ForecastOption[DEFAULT_LANGUAGE]}</Item>
               <Item key="pipeline-trend">{Translations.SalesPipelineTrendOption[DEFAULT_LANGUAGE]}</Item>
               <Item key="pipeline-generated">{Translations.SalesPipelineGeneratedOption[DEFAULT_LANGUAGE]}</Item>
+              <Item key="report-summary">{Translations.ReportSummaryOption[DEFAULT_LANGUAGE]}</Item>
             </Picker>
           </div>
           <div className="users">

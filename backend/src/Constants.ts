@@ -12,20 +12,22 @@ export const IS_ISO_8601_DATE_REGEXP = /^\d{4}-\d{2}-\d{2}$/;
 export const FILTER_BY_NONE = { name: 'Everyone', key: 'all' };
 
 export const DefaultLanes = [
-  { name: 'Not Qualified', inForecast: true, tags: { type: LaneType.Normal } },
-  { name: 'Qualified', inForecast: true, tags: { type: LaneType.Normal } },
-  { name: 'Comitted', inForecast: true, tags: { type: LaneType.Normal } },
+  { name: 'Not Qualified', inForecast: true, tags: { type: LaneType.Normal }, probability: 10 },
+  { name: 'Qualified', inForecast: true, tags: { type: LaneType.Normal }, probability: 30 },
+  { name: 'Comitted', inForecast: true, tags: { type: LaneType.Normal }, probability: 60 },
   {
     name: 'Closed Won',
     color: '#00b359',
     inForecast: false,
     tags: { type: LaneType.ClosedWon },
+    probability: 100,
   },
   {
     name: 'Closed Lost',
     color: '#e30544',
     inForecast: false,
     tags: { type: LaneType.ClosedLost },
+    probability: 0,
   },
 ];
 
@@ -87,6 +89,46 @@ export const DefaultAccountSchema = {
       index: 2,
       type: 'text',
       name: 'Phone',
+    },
+  ],
+} as {
+  type: SchemaType;
+  schema: SchemaAttribute[];
+};
+
+export const DefaultLeadSchema = {
+  type: SchemaType.Lead,
+  schema: [
+    {
+      key: 'lead-contact',
+      index: 0,
+      type: 'text',
+      name: 'Contact',
+    },
+    {
+      key: 'lead-email',
+      index: 1,
+      type: 'email',
+      name: 'Email',
+    },
+    {
+      key: 'lead-phone',
+      index: 2,
+      type: 'text',
+      name: 'Phone',
+    },
+    {
+      key: 'lead-source',
+      index: 3,
+      type: 'select',
+      name: 'Source',
+      options: ['Website', 'Referral', 'Outbound'],
+    },
+    {
+      key: 'lead-notes',
+      index: 4,
+      type: 'textarea',
+      name: 'Notes',
     },
   ],
 } as {

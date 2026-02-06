@@ -8,6 +8,7 @@ export const UserUpdateRequestSchema = {
       minLength: 7,
     },
     status: { type: 'string', maxLength: 50 },
+    roleId: { type: 'string' },
   },
   additionalProperties: false,
 };

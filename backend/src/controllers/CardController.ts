@@ -14,6 +14,7 @@ import {
   validateAndFetchLane,
   validateAndFetchUser,
 } from '../helpers/EntityFetchHelper.js';
+import { PermissionHelper } from '../helpers/PermissionHelper.js';
 
 const extractDateLimitFromRequest = (req: AuthenticatedRequest): DateTime | undefined => {
   const maxDaysAgo = req.query['max-days-ago']
@@ -145,6 +146,7 @@ const update = async (req: AuthenticatedRequest, res: Response, next: NextFuncti
     let previousUserId = undefined;
 
     if (body.userId && card.userId.toString() !== body.userId.toString()) {
+      await PermissionHelper.ensurePermission(req.jwt.user, 'opportunities', 'assign');
       const user = await validateAndFetchUser(body.userId, req.jwt.user);
 
       previousUserId = card.userId;

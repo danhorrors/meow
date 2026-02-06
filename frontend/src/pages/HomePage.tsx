@@ -10,6 +10,8 @@ import {
   selectActiveUsers,
   store,
   selectToken,
+  selectRoles,
+  selectSessionUser,
 } from '../store/Store';
 import {
   ActionType,
@@ -33,6 +35,8 @@ import { CardHelper } from '../helpers/CardHelper';
 import useMobileLayout from '../hooks/useMobileLayout';
 import { getErrorMessage } from '../helpers/ErrorHelper';
 import { getRequestClient } from '../helpers/RequestHelper';
+import { PermissionDenied } from '../components/PermissionDenied';
+import { hasPermission } from '../helpers/PermissionHelper';
 
 export const enum FilterMode {
   OwnedByMe = 'owned-by-me',
@@ -46,6 +50,8 @@ export const HomePage = () => {
   const users = useSelector(selectActiveUsers);
   const state = useSelector(selectInterfaceState);
   const filters = useSelector(selectFilters);
+  const roles = useSelector(selectRoles);
+  const sessionUser = useSelector(selectSessionUser);
 
   const [mode, setMode] = useState<'board' | 'statistics'>('board');
   const [text, setText] = useState<string>('');
@@ -58,6 +64,10 @@ export const HomePage = () => {
   const client = getRequestClient(token);
 
   const navigate = useNavigate();
+
+  if (!hasPermission(sessionUser, roles, 'opportunities', 'browse')) {
+    return <PermissionDenied />;
+  }
 
   const handleFilterToggle = (key: FilterMode) => {
     const updated = new Set(filters.mode);

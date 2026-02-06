@@ -7,6 +7,7 @@ export const LaneRequestSchema = {
     color: {
       type: ['string', 'null'],
     },
+    probability: { type: ['number', 'null'] },
   },
   required: ['name', 'inForecast', 'index'],
   additionalProperties: false,

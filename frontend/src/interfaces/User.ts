@@ -6,6 +6,9 @@ export interface User {
   readonly createdAt?: string;
   readonly teamId: string;
   readonly authentication: 'local' | 'google';
+  roleId?: string;
+  isAdmin?: boolean;
+  views?: { [key: string]: { [label: string]: any } };
   status: UserStatus;
   invite?: string;
   animal?: string;

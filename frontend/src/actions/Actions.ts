@@ -4,6 +4,8 @@ import { BrowserState } from '../interfaces/BrowserState';
 import { Card } from '../interfaces/Card';
 import { Lane } from '../interfaces/Lane';
 import { ListViewItem, ListViewSortDirection } from '../interfaces/ListView';
+import { Lead } from '../interfaces/Lead';
+import { Role } from '../interfaces/Role';
 import { Schema } from '../interfaces/Schema';
 import { CurrencyCode, Integration, Team } from '../interfaces/Team';
 import { User } from '../interfaces/User';
@@ -21,6 +23,11 @@ export enum ActionType {
   ACCOUNTS = 'ACCOUNTS',
   ACCOUNT_ADD = 'ACCOUNT_ADD',
   ACCOUNT_UPDATE = 'ACCOUNT_UPDATE',
+  LEADS = 'LEADS',
+  LEAD_ADD = 'LEAD_ADD',
+  LEAD_UPDATE = 'LEAD_UPDATE',
+  LEAD_DELETE = 'LEAD_DELETE',
+  ROLES = 'ROLES',
   TEAM_UPDATE = 'TEAM_UPDATE',
   CARDS = 'CARDS',
   CARD_ADD = 'CARD_ADD',
@@ -116,6 +123,26 @@ export interface ApplicationAccountsAction extends Action<ActionType.ACCOUNTS> {
   payload: Account[];
 }
 
+export interface ApplicationLeadsAction extends Action<ActionType.LEADS> {
+  payload: Lead[];
+}
+
+export interface ApplicationLeadAddAction extends Action<ActionType.LEAD_ADD> {
+  payload: Lead;
+}
+
+export interface ApplicationLeadUpdateAction extends Action<ActionType.LEAD_UPDATE> {
+  payload: Lead;
+}
+
+export interface ApplicationLeadDeleteAction extends Action<ActionType.LEAD_DELETE> {
+  payload: Lead;
+}
+
+export interface ApplicationRolesAction extends Action<ActionType.ROLES> {
+  payload: Role[];
+}
+
 export interface ApplicationTeamUpdateAction extends Action<ActionType.TEAM_UPDATE> {
   payload: Team;
 }
@@ -206,6 +233,11 @@ export type ApplicationAction =
   | ApplicationCardLaneAction
   | ApplicationCardDeleteAction
   | ApplicationAccountsAction
+  | ApplicationLeadsAction
+  | ApplicationLeadAddAction
+  | ApplicationLeadUpdateAction
+  | ApplicationLeadDeleteAction
+  | ApplicationRolesAction
   | ApplicationAccountAddAction
   | ApplicationAccountUpdateAction
   | ApplicationTeamUpdateAction
@@ -332,6 +364,13 @@ export const showLaneLayer = (id?: string): ApplicationUserInterfaceStateAction 
   };
 };
 
+export const showLeadLayer = (id?: string): ApplicationUserInterfaceStateAction => {
+  return {
+    type: ActionType.USER_INTERFACE_STATE,
+    payload: { state: 'lead-detail', _id: id },
+  };
+};
+
 export const hideLayer = (): ApplicationUserInterfaceStateAction => {
   return {
     type: ActionType.USER_INTERFACE_STATE,
@@ -378,5 +417,26 @@ export const updateAccount = (account: Account): ApplicationAccountUpdateAction 
   return {
     type: ActionType.ACCOUNT_UPDATE,
     payload: account,
+  };
+};
+
+export const addLead = (lead: Lead): ApplicationLeadAddAction => {
+  return {
+    type: ActionType.LEAD_ADD,
+    payload: lead,
+  };
+};
+
+export const updateLead = (lead: Lead): ApplicationLeadUpdateAction => {
+  return {
+    type: ActionType.LEAD_UPDATE,
+    payload: lead,
+  };
+};
+
+export const deleteLead = (lead: Lead): ApplicationLeadDeleteAction => {
+  return {
+    type: ActionType.LEAD_DELETE,
+    payload: lead,
   };
 };

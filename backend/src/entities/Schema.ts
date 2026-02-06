@@ -49,6 +49,7 @@ export class NewSchema implements NewEntity {
 export enum SchemaType {
   Card = 'card',
   Account = 'account',
+  Lead = 'lead',
 }
 
 export enum SchemaAttributeType {

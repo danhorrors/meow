@@ -4,6 +4,7 @@ import { Reference } from './Reference';
 
 export interface Account {
   readonly _id: id;
+  userId?: string;
   name: string;
   attributes: Attribute | undefined;
   references?: Reference[];
@@ -12,6 +13,7 @@ export interface Account {
 }
 
 export interface AccountPreview {
+  userId?: string;
   name: string;
   attributes: Attribute | undefined;
 }

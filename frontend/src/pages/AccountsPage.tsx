@@ -29,6 +29,11 @@ import { Layer as CardLayer } from '../components/card/Layer';
 import { Translations } from '../Translations';
 import { DEFAULT_LANGUAGE } from '../Constants';
 import { getRequestClient } from '../helpers/RequestHelper';
+import { PermissionDenied } from '../components/PermissionDenied';
+import { hasPermission } from '../helpers/PermissionHelper';
+import { selectRoles, selectSessionUser } from '../store/Store';
+import { ListViewSaved } from '../components/view/ListViewSaved';
+import { setListViewFilterBy } from '../actions/Actions';
 
 const createListViewItemsFromSchema = (schema: Schema | undefined): ListViewItem[] => {
   const list: ListViewItem[] = [
@@ -66,6 +71,8 @@ export const AccountsPage = () => {
   const state = useSelector(selectInterfaceState);
   const token = useSelector(selectToken);
   const accounts = useSelector(selectAccounts);
+  const roles = useSelector(selectRoles);
+  const sessionUser = useSelector(selectSessionUser);
   const view = useSelector((store: ApplicationStore) => selectView(store, 'accounts'));
   const columns = useSelector((store: ApplicationStore) => selectViewColumns(store, 'accounts'));
   const isMobileLayout = useMobileLayout();
@@ -75,6 +82,10 @@ export const AccountsPage = () => {
   const schema = useSelector((store: ApplicationStore) =>
     selectSchemaByType(store, SchemaType.Account)
   );
+
+  if (!hasPermission(sessionUser, roles, 'accounts', 'browse')) {
+    return <PermissionDenied />;
+  }
 
   useEffect(() => {
     if (schema && columns.length === 0) {
@@ -202,6 +213,15 @@ export const AccountsPage = () => {
             </div>
           </div>
           <div className="toolbar">
+            <ListViewSaved
+              name="accounts"
+              current={view}
+              onApply={(saved) => {
+                store.dispatch(setListViewColumn('accounts', saved.columns));
+                store.dispatch(setListViewSortBy('accounts', saved.sortBy.column, saved.sortBy.direction));
+                store.dispatch(setListViewFilterBy('accounts', saved.filterBy.text || ''));
+              }}
+            />
             <ListSearchCanvas name="accounts" />
             <ListFilterCanvas name="accounts" columns={columns} />
           </div>

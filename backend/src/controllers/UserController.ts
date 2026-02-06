@@ -9,6 +9,7 @@ import { AuthenticatedRequest } from '../requests/AuthenticatedRequest.js';
 import { isValidName, isValidPassword } from './RegisterControllerValidator.js';
 import { EntityNotFoundError } from '../errors/EntityNotFoundError.js';
 import { validateAndFetchUser } from '../helpers/EntityFetchHelper.js';
+import { PermissionHelper } from '../helpers/PermissionHelper.js';
 
 function parseUserStatus(value: unknown): UserStatus {
   switch (value) {
@@ -48,6 +49,8 @@ const update = async (req: AuthenticatedRequest, res: Response, next: NextFuncti
   try {
     const user = await validateAndFetchUser(req.params.id, req.jwt.user);
 
+    await PermissionHelper.ensurePermissionOrSelf(req.jwt.user, user._id.toString(), 'users', 'edit');
+
     if (req.body.animal) {
       user.animal = req.body.animal.toString();
     }
@@ -61,12 +64,19 @@ const update = async (req: AuthenticatedRequest, res: Response, next: NextFuncti
         throw new InvalidRequestBodyError();
       }
 
+      await PermissionHelper.ensurePermission(req.jwt.user, 'users', 'edit');
+
       user.status = parseUserStatus(req.body.status);
 
       if (user.status === UserStatus.Deleted) {
         user.authentication = null;
         user.invite = null;
       }
+    }
+
+    if (req.body.roleId && req.body.roleId.toString() !== user.roleId?.toString()) {
+      await PermissionHelper.ensurePermission(req.jwt.user, 'users', 'assign');
+      user.roleId = req.body.roleId;
     }
 
     const updated = await EntityHelper.update(user);
@@ -99,6 +109,11 @@ const create = async (req: AuthenticatedRequest, res: Response, next: NextFuncti
 
     user.invite = generateInviteCode(8);
 
+    const defaultRole = await EntityHelper.findDefaultRole(req.jwt.team._id);
+    if (defaultRole) {
+      user.roleId = defaultRole._id;
+    }
+
     const updated = await EntityHelper.create(user, User);
 
     res.status(201).json(updated);
@@ -116,6 +131,54 @@ const flags = async (req: AuthenticatedRequest, res: Response, next: NextFunctio
   }
 
   return res.json(user.flags ? user.flags : {});
+};
+
+const views = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = await validateAndFetchUser(req.params.id, req.jwt.user);
+
+    await PermissionHelper.ensurePermissionOrSelf(
+      req.jwt.user,
+      user._id.toString(),
+      'settings',
+      'edit'
+    );
+
+    const { name, label, view } = req.body;
+
+    if (!user.views) {
+      user.views = {};
+    }
+
+    if (!user.views[name]) {
+      user.views[name] = {};
+    }
+
+    user.views[name][label] = view;
+
+    const updated = await EntityHelper.update(user);
+
+    return res.json(updated);
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const viewsList = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = await validateAndFetchUser(req.params.id, req.jwt.user);
+
+    await PermissionHelper.ensurePermissionOrSelf(
+      req.jwt.user,
+      user._id.toString(),
+      'settings',
+      'read'
+    );
+
+    return res.json(user.views ? user.views : {});
+  } catch (error) {
+    return next(error);
+  }
 };
 
 const password = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -161,6 +224,8 @@ export const UserController = {
   list,
   create,
   flags,
+  views,
+  viewsList,
   update,
   board,
   password,

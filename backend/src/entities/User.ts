@@ -8,6 +8,8 @@ import { Team } from './Team.js';
 export class User implements ExistingEntity {
   _id: ObjectId;
   teamId: ObjectId;
+  roleId?: ObjectId;
+  isAdmin?: boolean;
   name: string;
   status: UserStatus;
   animal?: string;
@@ -17,6 +19,7 @@ export class User implements ExistingEntity {
   authentication?: UserAuthentication | null;
   color?: string;
   flags?: Flags;
+  views?: { [key: string]: any };
   board?: { [key: string]: Card['_id'][] };
   createdAt: Date;
   updatedAt: Date;
@@ -47,6 +50,8 @@ export class User implements ExistingEntity {
 @Entity({ name: 'Users' })
 export class NewUser implements NewEntity {
   teamId: ObjectId;
+  roleId?: ObjectId;
+  isAdmin?: boolean;
   name: string;
   status: UserStatus;
   animal?: string;
@@ -56,6 +61,7 @@ export class NewUser implements NewEntity {
   authentication?: UserAuthentication | null;
   color?: string;
   flags?: Flags;
+  views?: { [key: string]: any };
   board?: { [key: string]: Card['_id'][] };
   createdAt: Date;
   updatedAt: Date;

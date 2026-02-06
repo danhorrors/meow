@@ -1,6 +1,12 @@
 import { useSelector } from 'react-redux';
 import { getRequestClient } from '../helpers/RequestHelper';
-import { selectInterfaceState, selectToken, store } from '../store/Store';
+import {
+  selectInterfaceState,
+  selectRoles,
+  selectSessionUser,
+  selectToken,
+  store,
+} from '../store/Store';
 import { useEffect, useState } from 'react';
 import { showCardLayer, showModalError } from '../actions/Actions';
 import { getErrorMessage } from '../helpers/ErrorHelper';
@@ -13,15 +19,23 @@ import { Layer as CardLayer } from '../components/card/Layer';
 import React from 'react';
 import { Translations } from '../Translations';
 import { DEFAULT_LANGUAGE } from '../Constants';
+import { PermissionDenied } from '../components/PermissionDenied';
+import { hasPermission } from '../helpers/PermissionHelper';
 
 export const ActivityPage = () => {
   const state = useSelector(selectInterfaceState);
   const token = useSelector(selectToken);
+  const roles = useSelector(selectRoles);
+  const sessionUser = useSelector(selectSessionUser);
   const [list, setList] = useState<(CardEvent & { userName: string; cardName: string })[]>([]);
   const [range, setRange] = useState('today');
   const [isLoading, setIsLoading] = useState(false);
 
   const client = getRequestClient(token);
+
+  if (!hasPermission(sessionUser, roles, 'activity', 'read')) {
+    return <PermissionDenied />;
+  }
 
   const openCard = (id?: string) => {
     store.dispatch(showCardLayer(id));
