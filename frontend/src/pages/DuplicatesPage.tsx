@@ -72,11 +72,16 @@ export const DuplicatesPage = () => {
             width={200}
             selectedKey={view}
             onSelectionChange={(key) => setView(key.toString() as 'leads' | 'accounts')}
+            items={[
+              ...(canLeadBrowse
+                ? [{ key: 'leads', label: Translations.LeadsTitle[DEFAULT_LANGUAGE] }]
+                : []),
+              ...(canAccountBrowse
+                ? [{ key: 'accounts', label: Translations.AccountsTitle[DEFAULT_LANGUAGE] }]
+                : []),
+            ]}
           >
-            {canLeadBrowse && <Item key="leads">{Translations.LeadsTitle[DEFAULT_LANGUAGE]}</Item>}
-            {canAccountBrowse && (
-              <Item key="accounts">{Translations.AccountsTitle[DEFAULT_LANGUAGE]}</Item>
-            )}
+            {(item) => <Item key={item.key}>{item.label}</Item>}
           </Picker>
         </div>
       </div>
