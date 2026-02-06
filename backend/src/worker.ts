@@ -307,7 +307,7 @@ try {
 
   lane.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
 
-  lane.route('/').get(requirePermission('settings', 'browse'), LaneController.list);
+  lane.route('/').get(requirePermission('opportunities', 'browse'), LaneController.list);
   lane.route('/statistic').get(LaneStatisticsController.get);
   lane
     .route('/')
