@@ -188,9 +188,8 @@ const status = async (req: Request, res: Response, next: NextFunction) => {
       payload.configured = true;
     }
 
-    if (flag && flag.value === false) {
-      payload.allowTeamRegistration = false;
-    }
+    // Team registration always enabled (ignore flag value).
+    payload.allowTeamRegistration = true;
 
     res.status(201).json(payload);
   } catch (error) {
@@ -215,9 +214,8 @@ const authenticatedStatus = async (
       payload.configured = true;
     }
 
-    if (flag && flag.value === false) {
-      payload.allowTeamRegistration = false;
-    }
+    // Team registration always enabled (ignore flag value).
+    payload.allowTeamRegistration = true;
 
     res.status(200).json(payload);
   } catch (error) {
@@ -245,11 +243,7 @@ const setStatus = async (req: AuthenticatedRequest, res: Response, next: NextFun
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const flag = await EntityHelper.findGlobalFlagByName('allow-team-registration');
-
-    if (flag && flag.value === false) {
-      throw new InvalidRequestError('team registration is disabled');
-    }
+    // Team registration always enabled (ignore flag value).
 
     log.debug(`get user by name: ${req.body.name}`);
 
