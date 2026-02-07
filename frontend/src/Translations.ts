@@ -1183,6 +1183,66 @@ export const Translations = {
     fr: 'Ouvrir le gestionnaire de doublons',
   },
 
+  EmailTab: {
+    en: 'Emails',
+    fr: 'Emails',
+  },
+
+  EmailSentConfirmation: {
+    en: 'Email sent.',
+    fr: 'Email envoyé.',
+  },
+
+  EmailToLabel: {
+    en: 'To',
+    fr: 'À',
+  },
+
+  EmailSubjectLabel: {
+    en: 'Subject',
+    fr: 'Sujet',
+  },
+
+  EmailHtmlLabel: {
+    en: 'HTML Body',
+    fr: 'Contenu HTML',
+  },
+
+  EmailTextLabel: {
+    en: 'Text Body',
+    fr: 'Contenu texte',
+  },
+
+  SendEmailButton: {
+    en: 'Send Email',
+    fr: 'Envoyer l’email',
+  },
+
+  EmailLogEmptyLabel: {
+    en: 'No emails yet.',
+    fr: 'Aucun email pour le moment.',
+  },
+
+  EmailStatusLabel: {
+    en: 'Status',
+    fr: 'Statut',
+  },
+
+  EmailProviderLabel: {
+    en: 'Provider',
+    fr: 'Fournisseur',
+  },
+
+  EmailProviderGmail: {
+    en: 'Gmail (Google Workspace)',
+    fr: 'Gmail (Google Workspace)',
+  },
+
+  EmailProviderMailgun: {
+    en: 'Mailgun',
+    fr: 'Mailgun',
+  },
+
   ImportTitle: {
     en: 'Import',
     fr: 'Importer',
@@ -1213,9 +1273,325 @@ export const Translations = {
     fr: 'Importé {0}, ignoré {1}.',
   },
 
+  CampaignsTitle: {
+    en: 'Campaigns',
+    fr: 'Campagnes',
+  },
+
+  CampaignNameLabel: {
+    en: 'Campaign Name',
+    fr: 'Nom de campagne',
+  },
+
+  CampaignAudienceLabel: {
+    en: 'Audience',
+    fr: 'Audience',
+  },
+
+  CampaignEntityLabel: {
+    en: 'Entity',
+    fr: 'Entité',
+  },
+
+  CampaignMatchLabel: {
+    en: 'Match',
+    fr: 'Correspondance',
+  },
+
+  CampaignMatchAllLabel: {
+    en: 'All conditions',
+    fr: 'Toutes les conditions',
+  },
+
+  CampaignMatchAnyLabel: {
+    en: 'Any condition',
+    fr: 'Au moins une condition',
+  },
+
+  CampaignConditionFieldLabel: {
+    en: 'Field',
+    fr: 'Champ',
+  },
+
+  CampaignConditionOperatorLabel: {
+    en: 'Operator',
+    fr: 'Opérateur',
+  },
+
+  CampaignConditionValueLabel: {
+    en: 'Value',
+    fr: 'Valeur',
+  },
+
+  CampaignTemplateLabel: {
+    en: 'Template',
+    fr: 'Modèle',
+  },
+
+  CampaignSubjectLabel: {
+    en: 'Subject',
+    fr: 'Sujet',
+  },
+
+  CampaignHtmlLabel: {
+    en: 'HTML',
+    fr: 'HTML',
+  },
+
+  CampaignTextLabel: {
+    en: 'Text',
+    fr: 'Texte',
+  },
+
+  CampaignScheduleLabel: {
+    en: 'Schedule',
+    fr: 'Planification',
+  },
+
+  CampaignSendAtLabel: {
+    en: 'Send At (ISO date)',
+    fr: 'Envoyer le (date ISO)',
+  },
+
+  CampaignTimeZoneLabel: {
+    en: 'Time Zone',
+    fr: 'Fuseau horaire',
+  },
+
+  CampaignRecurringLabel: {
+    en: 'Recurring',
+    fr: 'Récurrent',
+  },
+
+  CampaignIntervalDaily: {
+    en: 'Daily',
+    fr: 'Quotidien',
+  },
+
+  CampaignIntervalWeekly: {
+    en: 'Weekly',
+    fr: 'Hebdomadaire',
+  },
+
+  CampaignStepsLabel: {
+    en: 'Drip Steps',
+    fr: 'Étapes de drip',
+  },
+
+  CampaignAddStepButton: {
+    en: 'Add Step',
+    fr: 'Ajouter une étape',
+  },
+
+  CampaignSaveButton: {
+    en: 'Save Campaign',
+    fr: 'Enregistrer la campagne',
+  },
+
+  CampaignSendNowButton: {
+    en: 'Send Now',
+    fr: 'Envoyer maintenant',
+  },
+
+  CampaignScheduleButton: {
+    en: 'Schedule',
+    fr: 'Planifier',
+  },
+
+  MailgunTitle: {
+    en: 'Mailgun Integration',
+    fr: 'Intégration Mailgun',
+  },
+
+  MailgunDomainLabel: {
+    en: 'Domain',
+    fr: 'Domaine',
+  },
+
+  MailgunApiKeyLabel: {
+    en: 'API Key',
+    fr: 'Clé API',
+  },
+
+  MailgunSenderLabel: {
+    en: 'Default Sender',
+    fr: 'Expéditeur par défaut',
+  },
+
+  MailgunRegionLabel: {
+    en: 'Region',
+    fr: 'Région',
+  },
+
+  MailgunRegionUS: {
+    en: 'US',
+    fr: 'US',
+  },
+
+  MailgunRegionEU: {
+    en: 'EU',
+    fr: 'UE',
+  },
+
+  GoogleWorkspaceTitle: {
+    en: 'Google Workspace (Gmail)',
+    fr: 'Google Workspace (Gmail)',
+  },
+
+  GoogleWorkspaceConnectButton: {
+    en: 'Connect Gmail',
+    fr: 'Connecter Gmail',
+  },
+
+  GoogleWorkspaceConnectedLabel: {
+    en: 'Gmail is connected for this user.',
+    fr: 'Gmail est connecté pour cet utilisateur.',
+  },
+
+  GoogleWorkspaceNotConnectedLabel: {
+    en: 'Gmail is not connected yet.',
+    fr: 'Gmail n’est pas encore connecté.',
+  },
+
+  GoogleWorkspaceSyncButton: {
+    en: 'Sync Gmail Inbox',
+    fr: 'Synchroniser la boîte Gmail',
+  },
+
+  GoogleWorkspaceSyncSuccess: {
+    en: 'Gmail inbox sync completed.',
+    fr: 'Synchronisation Gmail terminée.',
+  },
+
   IgnoreLabel: {
     en: 'Ignore',
     fr: 'Ignorer',
+  },
+
+  EmailFromLabel: {
+    en: 'From',
+    fr: 'De',
+  },
+
+  LeadQuickActionsTitle: {
+    en: 'Quick Actions',
+    fr: 'Actions rapides',
+  },
+  LeadCallButton: {
+    en: 'Call',
+    fr: 'Appeler',
+  },
+  LeadSmsButton: {
+    en: 'Text',
+    fr: 'Texter',
+  },
+  LeadEmailButton: {
+    en: 'Email',
+    fr: 'Email',
+  },
+  LeadCopyPhoneButton: {
+    en: 'Copy phone',
+    fr: 'Copier le tel',
+  },
+  LeadCopyEmailButton: {
+    en: 'Copy email',
+    fr: 'Copier email',
+  },
+  LeadMarkContactedButton: {
+    en: 'Mark Contacted',
+    fr: 'Marquer contact',
+  },
+  LeadCallOutcomeLabel: {
+    en: 'Call outcome',
+    fr: 'Resultat appel',
+  },
+  LeadScriptsTitle: {
+    en: 'Call Scripts',
+    fr: 'Scripts d appel',
+  },
+  LeadCopyScriptButton: {
+    en: 'Copy script',
+    fr: 'Copier le script',
+  },
+  LeadQueueFilterLabel: {
+    en: 'Lead queue',
+    fr: 'File leads',
+  },
+  LeadQueueAll: {
+    en: 'All',
+    fr: 'Tous',
+  },
+  LeadQueueUncontacted: {
+    en: 'Uncontacted',
+    fr: 'Non contactes',
+  },
+  LeadQueueCallBack: {
+    en: 'Call back',
+    fr: 'Rappeler',
+  },
+  LeadQueueNoAnswer: {
+    en: 'No answer',
+    fr: 'Sans reponse',
+  },
+  LeadQueueVoicemail: {
+    en: 'Voicemail',
+    fr: 'Messagerie',
+  },
+  LeadQueueHasPhone: {
+    en: 'Has phone',
+    fr: 'Avec tel',
+  },
+  LeadQueueHasEmail: {
+    en: 'Has email',
+    fr: 'Avec email',
+  },
+  TelemarketerSettingsTitle: {
+    en: 'Telemarketer Productivity',
+    fr: 'Productivite telemarketing',
+  },
+  TelemarketerQuickActionsToggle: {
+    en: 'Enable quick actions on leads',
+    fr: 'Activer actions rapides',
+  },
+  TelemarketerScriptsToggle: {
+    en: 'Enable call scripts',
+    fr: 'Activer scripts',
+  },
+  TelemarketerCallTimerToggle: {
+    en: 'Enable call attempt timer',
+    fr: 'Activer minuterie appel',
+  },
+  TelemarketerQueueToggle: {
+    en: 'Enable lead queue filters',
+    fr: 'Activer file leads',
+  },
+  TelemarketerDashboardToggle: {
+    en: 'Enable outcomes dashboard',
+    fr: 'Activer tableau de bord',
+  },
+  TelemarketerAutoAdvanceToggle: {
+    en: 'Enable auto-advance after contact',
+    fr: 'Auto-advance apres contact',
+  },
+  TelemarketerAutoAdvanceOutcomesOnlyToggle: {
+    en: 'Only auto-advance on selected outcomes',
+    fr: 'Auto-advance selon resultat',
+  },
+  TelemarketerAutoAdvanceOutcomesLabel: {
+    en: 'Auto-advance outcomes (comma separated)',
+    fr: 'Resultats auto-advance',
+  },
+  TelemarketerScriptsLabel: {
+    en: 'Call scripts (JSON)',
+    fr: 'Scripts appel (JSON)',
+  },
+  LeadPrevLeadButton: {
+    en: 'Previous lead',
+    fr: 'Lead precedent',
+  },
+  LeadNextLeadButton: {
+    en: 'Next lead',
+    fr: 'Lead suivant',
   },
 
   ConvertOpportunityToAccountButton: {

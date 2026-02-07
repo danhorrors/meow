@@ -16,6 +16,8 @@ const MODULES: { key: PermissionModule; label: string }[] = [
   { key: 'accounts', label: 'Accounts' },
   { key: 'leads', label: 'Leads' },
   { key: 'customers', label: 'Customers' },
+  { key: 'campaigns', label: 'Campaigns' },
+  { key: 'emails', label: 'Emails' },
   { key: 'users', label: 'Users' },
   { key: 'settings', label: 'Settings' },
   { key: 'forecast', label: 'Forecast' },

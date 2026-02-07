@@ -6,6 +6,9 @@ import { LeadSchema } from '../components/setup/lead/LeadSchema';
 import { CustomerSchema } from '../components/setup/customer/CustomerSchema';
 import { PermissionsCanvas } from '../components/setup/permissions/PermissionsCanvas';
 import { GoogleCalendarCanvas } from '../components/setup/integrations/GoogleCalendarCanvas';
+import { MailgunCanvas } from '../components/setup/integrations/MailgunCanvas';
+import { GoogleWorkspaceCanvas } from '../components/setup/integrations/GoogleWorkspaceCanvas';
+import { TelemarketerSettingsCanvas } from '../components/setup/telemarketer/TelemarketerSettingsCanvas';
 import { Switch } from '@adobe/react-spectrum';
 import { useEffect, useMemo, useState } from 'react';
 import { IconDownload } from '../components/setup/IconDownload';
@@ -227,6 +230,9 @@ export const SetupPage = () => {
 
       <CurrencyCanvas />
       <GoogleCalendarCanvas />
+      <GoogleWorkspaceCanvas />
+      <MailgunCanvas />
+      <TelemarketerSettingsCanvas />
       <LanesSchema isDeveloperMode={isDeveloperMode} />
       <CardSchema isDeveloperMode={isDeveloperMode} />
       <AccountSchema isDeveloperMode={isDeveloperMode} />

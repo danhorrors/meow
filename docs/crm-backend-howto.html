@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meow CRM - Backend How-To (Idiot Proof)</title>
+  <style>
+    :root {
+      --bg: #0f141c;
+      --card: #151b24;
+      --text: #eef2f6;
+      --muted: #9aa4bf;
+      --accent: #f0934b;
+      --border: rgba(240, 147, 75, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Manrope", "Inter", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .page {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+    h1 { font-size: 32px; margin: 0 0 10px 0; }
+    h2 { font-size: 22px; margin: 24px 0 10px; color: var(--accent); }
+    h3 { font-size: 16px; margin: 14px 0 8px; color: #ffd4b2; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+    .num {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(240, 147, 75, 0.2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    code {
+      font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+      background: #0b1117;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    pre {
+      background: #0b1117;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 10px;
+      border-radius: 10px;
+      overflow: auto;
+      font-size: 12px;
+    }
+    .muted { color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>Meow CRM - Backend How-To (Idiot Proof)</h1>
+    <p class="muted">If you follow this exactly, it will work. No guesswork.</p>
+
+    <div class="card">
+      <h2>0) Basic Rule</h2>
+      <div class="step"><div class="num">1</div><div>Every API request needs a valid <code>Token</code> header.</div></div>
+      <div class="step"><div class="num">2</div><div>Use JSON body for all POST requests.</div></div>
+      <div class="step"><div class="num">3</div><div>All responses are JSON.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>1) Core Setup (Do This First)</h2>
+      <div class="step"><div class="num">1</div><div>Log in and get a token.</div></div>
+      <pre>POST /public/login
+{ "name": "admin", "password": "your_password" }</pre>
+      <div class="step"><div class="num">2</div><div>Use the returned token in <code>Token</code> header for all requests.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>2) Schemas (Custom Fields)</h2>
+      <div class="step"><div class="num">1</div><div>Get schemas.</div></div>
+      <pre>GET /api/schemas</pre>
+      <div class="step"><div class="num">2</div><div>Update schema (example: Leads).</div></div>
+      <pre>POST /api/schemas
+{ "type": "lead", "schema": [ { "key":"lead-notes", "type":"textarea", "name":"Notes", "index":0 } ] }</pre>
+    </div>
+
+    <div class="card">
+      <h2>3) Leads (Create + Update + Convert)</h2>
+      <div class="step"><div class="num">1</div><div>Create a lead.</div></div>
+      <pre>POST /api/leads
+{ "name": "Acme", "userId": "USER_ID", "attributes": { "lead-source": "Outbound" }, "contact": { "email": "a@acme.com", "phone": "123" } }</pre>
+      <div class="step"><div class="num">2</div><div>Update a lead.</div></div>
+      <pre>POST /api/leads/LEAD_ID
+{ "name": "Acme Updated", "attributes": { "lead-notes": "Hot lead" } }</pre>
+      <div class="step"><div class="num">3</div><div>Book meeting (auto converts to Account + Opportunity).</div></div>
+      <pre>POST /api/leads/LEAD_ID/book
+{ "startAt":"2026-02-07T09:00:00Z", "durationMinutes":30, "timeZone":"UTC", "summary":"Intro", "attendees":["a@acme.com"] }</pre>
+    </div>
+
+    <div class="card">
+      <h2>4) Accounts + Opportunities</h2>
+      <div class="step"><div class="num">1</div><div>Create account.</div></div>
+      <pre>POST /api/accounts
+{ "name":"Acme", "userId":"USER_ID" }</pre>
+      <div class="step"><div class="num">2</div><div>Create opportunity (card).</div></div>
+      <pre>POST /api/cards
+{ "name":"Acme Deal", "userId":"USER_ID", "laneId":"LANE_ID", "amount":10000 }</pre>
+      <div class="step"><div class="num">3</div><div>Convert opportunity to account.</div></div>
+      <pre>POST /api/cards/CARD_ID/convert-account</pre>
+    </div>
+
+    <div class="card">
+      <h2>5) Customers</h2>
+      <div class="step"><div class="num">1</div><div>Create customer.</div></div>
+      <pre>POST /api/customers
+{ "name":"Acme Customer", "userId":"USER_ID", "contact": { "email":"a@acme.com" } }</pre>
+      <div class="step"><div class="num">2</div><div>Update customer.</div></div>
+      <pre>POST /api/customers/CUSTOMER_ID
+{ "attributes": { "plan":"Enterprise" } }</pre>
+    </div>
+
+    <div class="card">
+      <h2>6) Roles + Permissions</h2>
+      <div class="step"><div class="num">1</div><div>Create role.</div></div>
+      <pre>POST /api/roles
+{ "name":"Sales Rep", "permissions": { "leads": { "browse": true, "read": true, "add": true, "edit": true, "delete": false } } }</pre>
+      <div class="step"><div class="num">2</div><div>Assign role to user.</div></div>
+      <pre>POST /api/users/USER_ID
+{ "roleId":"ROLE_ID" }</pre>
+    </div>
+
+    <div class="card">
+      <h2>7) Google Workspace (Gmail)</h2>
+      <div class="step"><div class="num">1</div><div>Save integration settings (admin).</div></div>
+      <pre>POST /api/teams/TEAM_ID/integration
+{ "key":"google_workspace", "attributes": { "clientId":"...", "clientSecret":"...", "redirectUri":"https://domain/public/google-workspace/callback" } }</pre>
+      <div class="step"><div class="num">2</div><div>Get auth URL (user).</div></div>
+      <pre>GET /api/integrations/google-workspace/auth-url</pre>
+      <div class="step"><div class="num">3</div><div>Send email via Gmail.</div></div>
+      <pre>POST /api/emails
+{ "to":["a@acme.com"], "subject":"Hello", "text":"Hi", "provider":"gmail" }</pre>
+      <div class="step"><div class="num">4</div><div>Sync inbound Gmail.</div></div>
+      <pre>POST /api/emails/sync
+{ "limit": 50 }</pre>
+    </div>
+
+    <div class="card">
+      <h2>8) Mailgun (Campaigns)</h2>
+      <div class="step"><div class="num">1</div><div>Save integration settings.</div></div>
+      <pre>POST /api/teams/TEAM_ID/integration
+{ "key":"mailgun", "attributes": { "domain":"mg.example.com", "apiKey":"key-...", "sender":"Meow <hello@meow.com>", "region":"us" } }</pre>
+      <div class="step"><div class="num">2</div><div>Create campaign.</div></div>
+      <pre>POST /api/campaigns
+{ "name":"Launch", "audience": { "entity":"leads", "match":"all", "conditions":[] }, "template": { "subject":"Hi {{name}}", "html":"&lt;p&gt;Hello&lt;/p&gt;" } }</pre>
+      <div class="step"><div class="num">3</div><div>Send now.</div></div>
+      <pre>POST /api/campaigns/CAMPAIGN_ID/send</pre>
+    </div>
+
+    <div class="card">
+      <h2>9) Telemarketer Settings (On/Off)</h2>
+      <div class="step"><div class="num">1</div><div>Save settings.</div></div>
+      <pre>POST /api/teams/TEAM_ID/integration
+{ "key":"telemarketer_settings", "attributes": { "enableQuickActions": true, "enableScripts": true, "enableCallTimer": true, "enableLeadQueue": true, "enableOutcomesDashboard": true, "enableAutoAdvance": true, "autoAdvanceOutcomesOnly": true, "autoAdvanceOutcomes": "Call back, No answer", "scriptsJson": "{...}" } }</pre>
+    </div>
+
+    <div class="card">
+      <h2>10) Quick Troubleshooting</h2>
+      <div class="step"><div class="num">1</div><div>If you get 401, your <code>Token</code> is missing or expired.</div></div>
+      <div class="step"><div class="num">2</div><div>If you get 404, check the URL and spelling.</div></div>
+      <div class="step"><div class="num">3</div><div>If Google/Mailgun fails, verify integration settings and redirect URLs.</div></div>
+    </div>
+  </div>
+</body>
+</html>

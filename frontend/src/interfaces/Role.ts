@@ -4,6 +4,8 @@ export type PermissionModule =
   | 'accounts'
   | 'leads'
   | 'customers'
+  | 'campaigns'
+  | 'emails'
   | 'users'
   | 'settings'
   | 'forecast'

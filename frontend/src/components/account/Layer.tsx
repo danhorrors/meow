@@ -22,6 +22,8 @@ import { getRequestClient } from '../../helpers/RequestHelper';
 import { DEFAULT_LANGUAGE } from '../../Constants';
 import { Avatar } from '../Avatar';
 import { User } from '../../interfaces/User';
+import { EmailComposer } from '../email/EmailComposer';
+import { EmailLogList } from '../email/EmailLogList';
 
 export const Layer = () => {
   const token = useSelector(selectToken);
@@ -94,6 +96,11 @@ export const Layer = () => {
           <span className="tab-title">{Translations.HistoryTab[DEFAULT_LANGUAGE]}</span>
         </Item>
       );
+      list.push(
+        <Item key="emails">
+          <span className="tab-title">{Translations.EmailTab[DEFAULT_LANGUAGE]}</span>
+        </Item>
+      );
 
       references?.map((attribute) => {
         list.push(
@@ -118,6 +125,14 @@ export const Layer = () => {
       list.push(
         <Item key="events">
           <Events id={id} />
+        </Item>
+      );
+      list.push(
+        <Item key="emails">
+          <div style={{ padding: '15px', display: 'grid', gap: '16px' }}>
+            <EmailComposer entityType="account" entityId={id} />
+            <EmailLogList entityType="account" entityId={id} showSync />
+          </div>
         </Item>
       );
 

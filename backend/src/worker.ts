@@ -95,6 +95,16 @@ import { requirePermission } from './middlewares/requirePermission.js';
 import { ReportController } from './controllers/ReportController.js';
 import { DuplicateController } from './controllers/DuplicateController.js';
 import { DuplicateMergeRequestSchema } from './middlewares/schema-validation/DuplicateMergeRequestSchema.js';
+import { CampaignController } from './controllers/CampaignController.js';
+import { CampaignRequestSchema } from './middlewares/schema-validation/CampaignRequestSchema.js';
+import { EmailController } from './controllers/EmailController.js';
+import { EmailSendRequestSchema } from './middlewares/schema-validation/EmailSendRequestSchema.js';
+import { Campaign } from './entities/Campaign.js';
+import { CampaignService } from './services/CampaignService.js';
+import { Team } from './entities/Team.js';
+import { User } from './entities/User.js';
+import { GmailSyncService } from './services/GmailSyncService.js';
+import { DateTime } from 'luxon';
 
 /* spinning up express */
 export const app = express();
@@ -469,7 +479,73 @@ try {
     .route('/google-calendar/auth-url')
     .get(requirePermission('settings', 'edit'), IntegrationController.getGoogleCalendarAuthUrl);
 
+  integration
+    .route('/google-workspace/auth-url')
+    .get(requirePermission('emails', 'add'), IntegrationController.getGoogleWorkspaceAuthUrl);
+  integration
+    .route('/:key')
+    .get(requirePermission('settings', 'browse'), IntegrationController.getIntegration);
+
   app.use('/api/integrations', integration);
+
+  const email = express.Router();
+
+  email.use(express.json({ limit: '10kb' }));
+  email.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
+
+  email
+    .route('/')
+    .get(requirePermission('emails', 'browse'), EmailController.list)
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      validateAgainst(EmailSendRequestSchema),
+      requirePermission('emails', 'add'),
+      EmailController.send
+    );
+  email
+    .route('/sync')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      requirePermission('emails', 'browse'),
+      EmailController.sync
+    );
+
+  app.use('/api/emails', email);
+
+  const campaign = express.Router();
+
+  campaign.use(express.json({ limit: '10kb' }));
+  campaign.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
+
+  campaign.route('/').get(requirePermission('campaigns', 'browse'), CampaignController.list);
+  campaign
+    .route('/')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      validateAgainst(CampaignRequestSchema),
+      requirePermission('campaigns', 'edit'),
+      CampaignController.createOrUpdate
+    );
+  campaign
+    .route('/:id')
+    .get(requirePermission('campaigns', 'read'), CampaignController.fetch)
+    .delete(requirePermission('campaigns', 'delete'), CampaignController.remove);
+  campaign
+    .route('/:id/schedule')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      requirePermission('campaigns', 'edit'),
+      CampaignController.schedule
+    );
+  campaign
+    .route('/:id/send')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      requirePermission('campaigns', 'edit'),
+      CampaignController.sendNow
+    );
+
+  app.use('/api/campaigns', campaign);
 
   const role = express.Router();
 
@@ -580,6 +656,9 @@ try {
   unprotected
     .route('/google-calendar/callback')
     .get(IntegrationController.googleCalendarCallback);
+  unprotected
+    .route('/google-workspace/callback')
+    .get(IntegrationController.googleWorkspaceCallback);
 
   app.use('/public', unprotected);
 } catch (error) {
@@ -604,6 +683,99 @@ try {
     notifyOnMissedFollowUpDatesTimeline,
     '10:00'
   ).start();
+} catch (error) {
+  log.error(error);
+}
+
+try {
+  setInterval(async () => {
+    try {
+      const due = await EntityHelper.findBy(Campaign, {
+        status: { $eq: 'scheduled' },
+        nextSendAt: { $lte: new Date() },
+      });
+
+      for (const campaign of due) {
+        try {
+          const team = await EntityHelper.findOneById(Team, campaign.teamId);
+          const user = await EntityHelper.findOneById(User, campaign.userId);
+
+          if (!team || !user) {
+            continue;
+          }
+
+          const stepIndex = campaign.stepIndex || 0;
+          await new CampaignService().sendCampaign(team, user, campaign, stepIndex);
+
+          const steps = campaign.steps || [];
+          const hasNextStep = steps.length > 0 && stepIndex < steps.length - 1;
+
+          if (hasNextStep) {
+            const base = campaign.schedule?.sendAt
+              ? DateTime.fromJSDate(campaign.schedule.sendAt)
+              : DateTime.utc();
+            const nextIndex = stepIndex + 1;
+            const nextDelay = steps[nextIndex].delayDays || 0;
+            campaign.stepIndex = nextIndex;
+            campaign.nextSendAt = base.plus({ days: nextDelay }).toJSDate();
+            campaign.status = 'scheduled';
+          } else if (campaign.schedule?.recurring) {
+            const interval = campaign.schedule.recurring.interval;
+            campaign.stepIndex = 0;
+            campaign.nextSendAt =
+              interval === 'weekly'
+                ? DateTime.utc().plus({ weeks: 1 }).toJSDate()
+                : DateTime.utc().plus({ days: 1 }).toJSDate();
+            campaign.status = 'scheduled';
+          } else {
+            campaign.status = 'completed';
+            campaign.nextSendAt = null;
+          }
+
+          campaign.updatedAt = new Date();
+          await EntityHelper.update(campaign);
+        } catch (error) {
+          log.error(error);
+        }
+      }
+    } catch (error) {
+      log.error(error);
+    }
+  }, 60 * 1000);
+} catch (error) {
+  log.error(error);
+}
+
+try {
+  const syncInterval = parseInt(process.env.GMAIL_SYNC_INTERVAL_MINUTES || '10', 10);
+  const syncLimit = parseInt(process.env.GMAIL_SYNC_LIMIT || '20', 10);
+
+  setInterval(async () => {
+    try {
+      const users = await EntityHelper.findBy(User, {
+        integrations: { $ne: null },
+      });
+
+      for (const user of users) {
+        const integration = user.integrations?.find((item) => item.key === 'google_workspace');
+        const refreshToken = integration?.attributes?.refreshToken;
+        if (!refreshToken) {
+          continue;
+        }
+        const team = await EntityHelper.findOneById(Team, user.teamId);
+        if (!team) {
+          continue;
+        }
+        try {
+          await new GmailSyncService().syncInbox(team, user, syncLimit);
+        } catch (error) {
+          log.error(error);
+        }
+      }
+    } catch (error) {
+      log.error(error);
+    }
+  }, Math.max(syncInterval, 5) * 60 * 1000);
 } catch (error) {
   log.error(error);
 }

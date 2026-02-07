@@ -3,6 +3,7 @@ import { ExistingEntity, NewEntity } from './BaseEntity.js';
 import { ObjectId } from 'mongodb';
 import { Card } from './Card.js';
 import { Team } from './Team.js';
+import { Integration } from './Team.js';
 
 @Entity({ name: 'Users' })
 export class User implements ExistingEntity {
@@ -21,6 +22,7 @@ export class User implements ExistingEntity {
   flags?: Flags;
   views?: { [key: string]: any };
   board?: { [key: string]: Card['_id'][] };
+  integrations?: Integration[];
   createdAt: Date;
   updatedAt: Date;
 
@@ -42,8 +44,11 @@ export class User implements ExistingEntity {
 
   toJSON() {
     const authenticationType = this.authentication?.google ? 'google' : 'local';
+    const integrations = this.integrations
+      ? this.integrations.map((integration) => ({ key: integration.key }))
+      : [];
 
-    return { ...this, authentication: authenticationType };
+    return { ...this, authentication: authenticationType, integrations };
   }
 }
 
@@ -63,6 +68,7 @@ export class NewUser implements NewEntity {
   flags?: Flags;
   views?: { [key: string]: any };
   board?: { [key: string]: Card['_id'][] };
+  integrations?: Integration[];
   createdAt: Date;
   updatedAt: Date;
 

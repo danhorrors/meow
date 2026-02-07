@@ -130,6 +130,32 @@ export const DefaultLeadSchema = {
       type: 'textarea',
       name: 'Notes',
     },
+    {
+      key: 'lead-call-outcome',
+      index: 5,
+      type: 'select',
+      name: 'Call Outcome',
+      options: [
+        'Connected',
+        'Left voicemail',
+        'No answer',
+        'Wrong number',
+        'Call back',
+        'Not interested',
+      ],
+    },
+    {
+      key: 'lead-last-contacted',
+      index: 6,
+      type: 'text',
+      name: 'Last Contacted',
+    },
+    {
+      key: 'lead-contacted-count',
+      index: 7,
+      type: 'text',
+      name: 'Contacted Count',
+    },
   ],
 } as {
   type: SchemaType;

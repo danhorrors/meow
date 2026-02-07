@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meow CRM - How To Use (Non-Technical)</title>
+  <style>
+    :root {
+      --bg: #0f141c;
+      --card: #151b24;
+      --text: #eef2f6;
+      --muted: #9aa4bf;
+      --accent: #f0934b;
+      --border: rgba(240, 147, 75, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Manrope", "Inter", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+    h1 { font-size: 30px; margin: 0 0 10px 0; }
+    h2 { font-size: 22px; margin: 24px 0 10px; color: var(--accent); }
+    h3 { font-size: 16px; margin: 14px 0 8px; color: #ffd4b2; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+    .num {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: rgba(240, 147, 75, 0.2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .muted { color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>Meow CRM - How To Use (Non-Technical)</h1>
+    <p class="muted">This is the simple version. If you can read this, you can run the system.</p>
+
+    <div class="card">
+      <h2>1) Leads</h2>
+      <div class="step"><div class="num">1</div><div>Go to <b>Leads</b> and click <b>Add</b>.</div></div>
+      <div class="step"><div class="num">2</div><div>Fill in name + contact info. Save.</div></div>
+      <div class="step"><div class="num">3</div><div>Use <b>Quick Actions</b> to call, text, or email.</div></div>
+      <div class="step"><div class="num">4</div><div>Pick a <b>Call Outcome</b> and click <b>Mark Contacted</b>.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>2) Book a Meeting (Auto Converts)</h2>
+      <div class="step"><div class="num">1</div><div>Open the lead and click the <b>Book Meeting</b> tab.</div></div>
+      <div class="step"><div class="num">2</div><div>Set date, time, and attendees.</div></div>
+      <div class="step"><div class="num">3</div><div>Click <b>Book</b>. The lead becomes an account + opportunity automatically.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>3) Accounts & Opportunities</h2>
+      <div class="step"><div class="num">1</div><div>Accounts hold your customers or prospects.</div></div>
+      <div class="step"><div class="num">2</div><div>Opportunities are the deals (pipeline cards).</div></div>
+      <div class="step"><div class="num">3</div><div>Move opportunities through stages as you progress.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>4) Customers</h2>
+      <div class="step"><div class="num">1</div><div>Use Customers to track after the sale.</div></div>
+      <div class="step"><div class="num">2</div><div>Send updates or campaigns to customers from the same system.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>5) Email (Gmail + Mailgun)</h2>
+      <div class="step"><div class="num">1</div><div>Connect Gmail in <b>User Settings</b>.</div></div>
+      <div class="step"><div class="num">2</div><div>Send emails directly from a lead/account/customer.</div></div>
+      <div class="step"><div class="num">3</div><div>Use Campaigns for bulk email (Mailgun).</div></div>
+      <div class="step"><div class="num">4</div><div>Click <b>Sync Gmail Inbox</b> to pull inbound replies.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>6) Campaigns</h2>
+      <div class="step"><div class="num">1</div><div>Go to <b>Campaigns</b> and create a new campaign.</div></div>
+      <div class="step"><div class="num">2</div><div>Pick the audience (Leads, Customers, Accounts, or Opportunities).</div></div>
+      <div class="step"><div class="num">3</div><div>Use the builder to design your email.</div></div>
+      <div class="step"><div class="num">4</div><div>Click <b>Send Now</b> or schedule it.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>7) Telemarketer Tools</h2>
+      <div class="step"><div class="num">1</div><div>Use call scripts built into Leads.</div></div>
+      <div class="step"><div class="num">2</div><div>Use the Call Timer if enabled.</div></div>
+      <div class="step"><div class="num">3</div><div>Auto‑advance moves you to the next lead after you mark contacted.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>8) Admin Settings (Only if you’re Admin)</h2>
+      <div class="step"><div class="num">1</div><div>Go to <b>Settings</b> and configure schemas, roles, and integrations.</div></div>
+      <div class="step"><div class="num">2</div><div>Telemarketer tools can be toggled on/off from Settings.</div></div>
+      <div class="step"><div class="num">3</div><div>Mailgun + Google Workspace setup is done here.</div></div>
+    </div>
+  </div>
+</body>
+</html>

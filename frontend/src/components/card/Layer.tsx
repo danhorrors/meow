@@ -33,6 +33,8 @@ import { SchemaHelper } from '../../helpers/SchemaHelper';
 import { SchemaType } from '../../interfaces/Schema';
 import { selectSchemaByType, selectRoles, selectSessionUser } from '../../store/Store';
 import { hasPermission } from '../../helpers/PermissionHelper';
+import { EmailComposer } from '../email/EmailComposer';
+import { EmailLogList } from '../email/EmailLogList';
 
 export const Layer = () => {
   const token = useSelector(selectToken);
@@ -193,6 +195,9 @@ export const Layer = () => {
               <Item key="events">
                 <span className="tab-title">{Translations.HistoryTab[DEFAULT_LANGUAGE]}</span>
               </Item>
+              <Item key="emails">
+                <span className="tab-title">{Translations.EmailTab[DEFAULT_LANGUAGE]}</span>
+              </Item>
             </TabList>
           )) || (
             <TabList>
@@ -209,6 +214,14 @@ export const Layer = () => {
             <Item key="events">
               <Events entity="card" id={id} />
             </Item>
+            {id && (
+              <Item key="emails">
+                <div style={{ padding: '15px', display: 'grid', gap: '16px' }}>
+                  <EmailComposer entityType="opportunity" entityId={id} />
+                  <EmailLogList entityType="opportunity" entityId={id} showSync />
+                </div>
+              </Item>
+            )}
           </TabPanels>
         </Tabs>
       </div>

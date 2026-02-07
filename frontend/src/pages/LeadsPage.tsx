@@ -1,5 +1,5 @@
 import { Button } from '@adobe/react-spectrum';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import {
   ActionType,
@@ -39,6 +39,13 @@ import { selectRoles, selectSessionUser } from '../store/Store';
 import { ListViewSaved } from '../components/view/ListViewSaved';
 import { setListViewFilterBy } from '../actions/Actions';
 
+const TELE_SETTINGS_KEY = 'telemarketer_settings';
+
+const parseBool = (value: unknown, fallback: boolean) => {
+  if (value === undefined || value === null) return fallback;
+  if (typeof value === 'boolean') return value;
+  return value.toString() === 'true';
+};
 const createListViewItemsFromSchema = (schema: Schema | undefined): ListViewItem[] => {
   const list: ListViewItem[] = [
     {
@@ -80,6 +87,11 @@ export const LeadsPage = () => {
   const view = useSelector((store: ApplicationStore) => selectView(store, 'leads'));
   const columns = useSelector((store: ApplicationStore) => selectViewColumns(store, 'leads'));
   const isMobileLayout = useMobileLayout();
+  const [queueFilter, setQueueFilter] = useState('all');
+  const [teleSettings, setTeleSettings] = useState({
+    enableOutcomesDashboard: true,
+    enableLeadQueue: true,
+  });
 
   const client = getRequestClient(token);
 
@@ -96,6 +108,20 @@ export const LeadsPage = () => {
       store.dispatch(setListViewColumn('leads', createListViewItemsFromSchema(schema)));
     }
   }, [schema]);
+
+  useEffect(() => {
+    if (!token) return;
+    client
+      .getIntegration(TELE_SETTINGS_KEY)
+      .then((payload) => {
+        const attrs = payload?.attributes || {};
+        setTeleSettings({
+          enableOutcomesDashboard: parseBool(attrs.enableOutcomesDashboard, true),
+          enableLeadQueue: parseBool(attrs.enableLeadQueue, true),
+        });
+      })
+      .catch(() => undefined);
+  }, [token]);
 
   const openLead = (id?: string) => {
     store.dispatch(showLeadLayer(id));
@@ -116,11 +142,64 @@ export const LeadsPage = () => {
     });
   };
 
+  const filteredLeads = useMemo(() => {
+    if (!teleSettings.enableLeadQueue) {
+      return leads;
+    }
+    const byQueue = (lead: Lead) => {
+      const outcome = lead.attributes?.['lead-call-outcome']?.toString();
+      const lastContacted = lead.attributes?.['lead-last-contacted'];
+      switch (queueFilter) {
+        case 'uncontacted':
+          return !lastContacted;
+        case 'callback':
+          return outcome === 'Call back';
+        case 'no-answer':
+          return outcome === 'No answer';
+        case 'voicemail':
+          return outcome === 'Left voicemail';
+        case 'has-phone':
+          return Boolean(lead.contact?.phone);
+        case 'has-email':
+          return Boolean(lead.contact?.email);
+        default:
+          return true;
+      }
+    };
+    return leads.filter(byQueue);
+  }, [leads, queueFilter, teleSettings.enableLeadQueue]);
+
   const rows = useMemo(() => {
-    const list = toDataRows(leads);
+    const list = toDataRows(filteredLeads);
 
     return ListViewHelper.filterAndOrder(list, columns, view);
-  }, [schema, view, leads, columns]);
+  }, [schema, view, filteredLeads, columns]);
+
+  const outcomeStats = useMemo(() => {
+    const stats: Record<string, number> = {
+      Connected: 0,
+      'Left voicemail': 0,
+      'No answer': 0,
+      'Wrong number': 0,
+      'Call back': 0,
+      'Not interested': 0,
+    };
+    let contacted = 0;
+    let uncontacted = 0;
+    leads.forEach((lead) => {
+      const lastContacted = lead.attributes?.['lead-last-contacted'];
+      if (lastContacted) {
+        contacted += 1;
+      } else {
+        uncontacted += 1;
+      }
+      const outcome = lead.attributes?.['lead-call-outcome']?.toString() || '';
+      if (stats[outcome] !== undefined) {
+        stats[outcome] += 1;
+      }
+    });
+    return { stats, contacted, uncontacted };
+  }, [leads]);
 
   const deleteLead = async (id: string) => {
     const shouldDelete = confirm(Translations.DeleteLeadConfirmation[DEFAULT_LANGUAGE]);
@@ -237,6 +316,82 @@ export const LeadsPage = () => {
             <ListFilterCanvas name="leads" columns={columns} />
           </div>
         </div>
+        {teleSettings.enableOutcomesDashboard && (
+          <div
+            className="content-box"
+            style={{ marginBottom: '12px', padding: '12px 16px' }}
+          >
+            <div style={{ fontSize: '12px', color: '#9aa4bf', marginBottom: '8px' }}>
+              Outcomes dashboard
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ background: '#151a23', padding: '8px 12px', borderRadius: '8px' }}>
+                <b>{outcomeStats.contacted}</b> contacted
+              </div>
+              <div style={{ background: '#151a23', padding: '8px 12px', borderRadius: '8px' }}>
+                <b>{outcomeStats.uncontacted}</b> uncontacted
+              </div>
+              {Object.entries(outcomeStats.stats).map(([key, value]) => (
+                <div
+                  key={key}
+                  style={{ background: '#151a23', padding: '8px 12px', borderRadius: '8px' }}
+                >
+                  <b>{value}</b> {key}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {teleSettings.enableLeadQueue && (
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+            <span style={{ fontSize: '12px', color: '#9aa4bf' }}>
+              {Translations.LeadQueueFilterLabel[DEFAULT_LANGUAGE]}
+            </span>
+            <Button
+              variant={queueFilter === 'all' ? 'primary' : 'secondary'}
+              onPress={() => setQueueFilter('all')}
+            >
+              {Translations.LeadQueueAll[DEFAULT_LANGUAGE]}
+            </Button>
+            <Button
+              variant={queueFilter === 'uncontacted' ? 'primary' : 'secondary'}
+              onPress={() => setQueueFilter('uncontacted')}
+            >
+              {Translations.LeadQueueUncontacted[DEFAULT_LANGUAGE]}
+            </Button>
+            <Button
+              variant={queueFilter === 'callback' ? 'primary' : 'secondary'}
+              onPress={() => setQueueFilter('callback')}
+            >
+              {Translations.LeadQueueCallBack[DEFAULT_LANGUAGE]}
+            </Button>
+            <Button
+              variant={queueFilter === 'no-answer' ? 'primary' : 'secondary'}
+              onPress={() => setQueueFilter('no-answer')}
+            >
+              {Translations.LeadQueueNoAnswer[DEFAULT_LANGUAGE]}
+            </Button>
+            <Button
+              variant={queueFilter === 'voicemail' ? 'primary' : 'secondary'}
+              onPress={() => setQueueFilter('voicemail')}
+            >
+              {Translations.LeadQueueVoicemail[DEFAULT_LANGUAGE]}
+            </Button>
+            <Button
+              variant={queueFilter === 'has-phone' ? 'primary' : 'secondary'}
+              onPress={() => setQueueFilter('has-phone')}
+            >
+              {Translations.LeadQueueHasPhone[DEFAULT_LANGUAGE]}
+            </Button>
+            <Button
+              variant={queueFilter === 'has-email' ? 'primary' : 'secondary'}
+              onPress={() => setQueueFilter('has-email')}
+            >
+              {Translations.LeadQueueHasEmail[DEFAULT_LANGUAGE]}
+            </Button>
+          </div>
+        )}
 
         {isMobileLayout ? (
           <div className="mobile-view">

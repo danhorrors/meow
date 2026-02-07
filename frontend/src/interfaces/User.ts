@@ -9,6 +9,7 @@ export interface User {
   roleId?: string;
   isAdmin?: boolean;
   views?: { [key: string]: { [label: string]: any } };
+  integrations?: { key: string }[];
   status: UserStatus;
   invite?: string;
   animal?: string;

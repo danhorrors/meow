@@ -17,6 +17,8 @@ import { FilterMode } from '../pages/HomePage';
 import { RequestHelperUrlError } from '../errors/RequestHelperUrlError';
 import { FILTER_BY_NONE } from '../Constants';
 import { CardEvent } from '../interfaces/CardEvent';
+import { Campaign } from '../interfaces/Campaign';
+import { EmailLog } from '../interfaces/EmailLog';
 
 type HttpMethod = 'POST' | 'GET' | 'DELETE';
 
@@ -411,6 +413,12 @@ export class RequestHelper {
     return this.doFetch(url, 'GET');
   }
 
+  async getGoogleWorkspaceAuthUrl() {
+    const url = this.getUrl(`/api/integrations/google-workspace/auth-url`);
+
+    return this.doFetch(url, 'GET');
+  }
+
   async getTeam(id: Team['_id']): Promise<Team> {
     let url = this.getUrl(`/api/teams/${id}`);
 
@@ -457,6 +465,82 @@ export class RequestHelper {
     let url = this.getUrl(`/api/users/${id}/board`);
 
     return this.doFetch(url, 'POST', board);
+  }
+
+  async sendEmail(payload: {
+    to: string[];
+    subject: string;
+    html?: string;
+    text?: string;
+    provider?: 'gmail' | 'mailgun';
+    entityType?: string;
+    entityId?: string;
+    campaignId?: string;
+  }): Promise<EmailLog> {
+    const url = this.getUrl(`/api/emails`);
+
+    return this.doFetch(url, 'POST', payload);
+  }
+
+  async getEmails(params?: { entityType?: string; entityId?: string; campaignId?: string }) {
+    const url = this.getUrl(`/api/emails`);
+    if (params) {
+      const search = new URLSearchParams();
+      if (params.entityType) search.set('entityType', params.entityType);
+      if (params.entityId) search.set('entityId', params.entityId);
+      if (params.campaignId) search.set('campaignId', params.campaignId);
+      url.search = search.toString();
+    }
+
+    return this.doFetch(url, 'GET') as Promise<EmailLog[]>;
+  }
+
+  async syncEmails(limit = 50): Promise<{ created: number; emails: EmailLog[] }> {
+    const url = this.getUrl(`/api/emails/sync`);
+
+    return this.doFetch(url, 'POST', { limit });
+  }
+
+  async getIntegration(key: string): Promise<{ key: string; attributes: Record<string, any> }> {
+    const url = this.getUrl(`/api/integrations/${key}`);
+
+    return this.doFetch(url, 'GET');
+  }
+
+  async getCampaigns(): Promise<Campaign[]> {
+    const url = this.getUrl(`/api/campaigns`);
+
+    return this.doFetch(url, 'GET');
+  }
+
+  async getCampaign(id: string): Promise<Campaign> {
+    const url = this.getUrl(`/api/campaigns/${id}`);
+
+    return this.doFetch(url, 'GET');
+  }
+
+  async saveCampaign(payload: Campaign): Promise<Campaign> {
+    const url = this.getUrl(`/api/campaigns`);
+
+    return this.doFetch(url, 'POST', payload);
+  }
+
+  async deleteCampaign(id: string) {
+    const url = this.getUrl(`/api/campaigns/${id}`);
+
+    return this.doFetch(url, 'DELETE');
+  }
+
+  async scheduleCampaign(id: string, payload: { sendAt?: string; timeZone?: string; recurring?: any }) {
+    const url = this.getUrl(`/api/campaigns/${id}/schedule`);
+
+    return this.doFetch(url, 'POST', payload);
+  }
+
+  async sendCampaign(id: string) {
+    const url = this.getUrl(`/api/campaigns/${id}/send`);
+
+    return this.doFetch(url, 'POST');
   }
 
   async saveUserView(id: string, payload: { name: string; label: string; view: any }) {

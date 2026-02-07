@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meow CRM Expansion Documentation</title>
+  <style>
+    :root {
+      --bg-1: #0a0f14;
+      --bg-2: #0f141c;
+      --bg-3: #0b121c;
+      --ink: #f0f2f5;
+      --muted: #b1bac7;
+      --accent: #f0934b;
+      --accent-2: #e77a36;
+      --accent-3: #3a8ea3;
+      --card: rgba(20, 23, 29, 0.82);
+      --border: rgba(240, 147, 75, 0.35);
+      --glow: rgba(240, 147, 75, 0.22);
+      --glass: rgba(255, 255, 255, 0.04);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Manrope", "Space Grotesk", "Inter", "Helvetica Neue", sans-serif;
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(255, 122, 26, 0.08), transparent 60%),
+        radial-gradient(1000px 800px at 90% 20%, rgba(255, 255, 255, 0.06), transparent 60%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+      background-size: 120% 120%;
+      animation: bgShift 18s ease-in-out infinite;
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    @keyframes bgShift {
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 0%; }
+    }
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+    .layout {
+      display: block;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      background: rgba(12, 16, 22, 0.95);
+      border-right: 1px solid rgba(240, 147, 75, 0.25);
+      padding: 24px 18px;
+      display: grid;
+      gap: 18px;
+      z-index: 10;
+      transition: width 0.25s ease, transform 0.25s ease;
+    }
+    .sidebar.collapsed {
+      width: 72px;
+    }
+    .sidebar.collapsed .sidebar-content {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-8px);
+    }
+    .sidebar-content {
+      display: grid;
+      gap: 2px;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .sidebar-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 1px;
+    }
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 8px;
+      border: 1px solid rgba(240, 147, 75, 0.3);
+      object-fit: contain;
+    }
+    .toggle-button {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      border: 1px solid rgba(240, 147, 75, 0.45);
+      background: rgba(240, 147, 75, 0.22);
+      color: #fff;
+      cursor: pointer;
+      font-size: 20px;
+    }
+    .toggle-button.is-hidden {
+      display: none;
+    }
+    .main {
+      margin-left: 300px;
+      transition: margin-left 0.25s ease;
+    }
+    .main.collapsed {
+      margin-left: 96px;
+    }
+    .sidebar h4 {
+      margin: 0;
+      font-size: 6px;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.4px;
+    }
+    .sidebar-nav {
+      display: grid;
+      gap: 2px;
+    }
+    .sidebar-group {
+      display: grid;
+      gap: 2px;
+    }
+    .sidebar-title {
+      font-size: 8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.4px;
+      margin-top: 6px;
+    }
+    .sidebar-sub {
+      display: grid;
+      gap: 10px;
+      margin-left: 26px;
+    }
+    .sidebar-link {
+      color: #ffffff;
+      text-decoration: none;
+      padding: 0px 0;
+      border-radius: 0;
+      background: transparent;
+      border: none;
+      font-size: 13px;
+    }
+    .sidebar-link:hover {
+      color: #f7d6bf;
+    }
+    .sidebar .author {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .author {
+      display: grid;
+      gap: 6px;
+    }
+    .author-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .author-card {
+      display: grid;
+      gap: 2px;
+    }
+    .author-image {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 1px solid rgba(240, 147, 75, 0.6);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+    }
+    .author-name {
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      font-size: 14px;
+    }
+    .author-role {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .hero {
+      position: relative;
+      padding: 44px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(240, 147, 75, 0.18), rgba(23, 30, 37, 0.75));
+      border: 1px solid var(--border);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+      margin-bottom: 36px;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -160px;
+      top: -160px;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(240, 147, 75, 0.4), transparent 70%);
+      filter: blur(8px);
+    }
+    .hero .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .tag {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(240, 147, 75, 0.45);
+    }
+    h1, h2, h3 {
+      margin: 0 0 14px 0;
+      letter-spacing: 0.2px;
+    }
+    h1 {
+      font-size: 42px;
+      line-height: 1.1;
+      letter-spacing: -0.4px;
+    }
+    h2 {
+      font-size: 26px;
+      color: var(--accent);
+      letter-spacing: -0.2px;
+    }
+    h3 {
+      font-size: 18px;
+      color: var(--accent-2);
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 16px;
+      max-width: 680px;
+    }
+    .hero-summary {
+      margin-top: 18px;
+      font-size: 15px;
+      color: #cfd6ea;
+      max-width: 760px;
+    }
+    .section {
+      background: var(--card);
+      border: 1px solid rgba(240, 147, 75, 0.25);
+      padding: 28px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(8px);
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .icon-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(240, 147, 75, 0.18);
+      border: 1px solid rgba(240, 147, 75, 0.35);
+    }
+    .icon-badge svg {
+      width: 16px;
+      height: 16px;
+      fill: #f6d2b5;
+    }
+    .list-check {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+    .list-check li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .check {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      border-radius: 999px;
+      background: rgba(240, 147, 75, 0.18);
+      border: 1px solid rgba(240, 147, 75, 0.35);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #f7dcc8;
+      flex-shrink: 0;
+    }
+    .section-head span {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+    .tile {
+      background: var(--glass);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 16px;
+      border-radius: 16px;
+    }
+    .callout {
+      background: rgba(240, 147, 75, 0.12);
+      border: 1px solid rgba(240, 147, 75, 0.45);
+      padding: 16px;
+      border-radius: 16px;
+      margin-top: 14px;
+      color: #ffd8b5;
+    }
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .metric {
+      background: rgba(240, 147, 75, 0.12);
+      border: 1px solid rgba(240, 147, 75, 0.35);
+      padding: 12px 14px;
+      border-radius: 14px;
+    }
+    pre {
+      background: #0c1117;
+      color: #dbe7ff;
+      padding: 16px;
+      overflow: auto;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-family: "IBM Plex Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+    code { font-family: "IBM Plex Mono", "Courier New", monospace; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.4px;
+    }
+    .note { color: var(--muted); font-size: 12px; }
+    .author {
+      display: grid;
+      gap: 10px;
+    }
+    .author-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .author-card {
+      display: grid;
+      gap: 4px;
+    }
+    .author-image {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      object-fit: cover;
+      border: 1px solid rgba(240, 147, 75, 0.6);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+    }
+    .author-name {
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      font-size: 16px;
+    }
+    .author-role {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    @media (max-width: 980px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.is-open {
+        transform: translateX(0);
+      }
+      .toggle-button.is-hidden {
+        display: inline-flex;
+      }
+      .main {
+        margin-left: 0;
+      }
+      .main.collapsed {
+        margin-left: 0;
+      }
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .icon-badge {
+      width: 30px;
+      height: 30px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(240, 147, 75, 0.2);
+      border: 1px solid rgba(240, 147, 75, 0.4);
+    }
+    .icon-badge svg {
+      width: 16px;
+      height: 16px;
+      fill: #f7dcc8;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-toggle">
+          <div class="sidebar-brand">
+            <img
+              class="" STYLE="width:80%;"
+              src="/Users/danielhorrobin/Documents/Projects/meow/docs/assets/ame-logo.png"
+              alt="AME logo"
+            />
+      
+          </div>
+          <button class="toggle-button is-hidden" id="sidebarToggle">≡</button>
+        </div>
+        <div class="sidebar-content">
+          <div class="sidebar-nav">
+            <div class="sidebar-group">
+              <div class="sidebar-title">Overview</div>
+              <div class="sidebar-sub">
+                <a class="sidebar-link" href="#overview">Intro</a>
+                <a class="sidebar-link" href="#upgrade">Why It Matters</a>
+                <a class="sidebar-link" href="#features">Feature Breakdown</a>
+              </div>
+            </div>
+            <div class="sidebar-group">
+              <div class="sidebar-title">Outbound</div>
+              <div class="sidebar-sub">
+                <a class="sidebar-link" href="#campaigns">Campaigns</a>
+                <a class="sidebar-link" href="#builder">Email Builder</a>
+                <a class="sidebar-link" href="#segments">Segment Builder</a>
+                <a class="sidebar-link" href="#drip">Scheduling & Drip</a>
+                <a class="sidebar-link" href="#tokens">Personalization</a>
+              </div>
+            </div>
+            <div class="sidebar-group">
+              <div class="sidebar-title">Inbound</div>
+              <div class="sidebar-sub">
+                <a class="sidebar-link" href="#inbox">Gmail Inbox Sync</a>
+              </div>
+            </div>
+            <div class="sidebar-group">
+              <div class="sidebar-title">Operations</div>
+              <div class="sidebar-sub">
+                <a class="sidebar-link" href="#permissions">Permissions</a>
+                <a class="sidebar-link" href="#import">Import Builder</a>
+                <a class="sidebar-link" href="#integrations">Integrations</a>
+                <a class="sidebar-link" href="#backend">Backend Setup</a>
+                <a class="sidebar-link" href="#data-model">Data Model</a>
+                <a class="sidebar-link" href="#api">API Guide</a>
+              </div>
+            </div>
+            <div class="sidebar-group">
+              <div class="sidebar-title">How To</div>
+              <div class="sidebar-sub">
+                <a class="sidebar-link" href="#campaign-howto">Campaigns</a>
+                <a class="sidebar-link" href="#gmail-howto">Gmail</a>
+              </div>
+            </div>
+            <div class="sidebar-group">
+              <div class="sidebar-title">Wrap Up</div>
+              <div class="sidebar-sub">
+                <a class="sidebar-link" href="#summary">Summary</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="author">
+          <div class="author-row">
+            <img
+              class="author-image"
+              src="/Users/danielhorrobin/Documents/Projects/meow/docs/assets/dan-horrors.png"
+              alt="Author portrait"
+            />
+            <div class="author-card">
+              <div class="author-name">Dan Horrors</div>
+              <div class="author-role">Author</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </aside>
+      <main class="main" id="mainContent">
+        <div class="hero" id="overview">
+      <div class="tags">
+        <span class="tag">Meow CRM</span>
+        <span class="tag">Campaigns</span>
+        <span class="tag">Google Workspace</span>
+        <span class="tag">Mailgun</span>
+      </div>
+      <h1>Meow CRM Expansion</h1>
+      <div class="subtitle">An executive-ready guide to a premium sales platform.</div>
+      <div class="hero-summary">
+        Meow now delivers a luxury-grade CRM experience: elegant pipelines, pristine data organization, and unified communications.
+        Every touchpoint - from first lead to long-term customer - is captured with precision and presented with clarity.
+      </div>
+      <div class="metric-row">
+        <div class="metric"><strong>CRM Coverage:</strong> Leads, Customers, Accounts, Opportunities</div>
+        <div class="metric"><strong>Outbound:</strong> Campaigns, Gmail, Mailgun</div>
+        <div class="metric"><strong>Inbound:</strong> Gmail inbox sync</div>
+        <div class="metric"><strong>Controls:</strong> BREAD permissions + roles</div>
+      </div>
+        </div>
+
+    <div class="section" id="change-log">
+      <div class="section-head">
+        <h2>Change Log (What Was Added)</h2>
+        <span>Task Log</span>
+      </div>
+      <ul>
+        <li>Leads: booking converts to Account + Opportunity</li>
+        <li>Customers module with schemas + email history</li>
+        <li>Opportunities: convert opportunity into account</li>
+        <li>Campaigns: multi-step sequences + scheduling</li>
+        <li>Visual email builder + HTML preview</li>
+        <li>Schema-driven segment builder</li>
+        <li>Mailgun integration for mass sending</li>
+        <li>Gmail integration per user (send + log)</li>
+        <li>Gmail inbox sync (inbound logging)</li>
+        <li>Permissions + roles for all modules</li>
+        <li>Lead quick actions (call, text, email, copy)</li>
+        <li>Call outcomes + contacted tracking</li>
+        <li>Call scripts + copy buttons</li>
+        <li>Call timer + duration logging</li>
+        <li>Lead queues and filters</li>
+        <li>Auto-advance to next lead (with outcome rules)</li>
+        <li>Outcomes dashboard (summary stats)</li>
+        <li>Telemarketer settings toggles (all on/off)</li>
+      </ul>
+    </div>
+
+    <div class="section" id="upgrade">
+      <div class="section-head">
+        <h2>Why This Is a Big Upgrade</h2>
+        <span>Impact</span>
+      </div>
+      <div class="grid">
+        <div class="tile">
+          <h3>Full CRM Model</h3>
+          <p>Leads, customers, accounts, and opportunities live in a single, refined workspace. Ownership and status are explicit, eliminating ambiguity at every stage.</p>
+        </div>
+        <div class="tile">
+          <h3>Smarter Outreach</h3>
+          <p>Send executive-grade outreach at scale or one-to-one. Every message is automatically logged against the record for a pristine audit trail.</p>
+        </div>
+        <div class="tile">
+          <h3>Automation Ready</h3>
+          <p>Sequenced follow-ups deliver consistent engagement without sacrificing personalization. Your team operates with precision and pace.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="features">
+      <div class="section-head">
+        <h2>Feature Breakdown</h2>
+        <span>Capabilities</span>
+      </div>
+      <div class="grid">
+        <div class="tile">
+          <h3>Leads</h3>
+          <p>Capture intent, assign ownership, and book meetings seamlessly. Booked leads convert instantly into accounts with attached opportunities.</p>
+        </div>
+        <div class="tile">
+          <h3>Telemarketer Productivity</h3>
+          <p>Quick actions, scripts, call outcomes, and timers reduce manual work. Agents move through lead queues faster and with higher consistency.</p>
+        </div>
+        <div class="tile">
+          <h3>Customers</h3>
+          <p>Post-sale relationships are elevated into their own space, enabling premium servicing and strategic retention outreach.</p>
+        </div>
+        <div class="tile">
+          <h3>Opportunities</h3>
+          <p>Opportunities reflect live deal momentum and anchor directly to accounts, keeping your pipeline pristine and investment-ready.</p>
+        </div>
+        <div class="tile">
+          <h3>Permissions + Roles</h3>
+          <p>Granular BREAD permissions with curated roles keep control elegant and frictionless across teams.</p>
+        </div>
+        <div class="tile">
+          <h3>Advanced Import Builder</h3>
+          <p>Import at scale with refined mapping, defaults, and auto-creation to preserve data quality from day one.</p>
+        </div>
+        <div class="tile">
+          <h3>Google Calendar Integration</h3>
+          <p>Calendar booking is integrated into the lead workflow. Scheduling triggers conversion instantly, with zero manual steps.</p>
+        </div>
+        <div class="tile">
+          <h3>Google Workspace (Gmail)</h3>
+          <p>Personal Gmail connections enable elegant one-to-one outreach, automatically logged into your CRM history.</p>
+        </div>
+        <div class="tile">
+          <h3>Mailgun Mass Sender</h3>
+          <p>Mailgun ensures premium deliverability for campaigns while preserving Meow’s unified audit trail.</p>
+        </div>
+        <div class="tile">
+          <h3>Campaigns</h3>
+          <p>Launch tailored campaigns with sophisticated segmentation, personalization, and scheduled delivery.</p>
+        </div>
+        <div class="tile">
+          <h3>Visual Template Builder</h3>
+          <p>Design luxury-grade email layouts with drag-and-drop blocks and instant preview.</p>
+        </div>
+        <div class="tile">
+          <h3>Schema-Driven Segments</h3>
+          <p>Every custom field becomes a refined filter for precision targeting.</p>
+        </div>
+        <div class="tile">
+          <h3>Gmail Inbox Sync</h3>
+          <p>Inbound Gmail messages sync to the right record, preserving the full relationship narrative.</p>
+        </div>
+        <div class="tile">
+          <h3>Call Outcomes Dashboard</h3>
+          <p>Instant visibility into connected, voicemail, and call-back outcomes for daily performance oversight.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Example:</strong> A lead books a meeting. Meow schedules the event, converts the lead into an account, and creates an opportunity instantly - no manual steps, no delays.
+      </div>
+    </div>
+
+    <div class="section" id="campaigns">
+      <div class="section-head">
+        <h2>Campaigns & Multi-Step Sequences</h2>
+        <span>Outbound</span>
+      </div>
+      <p>Campaigns deliver premium outreach at scale. Build multi-step sequences that feel personal while operating at executive efficiency.</p>
+      <div class="grid">
+        <div class="tile">
+          <h3>Smart Segments</h3>
+          <p>Target leads, customers, accounts, or opportunities using schema-based conditions.</p>
+        </div>
+        <div class="tile">
+          <h3>Template Tokens</h3>
+          <p>Personalize with <code>{{name}}</code>, <code>{{email}}</code>, <code>{{attributes.key}}</code>, and account-based fields.</p>
+        </div>
+        <div class="tile">
+          <h3>Schedule & Drip</h3>
+          <p>Send immediately, schedule for later, or build multi-step follow-ups.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Example:</strong> Build a “New Prospect” sequence with 3 steps: an intro, a case study, and a “book a call” follow-up. Segment by lead status and auto-send on weekday mornings.
+      </div>
+    </div>
+
+    <div class="section" id="telemarketer">
+      <div class="section-head">
+        <h2>Telemarketer Productivity Suite</h2>
+        <span>Efficiency</span>
+      </div>
+      <div class="grid">
+        <div class="tile">
+          <h3>Quick Actions</h3>
+          <p>One-click call, text, email, and copy to reduce clicks and keep focus on the conversation.</p>
+        </div>
+        <div class="tile">
+          <h3>Scripts & Snippets</h3>
+          <p>Custom scripts stored in Settings with instant copy for consistent messaging.</p>
+        </div>
+        <div class="tile">
+          <h3>Call Outcome Capture</h3>
+          <p>Standardized outcomes for reporting and faster routing.</p>
+        </div>
+        <div class="tile">
+          <h3>Call Timer</h3>
+          <p>Track time on call attempts and attach duration to the lead record.</p>
+        </div>
+        <div class="tile">
+          <h3>Lead Queues</h3>
+          <p>Filters for uncontacted, call-back, no-answer, voicemail, has phone, and has email.</p>
+        </div>
+        <div class="tile">
+          <h3>Auto-Advance</h3>
+          <p>Move to the next lead automatically, with optional outcome-based rules.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>On/Off Controls:</strong>
+        <ul>
+          <li>Quick Actions toggle</li>
+          <li>Scripts toggle + editable script JSON</li>
+          <li>Call Timer toggle</li>
+          <li>Lead Queue filters toggle</li>
+          <li>Outcomes Dashboard toggle</li>
+          <li>Auto‑Advance toggle + outcome rules</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="builder">
+      <div class="section-head">
+        <h2>Visual Email Builder</h2>
+        <span>Design</span>
+      </div>
+      <div class="grid">
+        <div class="tile">
+          <h3>Highlights</h3>
+          <ul>
+            <li>Block-based layout with live preview</li>
+            <li>Editable HTML source for advanced customizations</li>
+            <li>Reorder blocks by dragging to perfect the flow</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>Example</h3>
+          <p>Create a hero image + headline + bullet list + CTA button in minutes, then reuse that template across multiple campaigns.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Pro tip:</strong> Build a default layout once, then tweak subject lines and top headlines per segment.
+      </div>
+    </div>
+
+    <div class="section" id="segments">
+      <div class="section-head">
+        <h2>Segment Builder</h2>
+        <span>Targeting</span>
+      </div>
+      <div class="grid">
+        <div class="tile">
+          <h3>Smart Filters</h3>
+          <ul>
+            <li>Match all or any conditions</li>
+            <li>Use text, select, boolean, and reference fields</li>
+            <li>Schema changes instantly reflect in segments</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>Examples</h3>
+          <ul>
+            <li>Leads where <code>Industry = SaaS</code> AND <code>Employees &gt; 50</code></li>
+            <li>Customers where <code>Plan = Enterprise</code> OR <code>Renewal Date = This month</code></li>
+            <li>Opportunities where <code>Next Follow Up exists</code> AND <code>Amount &gt; 10000</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="inbox">
+      <div class="section-head">
+        <h2>Gmail Inbox Sync</h2>
+        <span>Inbound</span>
+      </div>
+      <div class="grid">
+        <div class="tile">
+          <h3>What gets logged</h3>
+          <ul>
+            <li>From, To, Subject, and full email body</li>
+            <li>Received timestamp</li>
+            <li>Linked CRM record based on sender email</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>Business impact</h3>
+          <ul>
+            <li>No lost context between outbound and inbound</li>
+            <li>Immediate visibility into replies and objections</li>
+            <li>Shared view of customer conversations</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="permissions">
+      <div class="section-head">
+        <h2>Permissions & Roles</h2>
+        <span>Control</span>
+      </div>
+      <p>Every module is governed by precise permissions, ensuring a premium, controlled operating environment for every team.</p>
+      <div class="callout">
+        <strong>Recommended:</strong> Create a “Sales Rep” role with access to Leads, Accounts, Opportunities, and Campaigns, but read-only for Admin settings.
+      </div>
+    </div>
+
+    <div class="section" id="import">
+      <div class="section-head">
+        <h2>Import Builder</h2>
+        <span>Onboarding</span>
+      </div>
+      <div class="grid">
+        <div class="tile">
+          <h3>Use cases</h3>
+          <ul>
+            <li>Import leads from CSV with ownership defaults</li>
+            <li>Bulk create Opportunities with Account auto-create</li>
+          </ul>
+        </div>
+        <div class="tile">
+          <h3>Data safety</h3>
+          <ul>
+            <li>Preview rows before import</li>
+            <li>Custom schema fields map cleanly</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="integrations">
+      <div class="section-head">
+        <h2>Google Workspace + Mailgun Integration</h2>
+        <span>Integrations</span>
+      </div>
+      <div class="grid">
+        <div class="tile">
+          <h3>Google Workspace (Gmail)</h3>
+          <p>Each user connects Gmail for individual sending and inbox sync. Messages are logged to the CRM record, keeping the timeline complete.</p>
+        </div>
+        <div class="tile">
+          <h3>Mailgun</h3>
+          <p>Bulk campaigns use Mailgun for deliverability and scale. All emails are still logged in Meow for full visibility.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="ops-settings">
+      <div class="section-head">
+        <h2>Telemarketer Settings (On/Off Controls)</h2>
+        <span>Admin</span>
+      </div>
+      <p>All telemarketer enhancements are switchable in Settings, including auto-advance rules, scripts, call timer, queue filters, and outcomes dashboard.</p>
+      <ul>
+        <li><b>Enable quick actions</b> (call, text, email, copy)</li>
+        <li><b>Enable scripts</b> (centralized, editable)</li>
+        <li><b>Enable call timer</b> (tracks duration)</li>
+        <li><b>Enable lead queues</b> (filters by outcome)</li>
+        <li><b>Enable outcomes dashboard</b> (summary stats)</li>
+        <li><b>Enable auto‑advance</b> (optional: only for specific outcomes)</li>
+      </ul>
+    </div>
+
+    <div class="section" id="backend">
+      <div class="section-head">
+        <h2>Backend Configuration</h2>
+        <span>Setup</span>
+      </div>
+      <h3>Mailgun</h3>
+      <pre>
+Integration Key: mailgun
+Attributes:
+  domain: "mg.yourdomain.com"
+  apiKey: "key-..."
+  sender: "Your Name &lt;hello@yourdomain.com&gt;"
+  region: "us" | "eu"
+      </pre>
+
+      <h3>Google Workspace (Gmail)</h3>
+      <pre>
+Integration Key: google_workspace
+Attributes:
+  clientId: "..."
+  clientSecret: "..."
+  redirectUri: "https://yourdomain.com/public/google-workspace/callback"
+      </pre>
+
+      <h3>Google Calendar</h3>
+      <pre>
+Integration Key: google_calendar
+Attributes:
+  clientId: "..."
+  clientSecret: "..."
+  redirectUri: "https://yourdomain.com/public/google-calendar/callback"
+  calendarId: "primary"
+      </pre>
+    </div>
+
+    <div class="section" id="data-model">
+      <div class="section-head">
+        <h2>Data Model (New)</h2>
+        <span>Architecture</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Entity</th>
+            <th>Purpose</th>
+            <th>Highlights</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Lead</td>
+            <td>Pre-sales prospect</td>
+            <td>Contact fields + conversion to Account + Opportunity</td>
+          </tr>
+          <tr>
+            <td>Customer</td>
+            <td>Post-sale relationship</td>
+            <td>Custom schema + email history + owner</td>
+          </tr>
+          <tr>
+            <td>Campaign</td>
+            <td>Bulk email outreach</td>
+            <td>Audience filters + schedule + drip steps</td>
+          </tr>
+          <tr>
+            <td>EmailLog</td>
+            <td>Email audit trail</td>
+            <td>Provider, status, entity link, timestamps</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section" id="api">
+      <div class="section-head">
+        <h2>API Guide (Backend)</h2>
+        <span>Reference</span>
+      </div>
+      <h3>Campaigns</h3>
+      <pre>
+GET  /api/campaigns
+POST /api/campaigns
+GET  /api/campaigns/:id
+DELETE /api/campaigns/:id
+POST /api/campaigns/:id/schedule
+POST /api/campaigns/:id/send
+      </pre>
+
+      <h3>Email Send + Logs</h3>
+      <pre>
+POST /api/emails
+GET  /api/emails?entityType=lead&entityId=...&campaignId=...
+POST /api/emails/sync
+      </pre>
+
+      <h3>Lead Booking + Conversion</h3>
+      <pre>
+POST /api/leads/:id/book
+      </pre>
+    </div>
+
+    <div class="section" id="campaign-howto">
+      <div class="section-head">
+        <h2>How to Use: Campaign Example</h2>
+        <span>Workflow</span>
+      </div>
+      <ol>
+        <li>Create a Campaign with audience entity = Leads.</li>
+        <li>Add conditions like <code>attributes.source = "Referral"</code>.</li>
+        <li>Write an HTML template using tokens like <code>{{name}}</code>, <code>{{email}}</code>.</li>
+        <li>Schedule or Send Now.</li>
+      </ol>
+      <div class="callout">
+        <strong>Example Template:</strong>
+        <pre>
+Subject: Quick hello {{name}}
+HTML:
+&lt;p&gt;Hi {{name}},&lt;/p&gt;
+&lt;p&gt;Thanks for showing interest. Are you free this week?&lt;/p&gt;
+        </pre>
+      </div>
+    </div>
+
+    <div class="section" id="gmail-howto">
+      <div class="section-head">
+        <h2>How to Use: Gmail Per User</h2>
+        <span>Workflow</span>
+      </div>
+      <ol>
+        <li>Admin sets Google Workspace OAuth in Settings.</li>
+        <li>User opens User Settings and clicks Connect Gmail.</li>
+        <li>User can now send individual emails from Leads/Customers/Accounts/Opportunities.</li>
+        <li>Click “Sync Gmail Inbox” to pull inbound messages.</li>
+        <li>Every email is logged and visible in the Email tab.</li>
+      </ol>
+    </div>
+
+    <div class="section" id="tokens">
+      <div class="section-head">
+        <h2>Personalization Tokens</h2>
+        <span>Templates</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>{{name}}</td><td>Entity name</td></tr>
+          <tr><td>{{email}}</td><td>Primary email</td></tr>
+          <tr><td>{{opportunityName}}</td><td>Opportunity name (for cards)</td></tr>
+          <tr><td>{{attributes.anyKey}}</td><td>Custom schema attribute</td></tr>
+          <tr><td>{{account.attributes.anyKey}}</td><td>Account attributes for opportunity emails</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section" id="drip">
+      <div class="section-head">
+        <h2>Segment Builder</h2>
+        <span>Targeting</span>
+      </div>
+      <ul>
+        <li>Leads where <code>attributes.source = Referral</code></li>
+        <li>Customers where <code>attributes.status = At Risk</code></li>
+        <li>Opportunities where <code>attributes.accountId exists</code></li>
+      </ul>
+    </div>
+
+    <div class="section" id="summary">
+      <div class="section-head">
+        <h2>Scheduling & Drip Sequences</h2>
+        <span>Automation</span>
+      </div>
+      <ul>
+        <li>Day 0: Welcome email</li>
+        <li>Day 3: Case study</li>
+        <li>Day 7: Follow-up reminder</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2>Why This Works</h2>
+        <span>Summary</span>
+      </div>
+      <p>Meow now operates as a premium, end-to-end sales platform - faster execution, impeccable data, and an executive-grade communication record.</p>
+    </div>
+
+    <div class="section" id="change-log">
+      <div class="section-head">
+        <h2>Change Log (What Was Added)</h2>
+        <span>Task Log</span>
+      </div>
+      <ul>
+        <li>Leads: booking converts to Account + Opportunity</li>
+        <li>Customers module with schemas + email history</li>
+        <li>Opportunities: convert opportunity into account</li>
+        <li>Campaigns: multi-step sequences + scheduling</li>
+        <li>Visual email builder + HTML preview</li>
+        <li>Schema-driven segment builder</li>
+        <li>Mailgun integration for mass sending</li>
+        <li>Gmail integration per user (send + log)</li>
+        <li>Gmail inbox sync (inbound logging)</li>
+        <li>Permissions + roles for all modules</li>
+        <li>Lead quick actions (call, text, email, copy)</li>
+        <li>Call outcomes + contacted tracking</li>
+        <li>Call scripts + copy buttons</li>
+        <li>Call timer + duration logging</li>
+        <li>Lead queues and filters</li>
+        <li>Auto-advance to next lead (with outcome rules)</li>
+        <li>Outcomes dashboard (summary stats)</li>
+        <li>Telemarketer settings toggles (all on/off)</li>
+      </ul>
+    </div>
+      </main>
+    </div>
+  </div>
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('mainContent');
+    const toggle = document.getElementById('sidebarToggle');
+    const isMobile = () => window.matchMedia('(max-width: 980px)').matches;
+
+    const syncMobileState = () => {
+      if (!isMobile()) {
+        sidebar.classList.remove('is-open');
+        return;
+      }
+    };
+
+    toggle.addEventListener('click', () => {
+      if (isMobile()) {
+        sidebar.classList.toggle('is-open');
+      } else {
+        sidebar.classList.toggle('collapsed');
+        main.classList.toggle('collapsed');
+      }
+    });
+
+    window.addEventListener('resize', syncMobileState);
+    syncMobileState();
+  </script>
+</body>
+</html>

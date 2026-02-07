@@ -24,6 +24,8 @@ import { DEFAULT_LANGUAGE } from '../../Constants';
 import { Avatar } from '../Avatar';
 import { User } from '../../interfaces/User';
 import { getRequestClient } from '../../helpers/RequestHelper';
+import { EmailComposer } from '../email/EmailComposer';
+import { EmailLogList } from '../email/EmailLogList';
 
 export const Layer = () => {
   const token = useSelector(selectToken);
@@ -121,11 +123,28 @@ export const Layer = () => {
             <Item key="customer">
               <span className="tab-title">{Translations.CustomerTab[DEFAULT_LANGUAGE]}</span>
             </Item>
+            {id && (
+              <Item key="emails">
+                <span className="tab-title">{Translations.EmailTab[DEFAULT_LANGUAGE]}</span>
+              </Item>
+            )}
           </TabList>
           <TabPanels>
             <Item key="customer">
               <Form update={update} id={id} />
             </Item>
+            {id && (
+              <Item key="emails">
+                <div style={{ padding: '15px', display: 'grid', gap: '16px' }}>
+                  <EmailComposer
+                    entityType="customer"
+                    entityId={id}
+                    defaultTo={customer?.contact?.email}
+                  />
+                  <EmailLogList entityType="customer" entityId={id} showSync />
+                </div>
+              </Item>
+            )}
           </TabPanels>
         </Tabs>
       </div>
