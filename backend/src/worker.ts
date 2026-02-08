@@ -105,6 +105,7 @@ import { Team } from './entities/Team.js';
 import { User } from './entities/User.js';
 import { GmailSyncService } from './services/GmailSyncService.js';
 import { DateTime } from 'luxon';
+import { EntityHelper } from './helpers/EntityHelper.js';
 
 /* spinning up express */
 export const app = express();
@@ -715,7 +716,7 @@ try {
               ? DateTime.fromJSDate(campaign.schedule.sendAt)
               : DateTime.utc();
             const nextIndex = stepIndex + 1;
-            const nextDelay = steps[nextIndex].delayDays || 0;
+            const nextDelay = steps[nextIndex]?.delayDays || 0;
             campaign.stepIndex = nextIndex;
             campaign.nextSendAt = base.plus({ days: nextDelay }).toJSDate();
             campaign.status = 'scheduled';
@@ -752,12 +753,12 @@ try {
 
   setInterval(async () => {
     try {
-      const users = await EntityHelper.findBy(User, {
-        integrations: { $ne: null },
-      });
+      const users = await EntityHelper.findBy(User, {});
 
       for (const user of users) {
-        const integration = user.integrations?.find((item) => item.key === 'google_workspace');
+        const integration = user.integrations?.find(
+          (item: { key: string }) => item.key === 'google_workspace'
+        );
         const refreshToken = integration?.attributes?.refreshToken;
         if (!refreshToken) {
           continue;

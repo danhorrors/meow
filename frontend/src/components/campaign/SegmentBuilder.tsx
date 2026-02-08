@@ -11,6 +11,7 @@ import { SchemaHelper } from '../../helpers/SchemaHelper';
 export type SegmentEntity = 'leads' | 'customers' | 'accounts' | 'opportunities' | 'users';
 
 type FieldType = 'text' | 'email' | 'select' | 'boolean' | 'reference' | 'number' | 'date';
+type Operator = CampaignCondition['operator'];
 
 type FieldOption = {
   key: string;
@@ -73,7 +74,7 @@ const baseFields: Record<SegmentEntity, FieldOption[]> = {
   ],
 };
 
-const operatorsByType: Record<FieldType, string[]> = {
+const operatorsByType: Record<FieldType, Operator[]> = {
   text: ['equals', 'not_equals', 'contains', 'not_contains', 'exists', 'not_exists'],
   email: ['equals', 'not_equals', 'contains', 'not_contains', 'exists', 'not_exists'],
   select: ['equals', 'not_equals', 'exists', 'not_exists'],
@@ -83,7 +84,7 @@ const operatorsByType: Record<FieldType, string[]> = {
   date: ['equals', 'not_equals', 'contains', 'not_contains', 'exists', 'not_exists'],
 };
 
-const operatorLabels: Record<string, string> = {
+const operatorLabels: Record<Operator, string> = {
   equals: 'equals',
   not_equals: 'not equals',
   contains: 'contains',
@@ -132,7 +133,7 @@ export const SegmentBuilder = ({ entity, match, conditions, onChange }: SegmentB
 
   const addCondition = () => {
     const firstField = fields[0];
-    const operator = firstField ? operatorsByType[firstField.type][0] : 'equals';
+    const operator: Operator = firstField ? operatorsByType[firstField.type][0] : 'equals';
     const next: CampaignCondition = {
       field: firstField?.key || '',
       operator,
@@ -157,7 +158,7 @@ export const SegmentBuilder = ({ entity, match, conditions, onChange }: SegmentB
         <Picker
           width={220}
           selectedKey={match}
-          onSelectionChange={(key) => onChange({ match: key.toString() as any, conditions })}
+          onSelectionChange={(key) => onChange({ match: key.toString() as 'all' | 'any', conditions })}
         >
           <Item key="all">{Translations.CampaignMatchAllLabel[DEFAULT_LANGUAGE]}</Item>
           <Item key="any">{Translations.CampaignMatchAnyLabel[DEFAULT_LANGUAGE]}</Item>
@@ -190,7 +191,7 @@ export const SegmentBuilder = ({ entity, match, conditions, onChange }: SegmentB
               <Picker
                 width={180}
                 selectedKey={condition.operator}
-                onSelectionChange={(key) => updateCondition(index, { operator: key.toString() as any })}
+                onSelectionChange={(key) => updateCondition(index, { operator: key.toString() as Operator })}
               >
                 {operators.map((op) => (
                   <Item key={op}>{operatorLabels[op] || op}</Item>

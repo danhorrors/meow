@@ -243,7 +243,7 @@ export const IntegrationController = {
         key: GOOGLE_WORKSPACE_KEY,
         attributes: {
           refreshToken: tokens.tokens.refresh_token,
-          email,
+          email: email || null,
         },
       };
 

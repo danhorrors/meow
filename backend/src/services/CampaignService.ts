@@ -224,7 +224,7 @@ export class CampaignService {
         if (accountReference) {
           const accountId = card.attributes?.[accountReference.key];
           if (accountId) {
-            const account = await EntityHelper.findOneById(Account, accountId);
+            const account = await EntityHelper.findOneById(Account, accountId.toString());
             if (account) {
               email = getEmailFromAttributes(account.attributes, accountSchema);
               name = account.name;
@@ -281,10 +281,11 @@ export class CampaignService {
 
   async sendCampaign(team: Team, user: User, campaign: Campaign, stepIndex = 0) {
     const recipients = await this.buildRecipients(team, campaign);
-    const template =
+    const step =
       campaign.steps && campaign.steps.length > 0
-        ? campaign.steps[Math.min(stepIndex, campaign.steps.length - 1)].template
-        : campaign.template;
+        ? campaign.steps[Math.min(stepIndex, campaign.steps.length - 1)]
+        : undefined;
+    const template = step?.template || campaign.template;
 
     const service = new EmailService();
 

@@ -70,6 +70,37 @@ export const Layer = () => {
     }
   };
 
+  const tabListItems: JSX.Element[] = [
+    <Item key="customer">
+      <span className="tab-title">{Translations.CustomerTab[DEFAULT_LANGUAGE]}</span>
+    </Item>,
+  ];
+  const tabPanelsItems: JSX.Element[] = [
+    <Item key="customer">
+      <Form update={update} id={id} />
+    </Item>,
+  ];
+
+  if (id) {
+    tabListItems.push(
+      <Item key="emails">
+        <span className="tab-title">{Translations.EmailTab[DEFAULT_LANGUAGE]}</span>
+      </Item>
+    );
+    tabPanelsItems.push(
+      <Item key="emails">
+        <div style={{ padding: '15px', display: 'grid', gap: '16px' }}>
+          <EmailComposer
+            entityType="customer"
+            entityId={id}
+            defaultTo={customer?.contact?.email}
+          />
+          <EmailLogList entityType="customer" entityId={id} showSync />
+        </div>
+      </Item>
+    );
+  }
+
   return (
     <div className={`layer ${isMobileLayout ? 'mobile' : 'desktop'}`}>
       <div className="header">
@@ -119,33 +150,8 @@ export const Layer = () => {
 
       <div className="body">
         <Tabs height="100%">
-          <TabList>
-            <Item key="customer">
-              <span className="tab-title">{Translations.CustomerTab[DEFAULT_LANGUAGE]}</span>
-            </Item>
-            {id && (
-              <Item key="emails">
-                <span className="tab-title">{Translations.EmailTab[DEFAULT_LANGUAGE]}</span>
-              </Item>
-            )}
-          </TabList>
-          <TabPanels>
-            <Item key="customer">
-              <Form update={update} id={id} />
-            </Item>
-            {id && (
-              <Item key="emails">
-                <div style={{ padding: '15px', display: 'grid', gap: '16px' }}>
-                  <EmailComposer
-                    entityType="customer"
-                    entityId={id}
-                    defaultTo={customer?.contact?.email}
-                  />
-                  <EmailLogList entityType="customer" entityId={id} showSync />
-                </div>
-              </Item>
-            )}
-          </TabPanels>
+          <TabList>{tabListItems}</TabList>
+          <TabPanels>{tabPanelsItems}</TabPanels>
         </Tabs>
       </div>
     </div>

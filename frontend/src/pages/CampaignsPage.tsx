@@ -156,11 +156,9 @@ export const CampaignsPage = () => {
             selectedKey={selectedId ?? ''}
             onSelectionChange={(key) => setSelectedId(key.toString())}
             aria-label={Translations.CampaignsTitle[DEFAULT_LANGUAGE]}
+            items={[{ _id: '', name: Translations.AddButton[DEFAULT_LANGUAGE] }, ...campaigns]}
           >
-            <Item key="">{Translations.AddButton[DEFAULT_LANGUAGE]}</Item>
-            {campaigns.map((campaign) => (
-              <Item key={campaign._id}>{campaign.name}</Item>
-            ))}
+            {(item) => <Item key={item._id || ''}>{item.name}</Item>}
           </Picker>
           <Button variant="primary" onPress={() => setSelectedId(undefined)} isDisabled={!canEdit}>
             {Translations.AddButton[DEFAULT_LANGUAGE]}

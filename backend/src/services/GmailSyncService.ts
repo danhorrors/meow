@@ -17,7 +17,7 @@ const parseEmailList = (value?: string): string[] => {
     .map((part) => part.trim())
     .map((part) => {
       const match = part.match(/<([^>]+)>/);
-      return (match ? match[1] : part).trim();
+      return (match ? match[1] || '' : part).trim();
     })
     .filter(Boolean);
 };
@@ -28,8 +28,12 @@ const decodeBody = (data?: string) => {
   return Buffer.from(normalized, 'base64').toString('utf8');
 };
 
-const findHeader = (headers: { name?: string; value?: string }[], name: string) => {
-  return headers.find((header) => header.name?.toLowerCase() === name.toLowerCase())?.value;
+const findHeader = (
+  headers: { name?: string | null; value?: string | null }[],
+  name: string
+) => {
+  const value = headers.find((header) => header.name?.toLowerCase() === name.toLowerCase())?.value;
+  return value || undefined;
 };
 
 const findBodyParts = (part: any) => {

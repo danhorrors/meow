@@ -6,6 +6,14 @@ import { EntityHelper } from '../helpers/EntityHelper.js';
 import { EntityNotFoundError } from '../errors/EntityNotFoundError.js';
 import { CampaignService } from '../services/CampaignService.js';
 
+const getRequiredIdParam = (req: AuthenticatedRequest) => {
+  const id = req.params.id;
+  if (!id) {
+    throw new EntityNotFoundError();
+  }
+  return id;
+};
+
 const list = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const campaigns = await EntityHelper.findByTeam(Campaign, req.jwt.team);
@@ -17,7 +25,7 @@ const list = async (req: AuthenticatedRequest, res: Response, next: NextFunction
 
 const fetch = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const campaign = await EntityHelper.findOneById(Campaign, req.params.id);
+    const campaign = await EntityHelper.findOneById(Campaign, getRequiredIdParam(req));
     if (!campaign || !EntityHelper.isEntityOwnedBy(campaign, req.jwt.user)) {
       throw new EntityNotFoundError();
     }
@@ -66,7 +74,7 @@ const createOrUpdate = async (req: AuthenticatedRequest, res: Response, next: Ne
 
 const remove = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const campaign = await EntityHelper.findOneById(Campaign, req.params.id);
+    const campaign = await EntityHelper.findOneById(Campaign, getRequiredIdParam(req));
     if (!campaign || !EntityHelper.isEntityOwnedBy(campaign, req.jwt.user)) {
       throw new EntityNotFoundError();
     }
@@ -80,7 +88,7 @@ const remove = async (req: AuthenticatedRequest, res: Response, next: NextFuncti
 
 const schedule = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const campaign = await EntityHelper.findOneById(Campaign, req.params.id);
+    const campaign = await EntityHelper.findOneById(Campaign, getRequiredIdParam(req));
     if (!campaign || !EntityHelper.isEntityOwnedBy(campaign, req.jwt.user)) {
       throw new EntityNotFoundError();
     }
@@ -89,7 +97,8 @@ const schedule = async (req: AuthenticatedRequest, res: Response, next: NextFunc
     const timeZone = req.body.timeZone || 'UTC';
 
     const base = sendAt.isValid ? sendAt.setZone(timeZone) : DateTime.utc();
-    const delayDays = campaign.steps && campaign.steps.length > 0 ? campaign.steps[0].delayDays : 0;
+    const delayDays =
+      campaign.steps && campaign.steps.length > 0 ? campaign.steps[0]?.delayDays || 0 : 0;
     campaign.nextSendAt = base.plus({ days: delayDays }).toJSDate();
     campaign.stepIndex = 0;
     campaign.status = 'scheduled';
@@ -109,7 +118,7 @@ const schedule = async (req: AuthenticatedRequest, res: Response, next: NextFunc
 
 const sendNow = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const campaign = await EntityHelper.findOneById(Campaign, req.params.id);
+    const campaign = await EntityHelper.findOneById(Campaign, getRequiredIdParam(req));
     if (!campaign || !EntityHelper.isEntityOwnedBy(campaign, req.jwt.user)) {
       throw new EntityNotFoundError();
     }

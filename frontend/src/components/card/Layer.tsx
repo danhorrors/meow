@@ -131,6 +131,43 @@ export const Layer = () => {
     }
   };
 
+  const tabListItems: JSX.Element[] = [
+    <Item key="opportunity">
+      <span className="tab-title">{Translations.OpportunityTab[DEFAULT_LANGUAGE]}</span>
+    </Item>,
+  ];
+  const tabPanelsItems: JSX.Element[] = [
+    <Item key="opportunity">
+      <Form update={update} id={id} />
+    </Item>,
+  ];
+
+  if (id) {
+    tabListItems.push(
+      <Item key="events">
+        <span className="tab-title">{Translations.HistoryTab[DEFAULT_LANGUAGE]}</span>
+      </Item>
+    );
+    tabListItems.push(
+      <Item key="emails">
+        <span className="tab-title">{Translations.EmailTab[DEFAULT_LANGUAGE]}</span>
+      </Item>
+    );
+    tabPanelsItems.push(
+      <Item key="events">
+        <Events entity="card" id={id} />
+      </Item>
+    );
+    tabPanelsItems.push(
+      <Item key="emails">
+        <div style={{ padding: '15px', display: 'grid', gap: '16px' }}>
+          <EmailComposer entityType="opportunity" entityId={id} />
+          <EmailLogList entityType="opportunity" entityId={id} showSync />
+        </div>
+      </Item>
+    );
+  }
+
   return (
     <div className={`layer ${isMobileLayout ? 'mobile' : 'desktop'}`}>
       <div className="header">
@@ -187,42 +224,8 @@ export const Layer = () => {
       )}
       <div className="body">
         <Tabs height="100%">
-          {(id && (
-            <TabList>
-              <Item key="opportunity">
-                <span className="tab-title">{Translations.OpportunityTab[DEFAULT_LANGUAGE]}</span>
-              </Item>
-              <Item key="events">
-                <span className="tab-title">{Translations.HistoryTab[DEFAULT_LANGUAGE]}</span>
-              </Item>
-              <Item key="emails">
-                <span className="tab-title">{Translations.EmailTab[DEFAULT_LANGUAGE]}</span>
-              </Item>
-            </TabList>
-          )) || (
-            <TabList>
-              <Item key="opportunity">
-                <span className="tab-title">{Translations.OpportunityTab[DEFAULT_LANGUAGE]}</span>
-              </Item>
-            </TabList>
-          )}
-
-          <TabPanels UNSAFE_style={{ padding: 0, border: 0 }}>
-            <Item key="opportunity">
-              <Form update={update} id={id} />
-            </Item>
-            <Item key="events">
-              <Events entity="card" id={id} />
-            </Item>
-            {id && (
-              <Item key="emails">
-                <div style={{ padding: '15px', display: 'grid', gap: '16px' }}>
-                  <EmailComposer entityType="opportunity" entityId={id} />
-                  <EmailLogList entityType="opportunity" entityId={id} showSync />
-                </div>
-              </Item>
-            )}
-          </TabPanels>
+          <TabList>{tabListItems}</TabList>
+          <TabPanels UNSAFE_style={{ padding: 0, border: 0 }}>{tabPanelsItems}</TabPanels>
         </Tabs>
       </div>
     </div>

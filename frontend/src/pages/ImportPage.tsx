@@ -57,6 +57,20 @@ export const ImportPage = () => {
   const canCustomerAdd = hasPermission(sessionUser, roles, 'customers', 'add');
 
   const canAccess = canLeadAdd || canAccountAdd || canCardAdd || canCustomerAdd;
+  const entityOptions = useMemo(() => {
+    const list: { key: EntityType; label: string }[] = [];
+    if (canLeadAdd) list.push({ key: 'leads', label: Translations.LeadsTitle[DEFAULT_LANGUAGE] });
+    if (canAccountAdd)
+      list.push({ key: 'accounts', label: Translations.AccountsTitle[DEFAULT_LANGUAGE] });
+    if (canCustomerAdd)
+      list.push({ key: 'customers', label: Translations.CustomersTitle[DEFAULT_LANGUAGE] });
+    if (canCardAdd)
+      list.push({
+        key: 'opportunities',
+        label: Translations.OpportunitiesNavItem[DEFAULT_LANGUAGE],
+      });
+    return list;
+  }, [canLeadAdd, canAccountAdd, canCustomerAdd, canCardAdd]);
 
   const schema =
     entity === 'leads'
@@ -76,7 +90,7 @@ export const ImportPage = () => {
 
     if (entity === 'opportunities') {
       list.push({ key: 'amount', label: Translations.OpportunityAmount[DEFAULT_LANGUAGE] });
-      list.push({ key: 'laneName', label: Translations.StageLabel[DEFAULT_LANGUAGE] });
+      list.push({ key: 'laneName', label: Translations.StagesTitle[DEFAULT_LANGUAGE] });
       list.push({ key: 'nextFollowUpAt', label: Translations.NextFollowUpLabel[DEFAULT_LANGUAGE] });
       list.push({ key: 'closedAt', label: Translations.ExpectedCloseDateLabel[DEFAULT_LANGUAGE] });
     }
@@ -239,6 +253,7 @@ export const ImportPage = () => {
               const created = await client.createAccount({
                 name: payload.accountName,
                 userId: payload.userId || defaultUserId,
+                attributes: {},
               });
               accountId = created._id;
             } catch (error) {
@@ -303,17 +318,9 @@ export const ImportPage = () => {
             width={240}
             selectedKey={entity}
             onSelectionChange={(key) => setEntity(key.toString() as EntityType)}
+            items={entityOptions}
           >
-            {canLeadAdd && <Item key="leads">{Translations.LeadsTitle[DEFAULT_LANGUAGE]}</Item>}
-            {canAccountAdd && (
-              <Item key="accounts">{Translations.AccountsTitle[DEFAULT_LANGUAGE]}</Item>
-            )}
-            {canCustomerAdd && (
-              <Item key="customers">{Translations.CustomersTitle[DEFAULT_LANGUAGE]}</Item>
-            )}
-            {canCardAdd && (
-              <Item key="opportunities">{Translations.OpportunitiesNavItem[DEFAULT_LANGUAGE]}</Item>
-            )}
+            {(item) => <Item key={item.key}>{item.label}</Item>}
           </Picker>
           <input
             type="file"
@@ -338,11 +345,9 @@ export const ImportPage = () => {
                 onSelectionChange={(key) =>
                   setDefaultUserId(key.toString().length > 0 ? key.toString() : undefined)
                 }
+                items={[{ _id: '', name: Translations.AssignRoleLabel[DEFAULT_LANGUAGE] }, ...users]}
               >
-                <Item key="">{Translations.AssignRoleLabel[DEFAULT_LANGUAGE]}</Item>
-                {users.map((user) => (
-                  <Item key={user._id}>{user.name}</Item>
-                ))}
+                {(item) => <Item key={item._id || ''}>{item.name}</Item>}
               </Picker>
 
               {entity === 'opportunities' && (
@@ -352,11 +357,9 @@ export const ImportPage = () => {
                   onSelectionChange={(key) =>
                     setDefaultLaneId(key.toString().length > 0 ? key.toString() : undefined)
                   }
+                  items={[{ _id: '', name: Translations.StagesTitle[DEFAULT_LANGUAGE] }, ...lanes]}
                 >
-                  <Item key="">{Translations.StageLabel[DEFAULT_LANGUAGE]}</Item>
-                  {lanes.map((lane) => (
-                    <Item key={lane._id}>{lane.name}</Item>
-                  ))}
+                  {(item) => <Item key={item._id || ''}>{item.name}</Item>}
                 </Picker>
               )}
             </div>

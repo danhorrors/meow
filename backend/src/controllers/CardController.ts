@@ -252,8 +252,9 @@ const convertToAccount = async (req: AuthenticatedRequest, res: Response, next: 
 
     if (accountReference) {
       const existingId = card.attributes?.[accountReference.key];
-      if (existingId) {
-        const existingAccount = await EntityHelper.findOneById(Account, existingId);
+      const existingIdAsString = existingId ? existingId.toString() : undefined;
+      if (existingIdAsString) {
+        const existingAccount = await EntityHelper.findOneById(Account, existingIdAsString);
         if (existingAccount) {
           return res.json({ account: existingAccount, card });
         }
