@@ -53,6 +53,8 @@ const parseOutcomes = (value: unknown, fallback: string[]) => {
     .filter((item) => item.length > 0);
 };
 
+const CALLBACK_FIELD_KEY = 'lead-callback-at';
+
 export const Layer = () => {
   const token = useSelector(selectToken);
   const client = getRequestClient(token);
@@ -73,6 +75,8 @@ export const Layer = () => {
   const [description, setDescription] = useState('');
   const [attendees, setAttendees] = useState('');
   const [callOutcome, setCallOutcome] = useState('');
+  const [callbackDate, setCallbackDate] = useState<string | undefined>(undefined);
+  const [callbackTime, setCallbackTime] = useState('09:00');
   const [scriptChoice, setScriptChoice] = useState('intro');
   const [teleSettings, setTeleSettings] = useState({
     enableQuickActions: true,
@@ -178,6 +182,13 @@ export const Layer = () => {
     if (callOutcome) {
       attributes['lead-call-outcome'] = callOutcome;
     }
+    if (callbackDate) {
+      const callbackAt = DateTime.fromISO(`${callbackDate}T${callbackTime}:00`, { zone: timeZone || 'UTC' });
+      const callbackAtIso = callbackAt.toISO();
+      if (callbackAtIso) {
+        attributes[CALLBACK_FIELD_KEY] = callbackAtIso;
+      }
+    }
     if (teleSettings.enableCallTimer && callTimerElapsed > 0) {
       attributes['lead-last-call-duration'] = callTimerElapsed.toString();
     }
@@ -270,6 +281,23 @@ export const Layer = () => {
   }, [lead?._id]);
 
   useEffect(() => {
+    const callbackRaw = lead?.attributes?.[CALLBACK_FIELD_KEY]?.toString();
+    if (!callbackRaw) {
+      setCallbackDate(undefined);
+      setCallbackTime('09:00');
+      return;
+    }
+    const callbackAt = DateTime.fromISO(callbackRaw);
+    if (!callbackAt.isValid) {
+      setCallbackDate(undefined);
+      setCallbackTime('09:00');
+      return;
+    }
+    setCallbackDate(callbackAt.toISODate() || undefined);
+    setCallbackTime(callbackAt.toFormat('HH:mm'));
+  }, [lead?._id]);
+
+  useEffect(() => {
     if (!callTimerStart) return;
     const timer = setInterval(() => {
       setCallTimerElapsed(Math.floor((Date.now() - callTimerStart) / 1000));
@@ -306,12 +334,6 @@ export const Layer = () => {
 
     return fallback;
   }, [lead, teleSettings.scriptsJson]);
-
-  const scripts = {
-    intro: `Hi ${lead?.name || ''}, it’s ${store.getState().session.user?.name || 'me'}. I’m calling because we help teams streamline follow-ups and keep every lead on track. Do you have 30 seconds for a quick overview?`,
-    followup: `Hi ${lead?.name || ''}, just following up on my last note. We specialize in making outreach and tracking effortless. Would it be helpful to schedule a short call?`,
-    voicemail: `Hi ${lead?.name || ''}, it’s ${store.getState().session.user?.name || 'me'}. I’m calling about helping your team improve follow-up speed and visibility. I’ll send an email as well. Feel free to reply or call me back.`
-  };
 
   const tabs: JSX.Element[] = [
     <Item key="lead">
@@ -417,6 +439,20 @@ export const Layer = () => {
                 <Button variant="secondary" onPress={() => goToLead(nextLeadId)} isDisabled={!nextLeadId}>
                   {Translations.LeadNextLeadButton[DEFAULT_LANGUAGE]}
                 </Button>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <DatePicker
+                  label="Callback date"
+                  value={callbackDate ? parseDate(callbackDate) : undefined}
+                  onChange={(value) => setCallbackDate(value?.toString())}
+                />
+                <TextField
+                  label="Callback time"
+                  value={callbackTime}
+                  onChange={setCallbackTime}
+                  placeholder="09:00"
+                  width={140}
+                />
               </div>
             </div>
           </div>

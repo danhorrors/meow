@@ -39,6 +39,10 @@ export const TelemarketerSettingsCanvas = () => {
   const [enableCallTimer, setEnableCallTimer] = useState(true);
   const [enableOutcomesDashboard, setEnableOutcomesDashboard] = useState(true);
   const [enableLeadQueue, setEnableLeadQueue] = useState(true);
+  const [enableCallbacksWidget, setEnableCallbacksWidget] = useState(true);
+  const [callbackDateFields, setCallbackDateFields] = useState(
+    'lead-callback-at, callbackAt, nextCallbackAt, callbackDateTime'
+  );
   const [scriptsJson, setScriptsJson] = useState(JSON.stringify(defaultScripts, null, 2));
 
   useEffect(() => {
@@ -55,6 +59,11 @@ export const TelemarketerSettingsCanvas = () => {
         setEnableCallTimer(parseBool(attrs.enableCallTimer, true));
         setEnableOutcomesDashboard(parseBool(attrs.enableOutcomesDashboard, true));
         setEnableLeadQueue(parseBool(attrs.enableLeadQueue, true));
+        setEnableCallbacksWidget(parseBool(attrs.enableCallbacksWidget, true));
+        setCallbackDateFields(
+          (attrs.callbackDateFields as string) ||
+            'lead-callback-at, callbackAt, nextCallbackAt, callbackDateTime'
+        );
         setScriptsJson((attrs.scriptsJson as string) || JSON.stringify(defaultScripts, null, 2));
       })
       .catch(() => undefined);
@@ -74,6 +83,8 @@ export const TelemarketerSettingsCanvas = () => {
           enableCallTimer,
           enableOutcomesDashboard,
           enableLeadQueue,
+          enableCallbacksWidget,
+          callbackDateFields,
           scriptsJson,
         },
       });
@@ -111,6 +122,9 @@ export const TelemarketerSettingsCanvas = () => {
         <Switch isSelected={enableOutcomesDashboard} onChange={setEnableOutcomesDashboard}>
           {Translations.TelemarketerDashboardToggle[DEFAULT_LANGUAGE]}
         </Switch>
+        <Switch isSelected={enableCallbacksWidget} onChange={setEnableCallbacksWidget}>
+          {Translations.TelemarketerCallbacksWidgetToggle[DEFAULT_LANGUAGE]}
+        </Switch>
         <Switch isSelected={enableAutoAdvance} onChange={setEnableAutoAdvance}>
           {Translations.TelemarketerAutoAdvanceToggle[DEFAULT_LANGUAGE]}
         </Switch>
@@ -127,6 +141,13 @@ export const TelemarketerSettingsCanvas = () => {
           onChange={setAutoAdvanceOutcomes}
           width="100%"
           isDisabled={!enableAutoAdvance || !autoAdvanceOutcomesOnly}
+        />
+        <TextField
+          label={Translations.TelemarketerCallbackFieldsLabel[DEFAULT_LANGUAGE]}
+          value={callbackDateFields}
+          onChange={setCallbackDateFields}
+          width="100%"
+          isDisabled={!enableCallbacksWidget}
         />
         <TextArea
           label={Translations.TelemarketerScriptsLabel[DEFAULT_LANGUAGE]}

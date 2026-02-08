@@ -1569,6 +1569,10 @@ export const Translations = {
     en: 'Enable outcomes dashboard',
     fr: 'Activer tableau de bord',
   },
+  TelemarketerCallbacksWidgetToggle: {
+    en: 'Enable callback utility widget',
+    fr: 'Activer widget de rappel',
+  },
   TelemarketerAutoAdvanceToggle: {
     en: 'Enable auto-advance after contact',
     fr: 'Auto-advance apres contact',
@@ -1580,6 +1584,10 @@ export const Translations = {
   TelemarketerAutoAdvanceOutcomesLabel: {
     en: 'Auto-advance outcomes (comma separated)',
     fr: 'Resultats auto-advance',
+  },
+  TelemarketerCallbackFieldsLabel: {
+    en: 'Callback date fields (comma separated)',
+    fr: 'Champs date rappel',
   },
   TelemarketerScriptsLabel: {
     en: 'Call scripts (JSON)',

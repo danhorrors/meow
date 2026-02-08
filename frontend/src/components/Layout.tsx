@@ -2,6 +2,7 @@ import { PropsWithChildren } from 'react';
 import { Navigation } from './Navigation';
 import { NavigationMobile } from './NavigationMobile';
 import useMobileLayout from '../hooks/useMobileLayout';
+import { UtilityWindow } from './UtilityWindow';
 
 export const Layout = (props: PropsWithChildren<unknown>) => {
   const isMobileLayout = useMobileLayout();
@@ -10,6 +11,7 @@ export const Layout = (props: PropsWithChildren<unknown>) => {
     <div className="page">
       <div className="navigation">{isMobileLayout ? <NavigationMobile /> : <Navigation />}</div>
       <div className="main">{props.children}</div>
+      <UtilityWindow />
     </div>
   );
 };

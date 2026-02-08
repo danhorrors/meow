@@ -156,6 +156,18 @@ export const DefaultLeadSchema = {
       type: 'text',
       name: 'Contacted Count',
     },
+    {
+      key: 'lead-callback-at',
+      index: 8,
+      type: 'text',
+      name: 'Callback At',
+    },
+    {
+      key: 'lead-last-call-duration',
+      index: 9,
+      type: 'text',
+      name: 'Last Call Duration (sec)',
+    },
   ],
 } as {
   type: SchemaType;
