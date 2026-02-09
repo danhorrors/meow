@@ -5,6 +5,7 @@ import { Team } from '../entities/Team.js';
 import { User } from '../entities/User.js';
 import { Lead } from '../entities/Lead.js';
 import { Customer } from '../entities/Customer.js';
+import { Appointment } from '../entities/Appointment.js';
 import { EntityNotFoundError } from '../errors/EntityNotFoundError.js';
 import { InvalidRequestParameterError } from '../errors/InvalidRequestParameterError.js';
 import { EntityHelper } from './EntityHelper.js';
@@ -139,4 +140,25 @@ export async function validateAndFetchCustomer(
   }
 
   return customer;
+}
+
+export async function validateAndFetchAppointment(
+  id: unknown,
+  authenticatedUser: User
+): Promise<Appointment> {
+  if (!id || typeof id !== 'string') {
+    throw new InvalidRequestParameterError();
+  }
+
+  if (!EntityHelper.isValidEntityId(id)) {
+    throw new EntityNotFoundError();
+  }
+
+  const appointment = await EntityHelper.findOneById(Appointment, id);
+
+  if (!appointment || !EntityHelper.isEntityOwnedBy(appointment, authenticatedUser)) {
+    throw new EntityNotFoundError();
+  }
+
+  return appointment;
 }

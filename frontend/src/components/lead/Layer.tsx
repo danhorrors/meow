@@ -264,7 +264,15 @@ export const Layer = () => {
         store.dispatch(deleteLead(lead));
       }
 
-      store.dispatch(showModalSuccess(Translations.LeadBookedConfirmation[DEFAULT_LANGUAGE]));
+      if (response?.calendarLinked) {
+        store.dispatch(showModalSuccess(Translations.LeadBookedConfirmation[DEFAULT_LANGUAGE]));
+      } else {
+        store.dispatch(
+          showModalSuccess(
+            'Meeting booked as standalone appointment. Lead converted without Google Calendar sync.'
+          )
+        );
+      }
       store.dispatch(hideLayer());
     } catch (error) {
       store.dispatch(showModalError(error?.toString()));

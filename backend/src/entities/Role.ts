@@ -8,6 +8,7 @@ export type PermissionModule =
   | 'opportunities'
   | 'accounts'
   | 'leads'
+  | 'appointments'
   | 'customers'
   | 'campaigns'
   | 'emails'

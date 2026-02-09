@@ -30,6 +30,9 @@ const hasPermission = async (
   }
 
   const modulePermissions = (role.permissions as any)?.[module];
+  if (!modulePermissions) {
+    return DEFAULT_ALLOWED_ACTIONS.has(action);
+  }
   return modulePermissions?.[action] === true;
 };
 

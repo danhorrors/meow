@@ -19,6 +19,11 @@ import { FILTER_BY_NONE } from '../Constants';
 import { CardEvent } from '../interfaces/CardEvent';
 import { Campaign } from '../interfaces/Campaign';
 import { EmailLog } from '../interfaces/EmailLog';
+import {
+  Appointment,
+  AppointmentCreatePayload,
+  AppointmentUpdatePayload,
+} from '../interfaces/Appointment';
 
 type HttpMethod = 'POST' | 'GET' | 'DELETE';
 
@@ -254,6 +259,39 @@ export class RequestHelper {
     const url = this.getUrl(`/api/customers`);
 
     return this.doFetch(url, 'GET');
+  }
+
+  async getAppointments(params?: {
+    userId?: string;
+    status?: string;
+    from?: string;
+    to?: string;
+  }): Promise<Appointment[]> {
+    const url = this.getUrl(`/api/appointments`);
+    if (params) {
+      const search = new URLSearchParams();
+      if (params.userId) search.set('userId', params.userId);
+      if (params.status) search.set('status', params.status);
+      if (params.from) search.set('from', params.from);
+      if (params.to) search.set('to', params.to);
+      url.search = search.toString();
+    }
+    return this.doFetch(url, 'GET');
+  }
+
+  async createAppointment(payload: AppointmentCreatePayload): Promise<Appointment> {
+    const url = this.getUrl(`/api/appointments`);
+    return this.doFetch(url, 'POST', payload);
+  }
+
+  async updateAppointment(id: string, payload: AppointmentUpdatePayload): Promise<Appointment> {
+    const url = this.getUrl(`/api/appointments/${id}`);
+    return this.doFetch(url, 'POST', payload);
+  }
+
+  async deleteAppointment(id: string): Promise<Appointment> {
+    const url = this.getUrl(`/api/appointments/${id}`);
+    return this.doFetch(url, 'DELETE');
   }
 
   async getLead(id: Lead['_id']): Promise<Lead> {

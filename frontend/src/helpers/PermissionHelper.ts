@@ -28,6 +28,9 @@ export const hasPermission = (
   }
 
   const modulePermissions = role.permissions?.[module];
+  if (!modulePermissions) {
+    return DEFAULT_ALLOWED.has(action);
+  }
 
   return modulePermissions?.[action] === true;
 };

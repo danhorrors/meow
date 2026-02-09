@@ -16,6 +16,7 @@ import { log } from '../worker.js';
 import { User } from '../entities/User.js';
 import { validateAndFetchUser } from '../helpers/EntityFetchHelper.js';
 import { PermissionHelper } from '../helpers/PermissionHelper.js';
+import { Appointment, AppointmentSource, NewAppointment } from '../entities/Appointment.js';
 
 const create = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
@@ -115,58 +116,37 @@ const remove = async (req: AuthenticatedRequest, res: Response, next: NextFuncti
   }
 };
 
-const getGoogleIntegration = (req: AuthenticatedRequest) => {
-  const integration = req.jwt.team.integrations?.find(
-    (item) => item.key === 'google_calendar'
-  );
+const createGoogleCalendarEvent = async (
+  req: AuthenticatedRequest,
+  lead: Lead,
+  startAt: DateTime,
+  endAt: DateTime,
+  timeZone: string
+): Promise<{ eventId?: string; calendarLinked: boolean }> => {
+  const integration = req.jwt.team.integrations?.find((item) => item.key === 'google_calendar');
 
   if (!integration) {
-    throw new InvalidConfigurationError('Google Calendar integration not configured.');
+    return { calendarLinked: false };
   }
 
-  return integration;
-};
+  const attrs = integration.attributes || {};
+  const clientId = attrs.clientId as string | undefined;
+  const clientSecret = attrs.clientSecret as string | undefined;
+  const redirectUri = attrs.redirectUri as string | undefined;
+  const refreshToken = attrs.refreshToken as string | undefined;
+  const calendarId = (attrs.calendarId as string | undefined) || 'primary';
 
-const bookMeeting = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  if (!clientId || !clientSecret || !redirectUri || !refreshToken) {
+    return { calendarLinked: false };
+  }
+
   try {
-    const lead = await validateAndFetchLead(req.params.id, req.jwt.user);
-
-    const integration = getGoogleIntegration(req);
-    const attrs = integration.attributes || {};
-
-    const clientId = attrs.clientId as string | undefined;
-    const clientSecret = attrs.clientSecret as string | undefined;
-    const redirectUri = attrs.redirectUri as string | undefined;
-    const refreshToken = attrs.refreshToken as string | undefined;
-    const calendarId = (attrs.calendarId as string | undefined) || 'primary';
-
-    if (!clientId || !clientSecret || !redirectUri) {
-      throw new InvalidConfigurationError('Google Calendar credentials are missing.');
-    }
-
-    if (!refreshToken) {
-      throw new InvalidConfigurationError('Google Calendar is not connected yet.');
-    }
-
     const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
     oauth2Client.setCredentials({ refresh_token: refreshToken });
-
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
-
-    const timeZone = (req.body.timeZone as string | undefined) || 'UTC';
-    const startAt = DateTime.fromISO(req.body.startAt, { zone: timeZone });
-
-    if (!startAt.isValid) {
-      throw new InvalidConfigurationError('Invalid start date/time.');
-    }
-
-    const durationMinutes = parseInt(req.body.durationMinutes);
-    const endAt = startAt.plus({ minutes: durationMinutes });
-
     const attendees = Array.isArray(req.body.attendees)
       ? req.body.attendees.map((email: string) => ({ email }))
       : undefined;
-
     const summary = req.body.summary || `Meeting: ${lead.name}`;
 
     const event = await calendar.events.insert({
@@ -185,6 +165,31 @@ const bookMeeting = async (req: AuthenticatedRequest, res: Response, next: NextF
         attendees,
       },
     });
+
+    return {
+      eventId: event.data?.id || undefined,
+      calendarLinked: true,
+    };
+  } catch (error) {
+    log.error(error);
+    return { calendarLinked: false };
+  }
+};
+
+const bookMeeting = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const lead = await validateAndFetchLead(req.params.id, req.jwt.user);
+
+    const timeZone = (req.body.timeZone as string | undefined) || 'UTC';
+    const startAt = DateTime.fromISO(req.body.startAt, { zone: timeZone });
+
+    if (!startAt.isValid) {
+      throw new InvalidConfigurationError('Invalid start date/time.');
+    }
+
+    const durationMinutes = parseInt(req.body.durationMinutes);
+    const endAt = startAt.plus({ minutes: durationMinutes });
+    const calendar = await createGoogleCalendarEvent(req, lead, startAt, endAt, timeZone);
 
     /* convert lead -> account + opportunity */
     const account = new NewAccount(req.jwt.team, lead.name, lead.userId, lead.attributes);
@@ -227,6 +232,24 @@ const bookMeeting = async (req: AuthenticatedRequest, res: Response, next: NextF
 
     const createdCard = await EntityHelper.create(card, Card);
 
+    const appointment = new NewAppointment(
+      req.jwt.team,
+      lead.userId || req.jwt.user._id!,
+      (req.body.summary as string | undefined) || `Meeting: ${lead.name}`,
+      startAt.toJSDate(),
+      endAt.toJSDate(),
+      timeZone,
+      AppointmentSource.Lead
+    );
+    appointment.description = req.body.description;
+    appointment.leadId = lead._id;
+    appointment.accountId = createdAccount._id;
+    appointment.cardId = createdCard._id;
+    appointment.googleEventId = calendar.eventId;
+    appointment.calendarLinked = calendar.calendarLinked;
+
+    const createdAppointment = await EntityHelper.create(appointment, Appointment);
+
     emitCardEvent(req.jwt.user, createdCard!.toPlain());
     emitLaneEvent(card.laneId, card.userId);
     emitBoardEvent(lane.boardId, card.userId);
@@ -234,7 +257,9 @@ const bookMeeting = async (req: AuthenticatedRequest, res: Response, next: NextF
     await EntityHelper.remove(Lead, lead);
 
     return res.json({
-      eventId: event.data?.id,
+      eventId: calendar.eventId,
+      calendarLinked: calendar.calendarLinked,
+      appointment: createdAppointment.toPlain(),
       account: createdAccount,
       card: createdCard,
       lead: lead.toPlain(),

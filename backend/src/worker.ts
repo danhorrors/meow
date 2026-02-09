@@ -100,6 +100,9 @@ import { CampaignController } from './controllers/CampaignController.js';
 import { CampaignRequestSchema } from './middlewares/schema-validation/CampaignRequestSchema.js';
 import { EmailController } from './controllers/EmailController.js';
 import { EmailSendRequestSchema } from './middlewares/schema-validation/EmailSendRequestSchema.js';
+import { AppointmentController } from './controllers/AppointmentController.js';
+import { AppointmentCreateRequestSchema } from './middlewares/schema-validation/AppointmentCreateRequestSchema.js';
+import { AppointmentUpdateRequestSchema } from './middlewares/schema-validation/AppointmentUpdateRequestSchema.js';
 import { Campaign } from './entities/Campaign.js';
 import { CampaignService } from './services/CampaignService.js';
 import { Team } from './entities/Team.js';
@@ -322,6 +325,35 @@ try {
     );
 
   app.use('/api/leads', lead);
+
+  const appointment = express.Router();
+
+  appointment.use(express.json({ limit: '5kb' }));
+  appointment.use(verifyJwt, addEntityToHeader, setHeaders, isDatabaseConnectionEstablished);
+
+  appointment.route('/').get(requirePermission('appointments', 'browse'), AppointmentController.list);
+  appointment
+    .route('/')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      validateAgainst(AppointmentCreateRequestSchema),
+      requirePermission('appointments', 'add'),
+      AppointmentController.create
+    );
+  appointment
+    .route('/:id')
+    .post(
+      rejectIfContentTypeIsNot('application/json'),
+      validateAgainst(AppointmentUpdateRequestSchema),
+      requirePermission('appointments', 'edit'),
+      AppointmentController.update
+    );
+  appointment
+    .route('/:id')
+    .delete(requirePermission('appointments', 'delete'), AppointmentController.remove);
+  appointment.route('/:id').get(requirePermission('appointments', 'read'), AppointmentController.fetch);
+
+  app.use('/api/appointments', appointment);
 
   const customer = express.Router();
 

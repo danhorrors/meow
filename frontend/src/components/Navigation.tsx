@@ -90,6 +90,13 @@ export const Navigation = () => {
           </Link>
         </div>
       )}
+      {hasPermission(user, roles, 'appointments', 'browse') && (
+        <div className="item">
+          <Link to="/appointments" title="Appointments">
+            <img alt="Appointments" src="/forecast-icon.svg" />
+          </Link>
+        </div>
+      )}
       {hasPermission(user, roles, 'campaigns', 'browse') && (
         <div className="item">
           <Link to="/campaigns" title="Campaigns">
