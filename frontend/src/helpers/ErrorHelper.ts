@@ -19,25 +19,37 @@ function isErrorResponse(payload: unknown): payload is ErrorResponse {
 
 export const getErrorMessage = async (error: unknown) => {
   if (error instanceof RequestError) {
-    let text;
+    const { response } = error;
+
+    if ([502, 503, 504].includes(response.status)) {
+      return `${Translations.NetworkRequestFailed[DEFAULT_LANGUAGE]} (HTTP ${response.status})`;
+    }
+
     try {
-      const parsed = await error.response.json();
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        return `Request failed (HTTP ${response.status})`;
+      }
+
+      const parsed = await response.json();
 
       if (!isErrorResponse(parsed)) {
-        return Translations.ErrorParsingResponse[DEFAULT_LANGUAGE];
+        return `Request failed (HTTP ${response.status})`;
       }
 
       return parsed.description ? parsed.description : `Error: ${parsed.name}`;
     } catch (parseError) {
       console.error(parseError);
 
-      if (parseError instanceof Error) {
-        text = Translations.ErrorParsingResponseWithMessage[DEFAULT_LANGUAGE].replace('{0}', parseError.message);
-      } else {
-        text = Translations.ErrorParsingResponse[DEFAULT_LANGUAGE];
+      if (parseError instanceof Error && parseError.message) {
+        return Translations.ErrorParsingResponseWithMessage[DEFAULT_LANGUAGE].replace(
+          '{0}',
+          parseError.message
+        );
       }
+
+      return `Request failed (HTTP ${response.status})`;
     }
-    return text;
   } else if (error instanceof RequestTimeoutError) {
     return Translations.RequestTimeoutErrorMessage[DEFAULT_LANGUAGE];
   } else if (error instanceof ResponseParseError) {
