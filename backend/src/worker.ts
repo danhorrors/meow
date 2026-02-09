@@ -1,3 +1,4 @@
+import 'dotenv/config';
 // @ts-ignore
 export const log = pino({
   name: SERVICE_NAME,
