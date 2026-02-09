@@ -722,11 +722,19 @@ try {
             campaign.status = 'scheduled';
           } else if (campaign.schedule?.recurring) {
             const interval = campaign.schedule.recurring.interval;
-            campaign.stepIndex = 0;
-            campaign.nextSendAt =
+            const zone = campaign.schedule.timeZone || 'UTC';
+            const recurringBase = (campaign.schedule.sendAt
+              ? DateTime.fromJSDate(campaign.schedule.sendAt)
+              : DateTime.utc()
+            ).setZone(zone);
+            const nextCycleBase =
               interval === 'weekly'
-                ? DateTime.utc().plus({ weeks: 1 }).toJSDate()
-                : DateTime.utc().plus({ days: 1 }).toJSDate();
+                ? recurringBase.plus({ weeks: 1 })
+                : recurringBase.plus({ days: 1 });
+            const firstDelay = steps[0]?.delayDays || 0;
+            campaign.stepIndex = 0;
+            campaign.nextSendAt = nextCycleBase.plus({ days: firstDelay }).toJSDate();
+            campaign.schedule.sendAt = nextCycleBase.toJSDate();
             campaign.status = 'scheduled';
           } else {
             campaign.status = 'completed';

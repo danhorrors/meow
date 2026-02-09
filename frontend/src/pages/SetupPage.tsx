@@ -8,6 +8,7 @@ import { PermissionsCanvas } from '../components/setup/permissions/PermissionsCa
 import { GoogleCalendarCanvas } from '../components/setup/integrations/GoogleCalendarCanvas';
 import { MailgunCanvas } from '../components/setup/integrations/MailgunCanvas';
 import { GoogleWorkspaceCanvas } from '../components/setup/integrations/GoogleWorkspaceCanvas';
+import { ApiIntegrationsCanvas } from '../components/setup/integrations/ApiIntegrationsCanvas';
 import { TelemarketerSettingsCanvas } from '../components/setup/telemarketer/TelemarketerSettingsCanvas';
 import { Switch } from '@adobe/react-spectrum';
 import { useEffect, useMemo, useState } from 'react';
@@ -232,6 +233,7 @@ export const SetupPage = () => {
       <GoogleCalendarCanvas />
       <GoogleWorkspaceCanvas />
       <MailgunCanvas />
+      <ApiIntegrationsCanvas />
       <TelemarketerSettingsCanvas />
       <LanesSchema isDeveloperMode={isDeveloperMode} />
       <CardSchema isDeveloperMode={isDeveloperMode} />

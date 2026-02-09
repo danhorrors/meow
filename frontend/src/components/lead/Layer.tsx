@@ -183,11 +183,19 @@ export const Layer = () => {
       attributes['lead-call-outcome'] = callOutcome;
     }
     if (callbackDate) {
-      const callbackAt = DateTime.fromISO(`${callbackDate}T${callbackTime}:00`, { zone: timeZone || 'UTC' });
+      const callbackAt = DateTime.fromISO(`${callbackDate}T${callbackTime}:00`, {
+        zone: timeZone || 'UTC',
+      });
+      if (!callbackAt.isValid) {
+        store.dispatch(showModalError('Invalid callback date or time.'));
+        return;
+      }
       const callbackAtIso = callbackAt.toISO();
       if (callbackAtIso) {
         attributes[CALLBACK_FIELD_KEY] = callbackAtIso;
       }
+    } else {
+      delete attributes[CALLBACK_FIELD_KEY];
     }
     if (teleSettings.enableCallTimer && callTimerElapsed > 0) {
       attributes['lead-last-call-duration'] = callTimerElapsed.toString();

@@ -16,6 +16,30 @@ const GOOGLE_WORKSPACE_SCOPES = [
   'https://www.googleapis.com/auth/userinfo.email',
 ];
 
+const SENSITIVE_ATTRIBUTE_KEYS = new Set([
+  'clientSecret',
+  'refreshToken',
+  'accessToken',
+  'idToken',
+  'apiKey',
+  'privateKey',
+  'password',
+  'secret',
+]);
+
+const sanitizeAttributes = (
+  attributes: Record<string, string | number | boolean | null> | undefined
+) => {
+  const result: Record<string, string | number | boolean | null> = {};
+  Object.entries(attributes || {}).forEach(([key, value]) => {
+    if (SENSITIVE_ATTRIBUTE_KEYS.has(key)) {
+      return;
+    }
+    result[key] = value;
+  });
+  return result;
+};
+
 const getGoogleCalendarAuthUrl = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -133,7 +157,10 @@ export const IntegrationController = {
         return res.json({ key, attributes: {} });
       }
 
-      return res.json({ key: integration.key, attributes: integration.attributes || {} });
+      return res.json({
+        key: integration.key,
+        attributes: sanitizeAttributes(integration.attributes),
+      });
     } catch (error) {
       return next(error);
     }

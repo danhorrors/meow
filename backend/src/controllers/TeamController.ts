@@ -30,14 +30,26 @@ const update = async (req: AuthenticatedRequest, res: Response, next: NextFuncti
 const updateIntegration = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const team = await validateAndFetchTeam(req.params.id, req.jwt.user);
+    const key = req.body?.key?.toString();
+
+    if (!key) {
+      throw new InvalidRequestBodyError('invalid integration key');
+    }
 
     const integrations = team.integrations ?? [];
+    const existing = integrations.find((integration) => integration.key === key);
 
     const updatedIntegrations = integrations.filter(
-      (integration) => integration.key !== req.body.key
+      (integration) => integration.key !== key
     );
 
-    updatedIntegrations.push(req.body);
+    updatedIntegrations.push({
+      key,
+      attributes: {
+        ...(existing?.attributes || {}),
+        ...(req.body?.attributes || {}),
+      },
+    });
 
     team.integrations = updatedIntegrations;
 

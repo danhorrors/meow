@@ -576,6 +576,11 @@
         <li>Auto-advance to next lead (with outcome rules)</li>
         <li>Outcomes dashboard (summary stats)</li>
         <li>Telemarketer settings toggles (all on/off)</li>
+        <li>No-code API Integrations page with guided templates (REST, Webhook, OAuth2)</li>
+        <li>Integration updates now merge attributes to avoid accidental secret loss</li>
+        <li>Sensitive integration fields are redacted on integration read APIs</li>
+        <li>Scheduled callback datetime now supports overdue/upcoming callback workflow</li>
+        <li>Recurring campaign schedules now keep configured timezone and schedule anchor</li>
       </ul>
     </div>
 
@@ -641,6 +646,14 @@
         <div class="tile">
           <h3>Mailgun Mass Sender</h3>
           <p>Mailgun ensures premium deliverability for campaigns while preserving Meow’s unified audit trail.</p>
+        </div>
+        <div class="tile">
+          <h3>No-Code API Integrations</h3>
+          <p>Admins can configure external APIs from one guided screen using plain language fields, templates, and safe defaults.</p>
+        </div>
+        <div class="tile">
+          <h3>Integration Safety Layer</h3>
+          <p>Sensitive credentials are redacted in read flows and existing attributes are merged on save to reduce accidental outages.</p>
         </div>
         <div class="tile">
           <h3>Campaigns</h3>
@@ -847,10 +860,14 @@
 
     <div class="section" id="integrations">
       <div class="section-head">
-        <h2>Google Workspace + Mailgun Integration</h2>
+        <h2>Universal Integration Hub</h2>
         <span>Integrations</span>
       </div>
       <div class="grid">
+        <div class="tile">
+          <h3>API Integrations Builder</h3>
+          <p>Non-technical admins can configure any API connection from Settings with templates, custom fields, and enabled/disabled control.</p>
+        </div>
         <div class="tile">
           <h3>Google Workspace (Gmail)</h3>
           <p>Each user connects Gmail for individual sending and inbox sync. Messages are logged to the CRM record, keeping the timeline complete.</p>
@@ -860,6 +877,9 @@
           <p>Bulk campaigns use Mailgun for deliverability and scale. All emails are still logged in Meow for full visibility.</p>
         </div>
       </div>
+      <div class="callout">
+        <strong>Safety by default:</strong> Integration reads hide sensitive secrets (client secret, API keys, refresh tokens), and updates merge with existing attributes to avoid wiping prior config.
+      </div>
     </div>
 
     <div class="section" id="ops-settings">
@@ -867,13 +887,15 @@
         <h2>Telemarketer Settings (On/Off Controls)</h2>
         <span>Admin</span>
       </div>
-      <p>All telemarketer enhancements are switchable in Settings, including auto-advance rules, scripts, call timer, queue filters, and outcomes dashboard.</p>
+      <p>All telemarketer enhancements are switchable in Settings, including auto-advance rules, scripts, call timer, queue filters, outcomes dashboard, and callback scheduling behavior.</p>
       <ul>
         <li><b>Enable quick actions</b> (call, text, email, copy)</li>
         <li><b>Enable scripts</b> (centralized, editable)</li>
         <li><b>Enable call timer</b> (tracks duration)</li>
         <li><b>Enable lead queues</b> (filters by outcome)</li>
         <li><b>Enable outcomes dashboard</b> (summary stats)</li>
+        <li><b>Enable callback utility widget</b> (overdue/upcoming callback list)</li>
+        <li><b>Callback date fields</b> (comma-separated mapping for custom schemas)</li>
         <li><b>Enable auto‑advance</b> (optional: only for specific outcomes)</li>
       </ul>
     </div>
@@ -911,6 +933,20 @@ Attributes:
   redirectUri: "https://yourdomain.com/public/google-calendar/callback"
   calendarId: "primary"
       </pre>
+
+      <h3>Generic API (No-Code Builder)</h3>
+      <pre>
+Integration Key: vendor-api
+Attributes:
+  templateId: "rest" | "webhook" | "oauth2"
+  label: "Vendor API"
+  enabled: true
+  baseUrl: "https://api.vendor.com"
+  authType: "bearer"
+  bearerToken: "..."
+  headersJson: "{\"X-Region\":\"eu\"}"
+      </pre>
+      <p class="muted">When reading integrations, sensitive values are redacted. Saving merges with existing attributes, so untouched secrets remain preserved.</p>
     </div>
 
     <div class="section" id="data-model">
@@ -1093,6 +1129,11 @@ HTML:
         <li>Auto-advance to next lead (with outcome rules)</li>
         <li>Outcomes dashboard (summary stats)</li>
         <li>Telemarketer settings toggles (all on/off)</li>
+        <li>No-code API Integrations page with guided templates (REST, Webhook, OAuth2)</li>
+        <li>Integration updates now merge attributes to avoid accidental secret loss</li>
+        <li>Sensitive integration fields are redacted on integration read APIs</li>
+        <li>Scheduled callback datetime now supports overdue/upcoming callback workflow</li>
+        <li>Recurring campaign schedules now keep configured timezone and schedule anchor</li>
       </ul>
     </div>
       </main>

@@ -150,7 +150,7 @@
     <div class="card">
       <h2>7) Google Workspace (Gmail)</h2>
       <div class="step"><div class="num">1</div><div>Save integration settings (admin).</div></div>
-      <pre>POST /api/teams/TEAM_ID/integration
+      <pre>POST /api/teams/TEAM_ID/integrations
 { "key":"google_workspace", "attributes": { "clientId":"...", "clientSecret":"...", "redirectUri":"https://domain/public/google-workspace/callback" } }</pre>
       <div class="step"><div class="num">2</div><div>Get auth URL (user).</div></div>
       <pre>GET /api/integrations/google-workspace/auth-url</pre>
@@ -165,7 +165,7 @@
     <div class="card">
       <h2>8) Mailgun (Campaigns)</h2>
       <div class="step"><div class="num">1</div><div>Save integration settings.</div></div>
-      <pre>POST /api/teams/TEAM_ID/integration
+      <pre>POST /api/teams/TEAM_ID/integrations
 { "key":"mailgun", "attributes": { "domain":"mg.example.com", "apiKey":"key-...", "sender":"Meow <hello@meow.com>", "region":"us" } }</pre>
       <div class="step"><div class="num">2</div><div>Create campaign.</div></div>
       <pre>POST /api/campaigns
@@ -177,15 +177,28 @@
     <div class="card">
       <h2>9) Telemarketer Settings (On/Off)</h2>
       <div class="step"><div class="num">1</div><div>Save settings.</div></div>
-      <pre>POST /api/teams/TEAM_ID/integration
-{ "key":"telemarketer_settings", "attributes": { "enableQuickActions": true, "enableScripts": true, "enableCallTimer": true, "enableLeadQueue": true, "enableOutcomesDashboard": true, "enableAutoAdvance": true, "autoAdvanceOutcomesOnly": true, "autoAdvanceOutcomes": "Call back, No answer", "scriptsJson": "{...}" } }</pre>
+      <pre>POST /api/teams/TEAM_ID/integrations
+{ "key":"telemarketer_settings", "attributes": { "enableQuickActions": true, "enableScripts": true, "enableCallTimer": true, "enableLeadQueue": true, "enableOutcomesDashboard": true, "enableCallbacksWidget": true, "callbackDateFields": "lead-callback-at, callbackAt, nextCallbackAt, callbackDateTime", "enableAutoAdvance": true, "autoAdvanceOutcomesOnly": true, "autoAdvanceOutcomes": "Call back, No answer", "scriptsJson": "{...}" } }</pre>
     </div>
 
     <div class="card">
-      <h2>10) Quick Troubleshooting</h2>
+      <h2>10) Generic API Integrations (No-Code Builder)</h2>
+      <div class="step"><div class="num">1</div><div>Create/update any API integration from Settings (recommended for non-technical admins).</div></div>
+      <div class="step"><div class="num">2</div><div>If needed via API, save integration record with template and attributes.</div></div>
+      <pre>POST /api/teams/TEAM_ID/integrations
+{ "key":"vendor-api", "attributes": { "templateId":"rest", "label":"Vendor API", "enabled": true, "baseUrl":"https://api.vendor.com", "authType":"bearer", "bearerToken":"..." } }</pre>
+      <div class="step"><div class="num">3</div><div>Read integration config safely.</div></div>
+      <pre>GET /api/integrations/vendor-api</pre>
+      <div class="step"><div class="num">4</div><div>Response redacts sensitive attributes, and save operations merge with existing attributes.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>11) Quick Troubleshooting</h2>
       <div class="step"><div class="num">1</div><div>If you get 401, your <code>Token</code> is missing or expired.</div></div>
       <div class="step"><div class="num">2</div><div>If you get 404, check the URL and spelling.</div></div>
       <div class="step"><div class="num">3</div><div>If Google/Mailgun fails, verify integration settings and redirect URLs.</div></div>
+      <div class="step"><div class="num">4</div><div>If callback widget shows no items, confirm callback datetime field key exists in <code>callbackDateFields</code>.</div></div>
+      <div class="step"><div class="num">5</div><div>If recurring campaign timing drifts, verify schedule timezone + sendAt are set on the campaign.</div></div>
     </div>
   </div>
 </body>

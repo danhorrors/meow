@@ -127,9 +127,30 @@ export const UtilityWindow = () => {
         const scriptJson = attrs.scriptsJson;
         if (scriptJson) {
           try {
-            const parsed = JSON.parse(scriptJson);
+            const parsed = JSON.parse(scriptJson) as unknown;
             if (Array.isArray(parsed)) {
-              setScripts(parsed);
+              setScripts(
+                parsed
+                  .map((item) => {
+                    if (!item || typeof item !== 'object') return null;
+                    const title = (item as any).title?.toString?.() || 'Script';
+                    const body = (item as any).body?.toString?.() || '';
+                    if (!body) return null;
+                    return { title, body };
+                  })
+                  .filter((item): item is { title: string; body: string } => Boolean(item))
+              );
+            } else if (parsed && typeof parsed === 'object') {
+              const list = Object.entries(parsed)
+                .map(([title, body]) => {
+                  const content = body?.toString?.() || '';
+                  if (!content) return null;
+                  return { title, body: content };
+                })
+                .filter((item): item is { title: string; body: string } => Boolean(item));
+              if (list.length > 0) {
+                setScripts(list);
+              }
             }
           } catch (error) {
             console.warn('telemarketer scripts parse failed', error);
